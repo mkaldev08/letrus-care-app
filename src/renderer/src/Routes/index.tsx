@@ -17,13 +17,15 @@ import { CreateCenterScreen } from '@renderer/screens/CreateCenterScreen'
 import { LoginScreen } from '@renderer/screens/LoginScreen'
 import { SignupScreen } from '@renderer/screens/SignupScreen'
 import { useAuth } from '@renderer/contexts/auth-context'
-import { getFromLocalStorage } from '@renderer/utils/localStorage'
+import { getFromStorage } from '@renderer/utils/storage'
 import { ShowClassScreen } from '@renderer/screens/ShowClassScreen'
 import { ErrorScreen } from '@renderer/screens/ErrorScreen'
+import { DashboardProvider } from '@renderer/hooks/useDashboard'
+import { SettingsScreen } from '@renderer/screens/SettingsScreen'
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { signed } = useAuth()
-  const user = getFromLocalStorage('user')
+  const user = getFromStorage('user')
   if (!signed && !user) return <Navigate to="/login" />
   return <>{children}</>
 }
@@ -43,7 +45,9 @@ const router = createBrowserRouter([
     errorElement: <ErrorScreen />,
     element: (
       <ProtectedRoute>
-        <HomeScreen />
+        <DashboardProvider>
+          <HomeScreen />
+        </DashboardProvider>
       </ProtectedRoute>
     )
   },
@@ -150,6 +154,15 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <TeacherScreen />
+      </ProtectedRoute>
+    )
+  },
+  {
+    path: '/settings',
+    errorElement: <ErrorScreen />,
+    element: (
+      <ProtectedRoute>
+        <SettingsScreen />
       </ProtectedRoute>
     )
   },

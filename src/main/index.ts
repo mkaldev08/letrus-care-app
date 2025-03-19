@@ -35,8 +35,8 @@ function createWindow(): void {
       e.preventDefault()
       await logoutService()
       mainWindow.webContents.executeJavaScript(`
-        localStorage.removeItem('center')
-        localStorage.removeItem('user')
+        sessionStorage.removeItem('center')
+        sessionStorage.removeItem('user')
       `)
       mainWindow.destroy()
     } catch (error) {

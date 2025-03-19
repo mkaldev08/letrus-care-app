@@ -123,7 +123,7 @@ const DropdownUser: React.FC = () => {
               Perfil
             </Link>
             <Link
-              to="/#"
+              to="/settings"
               className="text-zinc-100 block px-4 py-2 text-sm hover:bg-zinc-900 hover:transition-all"
               role="menuitem"
             >

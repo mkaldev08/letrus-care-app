@@ -9,6 +9,7 @@ import withReactContent from 'sweetalert2-react-content'
 import { useAuth } from '@renderer/contexts/auth-context'
 import { Link, useNavigate } from 'react-router'
 import { useCenter } from '@renderer/contexts/center-context'
+import { Rings } from 'react-loader-spinner'
 
 const schema = yup
   .object({
@@ -28,7 +29,7 @@ export const LoginForm: React.FC = () => {
   const {
     register,
     handleSubmit,
-    formState: { errors }
+    formState: { errors, isSubmitting }
   } = useForm<FormData>({
     resolver: yupResolver(schema)
   })
@@ -104,9 +105,13 @@ export const LoginForm: React.FC = () => {
       </Link>
       <button
         type="submit"
-        className="bg-orange-700 w-full h-12 p-3 text-white shadow-shape rounded-md"
+        className="flex items-center justify-center bg-orange-700 w-full h-12 p-3 text-white shadow-shape rounded-md"
       >
-        Entrar
+        {isSubmitting ? (
+          <Rings height="32" width="32" color="#fff" ariaLabel="bars-loading" visible={true} />
+        ) : (
+          'Entrar'
+        )}
       </button>
     </form>
   )

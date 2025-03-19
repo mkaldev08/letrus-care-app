@@ -86,7 +86,7 @@ export const ModalEditTeacher: React.FC<ModalEditTeacherProps> = ({
     } catch (error) {
       MySwal.fire({
         title: 'Erro interno',
-        text: 'Erro ao cadastrar professor.',
+        text: 'Erro ao editar professor.',
         icon: 'error',
         confirmButtonText: 'OK'
       })
@@ -215,7 +215,7 @@ export const ModalEditTeacher: React.FC<ModalEditTeacherProps> = ({
               visible={true}
             />
           ) : (
-            <span>Criar</span>
+            <span>Salvar</span>
           )}
         </button>
       </form>

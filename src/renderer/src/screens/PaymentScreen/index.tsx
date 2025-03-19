@@ -157,7 +157,7 @@ export const PaymentScreen: React.FC = () => {
               <Search className="text-zinc-500" />
               <input
                 {...register('studentSearch')}
-                type="text"
+                type="search"
                 placeholder="Buscar por aluno ou código..."
                 className="flex-1 p-2 rounded-md border border-gray-400 bg-zinc-300 text-gray-700 placeholder:text-gray-700"
               />

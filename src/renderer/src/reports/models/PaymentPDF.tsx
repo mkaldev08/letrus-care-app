@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Page, Text, View, Document, StyleSheet, Image } from '@react-pdf/renderer'
 import Logo from '../../assets/logo-vector.png'
-import { getFromLocalStorage } from '../../utils/localStorage'
+import { getFromStorage } from '../../utils/storage'
 import { ICenter } from '@renderer/services/center-service'
 import { formatDateWithTimeNoWeekDay, formateCurrency } from '@renderer/utils/format'
 import { IPaymentForShow, IPaymentReceipt } from '@renderer/services/payment-service'
@@ -22,7 +22,7 @@ export const PaymentPDF: React.FC<PaymentPDFProps> = ({ selectedPayment }) => {
   const [imageFromDB, setImageFromDB] = useState('')
   useEffect(() => {
     async function loadStorageData(): Promise<void> {
-      const storagedCenter: ICenter = getFromLocalStorage('center') as ICenter
+      const storagedCenter: ICenter = getFromStorage('center') as ICenter
       if (storagedCenter) {
         setCenter(storagedCenter)
         if (storagedCenter?.fileData) {

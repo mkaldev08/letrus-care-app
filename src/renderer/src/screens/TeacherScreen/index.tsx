@@ -383,7 +383,7 @@ export const TeacherScreen: React.FC = () => {
 
       <Modal isOpen={isModalEditOpen} onClose={closeEditModal}>
         <div>
-          <h2 className="text-3xl">Criar Professor</h2>
+          <h2 className="text-3xl">Editar Professor</h2>
           <div className="bg-orange-700 text-orange-700 h-2 mt-2 w-16" />
           <ModalEditTeacher onClose={closeEditModal} teacher={selectTeacher} />
         </div>

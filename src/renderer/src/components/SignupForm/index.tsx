@@ -9,6 +9,7 @@ import withReactContent from 'sweetalert2-react-content'
 
 import { useNavigate } from 'react-router'
 import { useAuth } from '@renderer/contexts/auth-context'
+import { Rings } from 'react-loader-spinner'
 
 // Função de validação personalizada para garantir que o nome de usuário não começa com caracteres especiais
 const noSpecialCharAtStart = (value: string): boolean => {
@@ -48,7 +49,7 @@ export const SignupForm: React.FC = () => {
   const {
     register,
     handleSubmit,
-    formState: { errors }
+    formState: { errors, isSubmitting }
   } = useForm<FormData>({
     resolver: yupResolver(schema)
   })
@@ -140,9 +141,13 @@ export const SignupForm: React.FC = () => {
       </span>
       <button
         type="submit"
-        className="bg-orange-700 w-full h-12 p-3 text-white shadow-shape rounded-md"
+        className="flex items-center justify-center bg-orange-700 w-full h-12 p-3 text-white shadow-shape rounded-md"
       >
-        Cadastar
+        {isSubmitting ? (
+          <Rings height="32" width="32" color="#fff" ariaLabel="bars-loading" visible={true} />
+        ) : (
+          'Cadastrar'
+        )}
       </button>
     </form>
   )

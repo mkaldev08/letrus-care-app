@@ -10,7 +10,7 @@ import {
 import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react'
 import { useAuth } from './auth-context'
 import { AxiosResponse } from 'axios'
-import { getFromLocalStorage, saveToLocalStorage } from '@renderer/utils/localStorage'
+import { getFromStorage, saveToStorage } from '@renderer/utils/storage'
 
 interface CenterContextData {
   loading: boolean
@@ -36,7 +36,7 @@ export const CenterProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   // Persistência do centro no local storage
   useEffect(() => {
     async function loadStorageData(): Promise<void> {
-      const storagedCenter: ICenter = getFromLocalStorage('center') as ICenter
+      const storagedCenter: ICenter = getFromStorage('center') as ICenter
 
       if (storagedCenter) {
         setCenter(storagedCenter)
@@ -48,7 +48,7 @@ export const CenterProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         try {
           const response = await getCenterService(user?._id as string)
           setCenter(response.data)
-          saveToLocalStorage('center', response.data)
+          saveToStorage('center', response.data)
 
           if (response.data.fileData && response.data.fileType) {
             setCenterImage({ fileData: response.data.fileData, fileType: response.data.fileType })
@@ -67,7 +67,7 @@ export const CenterProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     try {
       const response = await createCenterService(data, user?._id as string)
       setCenter(response?.data)
-      saveToLocalStorage('center', response?.data)
+      saveToStorage('center', response?.data)
       return response
     } catch (error) {
       console.log('Erro ao criar centro no contexto: ', error)
@@ -79,7 +79,7 @@ export const CenterProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     try {
       const response = await editCenterService(centerId, data)
       setCenter(response)
-      saveToLocalStorage('center', response)
+      saveToStorage('center', response)
 
       if (response.fileData && response.fileType) {
         setCenterImage({ fileData: response.fileData, fileType: response.fileType })
@@ -91,7 +91,7 @@ export const CenterProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   }
 
   async function centerExistsContext(userId: string): Promise<boolean> {
-    const cachedCenter: ICenter = getFromLocalStorage('center') as ICenter
+    const cachedCenter: ICenter = getFromStorage('center') as ICenter
     if (cachedCenter) {
       setCenter(cachedCenter)
 
@@ -103,7 +103,7 @@ export const CenterProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
     const { isExists, response } = await isCenterExists(userId)
     if (isExists) {
-      saveToLocalStorage('center', response?.data)
+      saveToStorage('center', response?.data)
       setCenter(response?.data)
 
       if (response?.data.fileData && response?.data.fileType) {
@@ -117,7 +117,7 @@ export const CenterProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     try {
       const response = await upload_logoService(centerId, fileData)
       setCenter(response)
-      saveToLocalStorage('center', response)
+      saveToStorage('center', response)
 
       if (response.fileData && response.fileType) {
         setCenterImage({ fileData: response.fileData, fileType: response.fileType })

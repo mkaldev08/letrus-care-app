@@ -11,6 +11,7 @@ import { useAuth } from '@renderer/contexts/auth-context'
 import { getGradesServiceAll, IGrade } from '@renderer/services/grade-service'
 import { getCoursesAll, ICourse } from '@renderer/services/course-service'
 import { useNavigate } from 'react-router'
+import { Rings } from 'react-loader-spinner'
 
 const schema = yup
   .object({
@@ -55,7 +56,7 @@ export const Panel: React.FC = () => {
   const {
     register,
     handleSubmit,
-    formState: { errors }
+    formState: { errors, isSubmitting }
   } = useForm<FormData>({
     resolver: yupResolver(schema)
   })
@@ -69,7 +70,7 @@ export const Panel: React.FC = () => {
   useEffect(() => {
     async function getCourses(): Promise<void> {
       const data = await getCoursesAll(center?._id as string)
-      setCourses(Object(data))
+      setCourses(data)
     }
 
     getCourses()
@@ -80,7 +81,7 @@ export const Panel: React.FC = () => {
   useEffect(() => {
     async function getGrades(): Promise<void> {
       const data = await getGradesServiceAll(center?._id as string)
-      setGrades(Object(data))
+      setGrades(data)
     }
 
     getGrades()
@@ -324,9 +325,13 @@ export const Panel: React.FC = () => {
         </div>
         <button
           type="submit"
-          className="bg-orange-700 w-1/6 h-12 p-3 mt-6 text-white shadow-shape rounded-md self-end hover:brightness-110"
+          className="flex items-center justify-center bg-orange-700 w-1/6 h-12 p-3 mt-6 text-white shadow-shape rounded-md self-end hover:brightness-110"
         >
-          Finalizar
+          {isSubmitting ? (
+            <Rings height="32" width="32" color="#fff" ariaLabel="bars-loading" visible={true} />
+          ) : (
+            'Finalizar'
+          )}
         </button>
       </>
     )

@@ -1,4 +1,5 @@
 import { IAuth, loginService, logoutService, signupService } from '@renderer/services/user'
+import { getFromStorage, removeFromStorage, saveToStorage } from '@renderer/utils/storage'
 import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react'
 
 interface AuthContextData {
@@ -20,10 +21,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   // Persistência do usuário no local storage
   useEffect(() => {
     function loadStorageData(): void {
-      const storagedUser = localStorage.getItem('user')
+      const storagedUser = getFromStorage('user')
 
       if (storagedUser) {
-        setUser(JSON.parse(storagedUser))
+        setUser(storagedUser as IAuth)
       }
       setLoading(false)
     }
@@ -36,7 +37,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const response = await loginService({ password, username })
       if (response) {
         setUser(response.data)
-        localStorage.setItem('user', JSON.stringify(response.data))
+        saveToStorage('user', response.data)
 
         return response.data
       }
@@ -59,8 +60,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   // Função para logout
   const logout = async (): Promise<void> => {
-    localStorage.removeItem('center')
-    localStorage.removeItem('user')
+    removeFromStorage('center')
+    removeFromStorage('user')
 
     await logoutService()
     setUser(null)
