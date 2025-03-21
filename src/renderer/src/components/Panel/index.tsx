@@ -135,11 +135,14 @@ export const Panel: React.FC = () => {
       //Limpa o Form
       // reset()
       await navigate('/payments/new', { state: { studentEnrollment: enrollment } })
-    } catch (error) {
+    } catch (error: unknown) {
+      const errorMessage =
+        (error as { response?: { data?: { message?: string } } })?.response?.data?.message ||
+        'Erro inesperado'
       Swal.fire({
         position: 'bottom-end',
         icon: 'error',
-        title: 'Verifique os dados',
+        title: errorMessage,
         showConfirmButton: false,
         timer: 2000,
         customClass: {

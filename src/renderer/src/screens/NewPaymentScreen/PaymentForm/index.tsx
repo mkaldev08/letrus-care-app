@@ -16,6 +16,7 @@ import { getMonths, getYearsInterval } from '@renderer/utils/date'
 import { useNavigate } from 'react-router'
 import { differenceInMonths } from 'date-fns'
 import { IStudent } from '@renderer/services/student'
+import { Rings } from 'react-loader-spinner'
 
 const schemaPayment = yup
   .object({
@@ -42,7 +43,13 @@ interface PaymentFormProps {
 }
 export const PaymentForm: React.FC<PaymentFormProps> = (props) => {
   // Hook do formulário de pagamento
-  const { register, handleSubmit, setValue, watch } = useForm<FormPaymentData>({
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { isSubmitting }
+  } = useForm<FormPaymentData>({
     resolver: yupResolver(schemaPayment)
   })
 
@@ -265,12 +272,23 @@ export const PaymentForm: React.FC<PaymentFormProps> = (props) => {
         <input type="hidden" defaultValue={user?._id} {...register('userId')} />
         {/* Botões */}
         <div className="flex gap-8 items-center">
-          <button
-            type="submit"
-            className="bg-orange-600 text-white rounded-md py-2 mt-4 hover:bg-orange-700 transition-all p-2"
-          >
-            Confirmar Pagamento
-          </button>
+          {isSubmitting ? (
+            <button
+              type="button"
+              disabled
+              className="bg-orange-600 text-white rounded-md py-2 mt-4 hover:bg-orange-700 transition-all p-2"
+            >
+              <Rings height="32" width="32" color="#fff" ariaLabel="bars-loading" visible={true} />{' '}
+              aguarde...
+            </button>
+          ) : (
+            <button
+              type="submit"
+              className="bg-orange-600 text-white rounded-md py-2 mt-4 hover:bg-orange-700 transition-all p-2"
+            >
+              Confirmar Pagamento
+            </button>
+          )}
           <button
             type="reset"
             onClick={() => {

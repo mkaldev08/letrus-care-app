@@ -13,6 +13,7 @@ export const ModalAddStudent: React.FC<{ selectedClass: IResponseClass }> = ({ s
 
   const fetchStudents = async (): Promise<void> => {
     try {
+      console.log()
       const results = await getStudentsForClassService(center?._id as string, {
         courseId: selectedClass.course?._id as string,
         grade: selectedClass.grade?._id as string
