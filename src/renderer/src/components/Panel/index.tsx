@@ -181,6 +181,7 @@ export const Panel: React.FC = () => {
       </>
     )
   }
+
   const StudentForm: React.FC = () => {
     return (
       <>
@@ -219,6 +220,9 @@ export const Panel: React.FC = () => {
           required
         />
         {errors.birthDate && <span className="text-red-500">{errors.birthDate?.message}</span>}
+        <label htmlFor="gender">
+          Género <span className="text-orange-700">*</span>
+        </label>
         <select
           {...register('gender')}
           className="w-full h-12 p-3  bg-zinc-950 rounded-md  focus:border-0  border-gray-700 outline-none text-gray-100 text-base font-normal placeholder:text-zinc-500"
@@ -266,6 +270,7 @@ export const Panel: React.FC = () => {
       </>
     )
   }
+
   const EnrollmentForm: React.FC = () => {
     return (
       <>
@@ -336,6 +341,7 @@ export const Panel: React.FC = () => {
       </>
     )
   }
+
   return (
     <div className="border rounded mt-6 border-zinc-800">
       <nav>
