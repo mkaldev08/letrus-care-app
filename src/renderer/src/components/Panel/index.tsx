@@ -136,8 +136,15 @@ export const Panel: React.FC = () => {
       // reset()
       await navigate('/payments/new', { state: { studentEnrollment: enrollment } })
     } catch (error: unknown) {
+      type errorTyped = {
+        response?: { data?: { message?: string } }
+        request?: { message?: string }
+        message?: string
+      }
       const errorMessage =
-        (error as { response?: { data?: { message?: string } } })?.response?.data?.message ||
+        (error as errorTyped)?.response?.data?.message ||
+        (error as errorTyped)?.request?.message ||
+        (error as errorTyped)?.message ||
         'Erro inesperado'
       Swal.fire({
         position: 'bottom-end',
@@ -326,19 +333,25 @@ export const Panel: React.FC = () => {
           <input type="hidden" value={user?._id} {...register('userId')} />
           <input type="hidden" value={center?._id} {...register('centerId')} />
         </div>
-        <button
-          type="submit"
-          className="flex items-center justify-center bg-orange-700 w-1/6 h-12 p-3 mt-6 text-white shadow-shape rounded-md self-end hover:brightness-110"
-        >
-          {isSubmitting ? (
+        {isSubmitting ? (
+          <button
+            type="submit"
+            className="flex items-center justify-center bg-orange-700 w-1/6 h-12 p-3 mt-6 text-white shadow-shape rounded-md self-end hover:brightness-110"
+          >
             <Rings height="32" width="32" color="#fff" ariaLabel="bars-loading" visible={true} />
-          ) : (
-            'Finalizar'
-          )}
-        </button>
+          </button>
+        ) : (
+          <button
+            type="submit"
+            className="flex items-center justify-center bg-orange-700 w-1/6 h-12 p-3 mt-6 text-white shadow-shape rounded-md self-end hover:brightness-110"
+          >
+            Finalizar
+          </button>
+        )}
       </>
     )
   }
+
   return (
     <div className="border rounded mt-6 border-zinc-800">
       <nav>

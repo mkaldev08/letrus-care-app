@@ -278,8 +278,7 @@ export const PaymentForm: React.FC<PaymentFormProps> = (props) => {
               disabled
               className="bg-orange-600 text-white rounded-md py-2 mt-4 hover:bg-orange-700 transition-all p-2"
             >
-              <Rings height="32" width="32" color="#fff" ariaLabel="bars-loading" visible={true} />{' '}
-              aguarde...
+              <Rings height="32" width="32" color="#fff" ariaLabel="bars-loading" visible={true} />
             </button>
           ) : (
             <button
