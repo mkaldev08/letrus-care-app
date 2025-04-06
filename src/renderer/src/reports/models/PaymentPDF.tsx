@@ -35,7 +35,7 @@ export const PaymentPDF: React.FC<PaymentPDFProps> = ({ selectedPayment }) => {
 
   return (
     <Document>
-      <Page size={'A5'} style={styles.page} orientation="landscape">
+      <Page size={'A4'} style={styles.page} orientation="portrait">
         <View style={styles.header}>
           <Image
             src={imageFromDB ? `data:${center?.fileType};base64,${imageFromDB}` : Logo}
@@ -167,6 +167,143 @@ export const PaymentPDF: React.FC<PaymentPDFProps> = ({ selectedPayment }) => {
           render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`}
           fixed
         />
+        <View style={styles.sheetWrapper}>
+          <View style={styles.header}>
+            <Image
+              src={imageFromDB ? `data:${center?.fileType};base64,${imageFromDB}` : Logo}
+              style={{
+                width: 30,
+                height: 30
+              }}
+            />
+            <Text style={styles.titleCenter}>{center.name}</Text>
+            <Text>Secretaria Geral</Text>
+            <Text style={styles.titleDocument}>
+              Recibo de Pagamento - Ano Lectivo {center.year_school}
+            </Text>
+          </View>
+          <View style={styles.section}>
+            <View style={[styles.horiSection, styles.textMin]}>
+              <Text>Recibo Nº: {selectedPayment?.receipt.receiptNumber}</Text>
+
+              <Text>
+                Data de Pagamento:{' '}
+                {formatDateWithTimeNoWeekDay(selectedPayment?.payment?.paymentDate as Date)}
+              </Text>
+            </View>
+            <View style={styles.boxContent}>
+              <View>
+                <Text style={styles.lineSpace}>
+                  <Text style={styles.label}>Nome: </Text>
+                  {createFormalName(
+                    selectedPayment.payment.enrollmentId?.studentId?.name?.fullName
+                  )}
+                </Text>
+                <Text style={styles.lineSpace}>
+                  <Text style={styles.label}>
+                    Código: {selectedPayment.payment.enrollmentId?.studentId?.studentCode}
+                  </Text>
+                </Text>
+                <Text style={styles.lineSpace}>
+                  <Text style={styles.label}>Telefone: </Text>{' '}
+                  {selectedPayment.payment.enrollmentId?.studentId?.phoneNumber}
+                </Text>
+                <Text style={styles.lineSpace}>
+                  <Text style={styles.label}>Curso: </Text>{' '}
+                  {selectedPayment.payment.enrollmentId?.courseId?.name}
+                </Text>
+              </View>
+              <View>
+                <Text style={styles.lineSpace}>
+                  <Text style={styles.label}>Turma: </Text> [Geral]
+                </Text>
+                <Text style={styles.lineSpace}>
+                  <Text style={styles.label}>Nível: </Text>{' '}
+                  {selectedPayment.payment.enrollmentId?.grade?.grade}
+                </Text>
+                <Text style={styles.lineSpace}>
+                  <Text style={styles.label}>Total Pago: </Text>{' '}
+                  {formateCurrency(selectedPayment.payment.amount)}
+                </Text>
+              </View>
+            </View>
+            <View style={{ marginVertical: 4, fontSize: 10 }}>
+              <Text>Detalhes de Pagamento Descritos Abaixo: </Text>
+            </View>
+
+            <TablePaymentDetails
+              rows={[
+                {
+                  year: center.year_school as string,
+                  service: 'Propina',
+                  description: selectedPayment.payment.paymentMonthReference,
+                  amount: selectedPayment.payment.amount - selectedPayment.payment.lateFee,
+                  status: selectedPayment.payment.status as string
+                },
+                {
+                  year: center.year_school as string,
+                  service: 'Multa',
+                  description: selectedPayment.payment.paymentMonthReference,
+                  amount: selectedPayment.payment.lateFee,
+                  status: selectedPayment.payment.status as string
+                }
+              ]}
+            />
+            <View style={{ marginVertical: 4 }} />
+            <TablePaymentMode
+              rows={[
+                {
+                  year: center.year_school as string,
+                  paymentDate: new Date(selectedPayment.payment.paymentDate as Date),
+                  paymentMode: selectedPayment.payment.paymentMethod as string,
+                  amount: selectedPayment.payment.amount - selectedPayment.payment.lateFee,
+                  status: selectedPayment.payment.status as string
+                },
+                {
+                  year: center.year_school as string,
+                  paymentDate: new Date(selectedPayment.payment.paymentDate as Date),
+                  paymentMode: selectedPayment.payment.paymentMethod as string,
+                  amount: selectedPayment.payment.lateFee,
+                  status: selectedPayment.payment.status as string
+                }
+              ]}
+            />
+
+            <View style={[styles.horiSection, { marginTop: 15 }]}>
+              <View style={styles.signView}>
+                <Text>O (a) Encarregado (a)</Text>
+                <Text style={styles.signBar}></Text>
+                <Text>
+                  {createFormalName(
+                    selectedPayment.payment.enrollmentId?.studentId?.parents?.mother
+                  )}
+                </Text>
+              </View>
+              <View style={styles.signView}>
+                <Text>O (a) Responsável (a)</Text>
+                <Text style={styles.signBar}></Text>
+                <Text>{selectedPayment.payment.userId?.username}</Text>
+              </View>
+            </View>
+          </View>
+          <View
+            style={{
+              alignSelf: 'flex-start',
+              color: '#5f5f5f'
+            }}
+            fixed
+          ></View>
+          <Text>Processado por Letrus Care v1.0.0</Text>
+
+          <Text
+            style={{
+              alignSelf: 'flex-end',
+              color: '#5f5f5f'
+            }}
+            render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`}
+            fixed
+          />
+        </View>
       </Page>
     </Document>
   )
@@ -180,6 +317,12 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     paddingHorizontal: 10,
     flex: 1
+  },
+  sheetWrapper: {
+    marginTop: 25,
+    paddingTop: 15,
+    borderTopWidth: 1,
+    borderTopStyle: 'dashed'
   },
   header: {
     alignItems: 'center',
