@@ -34,7 +34,11 @@ const schema = yup
     confPassword: yup
       .string()
       .oneOf([yup.ref('password')], 'Senhas devem iguais')
-      .required('Confirme sua senha')
+      .required('Confirme sua senha'),
+    phoneNumber: yup
+      .string()
+      .required('Preecha numero de telefone')
+      .min(9, 'Insira no minino 9 caracteres')
   })
   .required()
 type FormData = yup.InferType<typeof schema>
@@ -102,8 +106,20 @@ export const SignupForm: React.FC = () => {
         type="text"
         className="w-full h-12 p-3  bg-zinc-950 rounded-md focus:border-0  border-gray-700 outline-none text-gray-100 text-base font-normal placeholder:text-gray-400 transition-colors"
       />
-      <span className="text-red-500">{errors.username?.message}</span>
+      {errors.username && <span className="text-red-500">{errors.username?.message}</span>}
 
+      <label className="text-gray-200" htmlFor="username">
+        Telefone
+      </label>
+      <input
+        {...register('phoneNumber')}
+        placeholder="Seu numero de Telefone"
+        id="phoneNumber"
+        autoComplete="tel-local-prefix webauthn"
+        type="text"
+        className="w-full h-12 p-3  bg-zinc-950 rounded-md focus:border-0  border-gray-700 outline-none text-gray-100 text-base font-normal placeholder:text-gray-400 transition-colors"
+      />
+      {errors.phoneNumber && <span className="text-red-500">{errors.phoneNumber?.message}</span>}
       <label className="text-gray-200" htmlFor="password">
         Senha
       </label>
@@ -115,7 +131,7 @@ export const SignupForm: React.FC = () => {
         type="password"
         className="w-full h-12 p-3 bg-zinc-950 rounded-md focus:border-0  border-gray-700 outline-none text-gray-100 text-base font-normal placeholder:text-gray-400 transition-colors"
       />
-      <span className="text-red-500">{errors.password?.message}</span>
+      {errors.password && <span className="text-red-500">{errors.password?.message}</span>}
       <label className="text-gray-200" htmlFor="confPassword">
         Confirmar Senha
       </label>
@@ -127,7 +143,7 @@ export const SignupForm: React.FC = () => {
         type="password"
         className="w-full h-12 p-3  bg-zinc-950 rounded-md focus:border-0  border-gray-700 outline-none text-gray-100 text-base font-normal placeholder:text-gray-400 transition-colors"
       />
-      <span className="text-red-500">{errors.confPassword?.message}</span>
+      {errors.confPassword && <span className="text-red-500">{errors.confPassword?.message}</span>}
       <span className="text-zinc-400 mb-5">
         Ao se cadastrar, você aceita nossos{' '}
         <a href="#" className="text-orange-600">
