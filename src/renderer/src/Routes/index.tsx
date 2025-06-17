@@ -23,6 +23,7 @@ import { ErrorScreen } from '@renderer/screens/ErrorScreen'
 import { DashboardProvider } from '@renderer/hooks/useDashboard'
 import { SettingsScreen } from '@renderer/screens/SettingsScreen'
 import { RecoveryPasswordScreen } from '@renderer/screens/RecoveryPasswordScreen'
+import { NewPassword } from '@renderer/screens/RecoveryPasswordScreen/NewPassword'
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { signed } = useAuth()
@@ -205,6 +206,11 @@ const router = createBrowserRouter([
   {
     path: '/recovery-password',
     element: <RecoveryPasswordScreen />,
+    errorElement: <ErrorScreen />
+  },
+  {
+    path: '/new-password',
+    element: <NewPassword />,
     errorElement: <ErrorScreen />
   },
 

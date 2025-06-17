@@ -47,11 +47,23 @@ export const logoutService = async (): Promise<void> => {
   }
 }
 
-export const findUserService = async (username: string): Promise<string | undefined> => {
+export const findUserService = async (username: string): Promise<string> => {
   try {
     const { data } = await apiMananger.get(`/users/find/${username}`)
-    return data.username
+    localStorage.setItem('reqUserId', data.user._id)
+    return data.user._id
   } catch (error) {
     console.log(error)
+    throw error
+  }
+}
+
+export const verifyOTPService = async (reqOTP: string, userId: string): Promise<number> => {
+  try {
+    const { status } = await apiMananger.post(`/users/verify/${userId}`, reqOTP)
+    return status
+  } catch (error) {
+    console.log(error)
+    return -1
   }
 }
