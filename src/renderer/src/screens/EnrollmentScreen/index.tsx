@@ -148,7 +148,7 @@ export const EnrollmentScreen: React.FC = () => {
               }}
               className="bg-orange-700 text-white px-4 py-2 rounded hover:brightness-110 transition-all mt-4 self-end"
             >
-              Inscrever novo Aluno
+              Inscrever Aluno
             </button>
             {/* Tabela */}
             <div className="overflow-x-auto mt-6">

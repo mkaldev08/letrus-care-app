@@ -100,7 +100,11 @@ export const LoginForm: React.FC = () => {
         className="w-full h-12 p-3  bg-zinc-950 rounded-md  focus:border-0  border-gray-700 outline-none text-gray-100 text-base font-normal placeholder:text-gray-400 transition-colors"
       />
       <span className="text-red-500">{errors.password?.message}</span>
-      <Link to="#" target="_self" className="text-orange-600 mb-5 w-[63%] max-md:w-[53%]">
+      <Link
+        to="/recovery-password"
+        target="_self"
+        className="text-orange-600 mb-5 w-[63%] max-md:w-[53%]"
+      >
         Esqueci minha senha
       </Link>
       <button
