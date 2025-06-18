@@ -25,13 +25,13 @@ type FormData = yup.InferType<typeof schema>
 export const NewPassword: React.FC = () => {
   const {
     register,
-    handleSubmit,
+    // handleSubmit,
     formState: { errors, isSubmitting }
   } = useForm<FormData>({
     resolver: yupResolver(schema)
   })
 
-  const onSubmit = async (data: FormData): Promise<void> => {}
+  // const onSubmit = async (data: FormData): Promise<void> => {}
 
   return (
     <div className="justify-center items-center flex w-full h-dvh bg-orange-700 bg-pattern bg-no-repeat bg-center bg-cover">
@@ -47,7 +47,7 @@ export const NewPassword: React.FC = () => {
         <h2 className="font-bold text-gray-200 text-2xl mt-10 mb-12 max-md:mt-12 max-md:mb-8">
           Redefinir Senha
         </h2>
-        <form onSubmit={handleSubmit(onSubmit)} className="flex gap-3 flex-col">
+        <form className="flex gap-3 flex-col">
           <label className="text-gray-200" htmlFor="password">
             Senha
           </label>
