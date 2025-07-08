@@ -41,7 +41,7 @@
 
 ### 1. Clone o repositório:
 
-git clone https://github.com/manuelkalueka/lectrus-care.git
+git clone https://github.com/mkaldev08/lectrus-care.git
 cd lectrus-care 2. Instale as dependências:
 npm install
 
