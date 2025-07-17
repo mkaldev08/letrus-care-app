@@ -39,7 +39,28 @@ export interface IPaymentReceipt {
 
 export async function createPaymentService(data: IPayment): Promise<void> {
   try {
-    await apiMananger.post('/payments/new', data)
+    const {
+      enrollmentId,
+      amount,
+      paymentDate,
+      paymentMonthReference,
+      paymentYearReference,
+      paymentMethod,
+      centerId,
+      userId,
+      lateFee
+    } = data
+    await apiMananger.post('/payments/new', {
+      enrollmentId,
+      amount,
+      paymentDate,
+      paymentMonthReference,
+      paymentYearReference,
+      paymentMethod,
+      centerId,
+      userId,
+      lateFee
+    })
   } catch (error) {
     console.log('Erro ao fazer pagamento: ', error)
     throw error

@@ -131,3 +131,5 @@ dist
 
 # Debug
 .vscode
+
+./src/renderer/src/my-env.ts
