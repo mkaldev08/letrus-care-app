@@ -9,4 +9,13 @@
     font-weight: 400;
     src: url(@renderer/assets/fonts/Inter/Inter_18pt-Regular.ttf);
   }
+
+  .scrollbar-hidden {
+    -ms-overflow-style: none; /* IE & Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+
+  .scrollbar-hidden::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+  }
 }
