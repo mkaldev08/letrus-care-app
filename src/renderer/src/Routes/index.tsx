@@ -1,5 +1,8 @@
 import React from 'react'
 import { createBrowserRouter, Navigate, RouterProvider } from 'react-router'
+
+import { useAuth } from '@renderer/contexts/auth-context'
+
 import { HomeScreen } from '@renderer/screens/HomeScreen'
 import { ClassesScreen } from '@renderer/screens/ClassesScreen'
 import { EnrollmentScreen } from '@renderer/screens/EnrollmentScreen'
@@ -16,7 +19,6 @@ import { CenterScreen } from '@renderer/screens/CenterScreen'
 import { CreateCenterScreen } from '@renderer/screens/CreateCenterScreen'
 import { LoginScreen } from '@renderer/screens/LoginScreen'
 import { SignupScreen } from '@renderer/screens/SignupScreen'
-import { useAuth } from '@renderer/contexts/auth-context'
 import { getFromStorage } from '@renderer/utils/storage'
 import { ShowClassScreen } from '@renderer/screens/ShowClassScreen'
 import { ErrorScreen } from '@renderer/screens/ErrorScreen'
@@ -24,6 +26,7 @@ import { DashboardProvider } from '@renderer/hooks/useDashboard'
 import { SettingsScreen } from '@renderer/screens/SettingsScreen'
 import { RecoveryPasswordScreen } from '@renderer/screens/RecoveryPasswordScreen'
 import { NewPassword } from '@renderer/screens/RecoveryPasswordScreen/NewPassword'
+import { ConfirmationEnrollmentScreen } from '@renderer/screens/ConfirmationEnrollmentScreen'
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { signed } = useAuth()
@@ -63,6 +66,15 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <CreateEnrollmentScreen />
+          </ProtectedRoute>
+        )
+      },
+      {
+        path: 'confirmation',
+        errorElement: <ErrorScreen />,
+        element: (
+          <ProtectedRoute>
+            <ConfirmationEnrollmentScreen />
           </ProtectedRoute>
         )
       }

@@ -77,6 +77,8 @@ export const SearchStudent: React.FC<SearchStudentProps> = ({
     } else if (studentSearch.length <= 2) {
       setResultList(null)
     }
+
+    return
   }, [studentSearch, hasSelectedInternally])
 
   // Efeito para lidar com o initialStudent e resetSearchTrigger

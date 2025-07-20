@@ -59,6 +59,7 @@ export const NewPaymentScreen: React.FC = () => {
               resetSearchTrigger={resetSearchStudent}
             />
           )}
+          
           {selectedStudent && (
             <div className="flex flex-col bg-zinc-800 w-11/12 mx-auto p-4 rounded-lg shadow-md transition-all">
               <PaymentForm resultsInForm={selectedStudent} />
