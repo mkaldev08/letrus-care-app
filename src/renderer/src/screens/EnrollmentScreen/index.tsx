@@ -139,7 +139,7 @@ export const EnrollmentScreen: React.FC = () => {
       confirmButtonText: 'Novo Aluno',
       cancelButtonText: 'Reconfirmação',
       customClass: {
-        confirmButton: 'bg-sky-600'
+        confirmButton: 'bg-orange-600'
       }
     }).then(async (result) => {
       result.isConfirmed ? navigate('/enrollment/new') : navigate('/enrollment/confirmation')

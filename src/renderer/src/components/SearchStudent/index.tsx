@@ -173,9 +173,9 @@ export const SearchStudent: React.FC<SearchStudentProps> = ({
                 handleStudentSelection(resultItem)
               }}
             >
-              <p className="flex items-center gap-1">
+              <p className="flex items-center gap-2 justify-center">
                 <GraduationCap />
-                <span className="text-orange-600 font-bold">{resultItem?.name?.fullName}</span>
+                <span className="text-orange-600">{resultItem?.name?.fullName}</span>
               </p>
               <p className="flex items-center justify-center gap-1">
                 <ShieldCheck /> Selecionar

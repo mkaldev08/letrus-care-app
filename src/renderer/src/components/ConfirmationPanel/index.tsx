@@ -190,6 +190,7 @@ export const ConfirmationPanel: React.FC<ConfirmationPanelProps> = ({ resultInFo
         <input
           {...register('email')}
           placeholder="E-mail"
+          defaultValue={resultInForm?.email}
           autoComplete="email"
           type="email"
           className="w-full h-12 p-3  bg-zinc-950 rounded-md  focus:border-0  border-gray-700 outline-none text-gray-100 text-base font-normal placeholder:text-zinc-500"
@@ -208,6 +209,8 @@ export const ConfirmationPanel: React.FC<ConfirmationPanelProps> = ({ resultInFo
           id="fullName"
           {...register('fullName')}
           placeholder="Nome Completo do Aluno"
+          disabled
+          defaultValue={resultInForm.name.fullName}
           autoComplete="fullName webauthn"
           type="text"
           className="w-full h-12 p-3 bg-zinc-950 rounded-md focus:border-0  border-gray-700 outline-none text-gray-100 text-base font-normal placeholder:text-zinc-500"
@@ -218,7 +221,7 @@ export const ConfirmationPanel: React.FC<ConfirmationPanelProps> = ({ resultInFo
           id="surname"
           {...register('surname')}
           placeholder="Alcunha"
-          autoComplete="fullName webauthn"
+          defaultValue={resultInForm.name?.surname}
           type="text"
           className="w-full h-12 p-3  bg-zinc-950 rounded-md  focus:border-0  border-gray-700 outline-none text-gray-100 text-base font-normal placeholder:text-zinc-500"
         />
@@ -231,14 +234,19 @@ export const ConfirmationPanel: React.FC<ConfirmationPanelProps> = ({ resultInFo
           {...register('birthDate')}
           placeholder="Nasceu em"
           autoComplete="bday-day"
+          disabled
+          defaultValue={new Date(resultInForm.birthDate).toISOString().split('T')[0]}
           type="date"
           className="w-full h-12 p-3 bg-zinc-950 rounded-md focus:border-0  border-gray-700 outline-none text-gray-100 text-base font-normal placeholder:text-zinc-500"
           required
         />
         {errors.birthDate && <span className="text-red-500">{errors.birthDate?.message}</span>}
+        <label htmlFor="birthDate">Genero</label>
         <select
           {...register('gender')}
           className="w-full h-12 p-3  bg-zinc-950 rounded-md  focus:border-0  border-gray-700 outline-none text-gray-100 text-base font-normal placeholder:text-zinc-500"
+          defaultValue={resultInForm.gender}
+          disabled
         >
           <option value="masculino">Masculino</option>
           <option value="feminino">Feminino</option>
@@ -252,6 +260,8 @@ export const ConfirmationPanel: React.FC<ConfirmationPanelProps> = ({ resultInFo
           {...register('father')}
           placeholder="Nome do Pai"
           autoComplete="additional-name"
+          disabled
+          defaultValue={resultInForm.parents?.father}
           type="text"
           className="w-full h-12 p-3  bg-zinc-950 rounded-md  focus:border-0  border-gray-700 outline-none text-gray-100 text-base font-normal placeholder:text-zinc-500"
         />
@@ -264,6 +274,8 @@ export const ConfirmationPanel: React.FC<ConfirmationPanelProps> = ({ resultInFo
           id="mother"
           placeholder="Nome da Mãe"
           autoComplete="additional-name"
+          disabled
+          defaultValue={resultInForm.parents?.mother}
           type="text"
           className="w-full h-12 p-3  bg-zinc-950 rounded-md  focus:border-0  border-gray-700 outline-none text-gray-100 text-base font-normal placeholder:text-zinc-500"
         />
@@ -276,6 +288,7 @@ export const ConfirmationPanel: React.FC<ConfirmationPanelProps> = ({ resultInFo
           {...register('address')}
           placeholder="Endereço Completo onde moram com o Aluno"
           autoComplete="address-level1"
+          defaultValue={resultInForm.address}
           type="text"
           className="w-full h-12 p-3  bg-zinc-950 rounded-md  focus:border-0  border-gray-700 outline-none text-gray-100 text-base font-normal placeholder:text-zinc-500"
         />
