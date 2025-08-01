@@ -93,7 +93,7 @@ export const PaymentPDF: React.FC<PaymentPDFProps> = ({ selectedPayment }) => {
               </Text>
             </View>
           </View>
-          <View style={{ marginVertical: 4, fontSize: 10 }}>
+          <View style={{ marginVertical: 2, fontSize: 10 }}>
             <Text>Detalhes de Pagamento Descritos Abaixo: </Text>
           </View>
 
@@ -115,7 +115,7 @@ export const PaymentPDF: React.FC<PaymentPDFProps> = ({ selectedPayment }) => {
               }
             ]}
           />
-          <View style={{ marginVertical: 4 }} />
+          <View style={{ marginVertical: 2 }} />
           <TablePaymentMode
             rows={[
               {
@@ -135,7 +135,7 @@ export const PaymentPDF: React.FC<PaymentPDFProps> = ({ selectedPayment }) => {
             ]}
           />
 
-          <View style={[styles.horiSection, { marginTop: 15 }]}>
+          <View style={[styles.horiSection, { marginTop: 8 }]}>
             <View style={styles.signView}>
               <Text>O (a) Encarregado (a)</Text>
               <Text style={styles.signBar}></Text>
@@ -157,16 +157,11 @@ export const PaymentPDF: React.FC<PaymentPDFProps> = ({ selectedPayment }) => {
           }}
           fixed
         ></View>
-        <Text>Processado por Letrus Care v1.0.0</Text>
+        <Text style={{
+              color: '#5f5f5f'
+            }}>Processado por Letrus Care v1.0.0</Text>
 
-        <Text
-          style={{
-            alignSelf: 'flex-end',
-            color: '#5f5f5f'
-          }}
-          render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`}
-          fixed
-        />
+       
         <View style={styles.sheetWrapper}>
           <View style={styles.header}>
             <Image
@@ -227,7 +222,7 @@ export const PaymentPDF: React.FC<PaymentPDFProps> = ({ selectedPayment }) => {
                 </Text>
               </View>
             </View>
-            <View style={{ marginVertical: 4, fontSize: 10 }}>
+            <View style={{ marginVertical: 2, fontSize: 10 }}>
               <Text>Detalhes de Pagamento Descritos Abaixo: </Text>
             </View>
 
@@ -249,7 +244,7 @@ export const PaymentPDF: React.FC<PaymentPDFProps> = ({ selectedPayment }) => {
                 }
               ]}
             />
-            <View style={{ marginVertical: 4 }} />
+            <View style={{ marginVertical: 2 }} />
             <TablePaymentMode
               rows={[
                 {
@@ -269,7 +264,7 @@ export const PaymentPDF: React.FC<PaymentPDFProps> = ({ selectedPayment }) => {
               ]}
             />
 
-            <View style={[styles.horiSection, { marginTop: 15 }]}>
+            <View style={[styles.horiSection, { marginTop: 8 }]}>
               <View style={styles.signView}>
                 <Text>O (a) Encarregado (a)</Text>
                 <Text style={styles.signBar}></Text>
@@ -293,16 +288,9 @@ export const PaymentPDF: React.FC<PaymentPDFProps> = ({ selectedPayment }) => {
             }}
             fixed
           ></View>
-          <Text>Processado por Letrus Care v1.0.0</Text>
-
-          <Text
-            style={{
-              alignSelf: 'flex-end',
+          <Text style={{
               color: '#5f5f5f'
-            }}
-            render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`}
-            fixed
-          />
+            }}>Processado por Letrus Care v1.0.0</Text>
         </View>
       </Page>
     </Document>
@@ -319,7 +307,7 @@ const styles = StyleSheet.create({
     flex: 1
   },
   sheetWrapper: {
-    marginTop: 25,
+    marginTop: 20,
     paddingTop: 15,
     borderTopWidth: 1,
     borderTopStyle: 'dashed'
@@ -368,7 +356,7 @@ const styles = StyleSheet.create({
   signBar: {
     width: '100%',
     borderWidth: 1,
-    marginTop: 10
+    marginTop: 8
   },
   signView: {
     flexDirection: 'column',
