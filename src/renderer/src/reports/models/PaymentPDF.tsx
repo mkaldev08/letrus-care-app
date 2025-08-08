@@ -8,6 +8,7 @@ import { IPaymentForShow, IPaymentReceipt } from '@renderer/services/payment-ser
 import { TablePaymentDetails } from '../components/TablePaymentDetails'
 import { TablePaymentMode } from '../components/TablePaymentMode'
 import { createFormalName } from '@renderer/utils'
+import { getCurrentSchoolYearService } from '@renderer/services/school-year-service'
 
 interface PaymentPDFProps {
   selectedPayment: {
@@ -18,6 +19,7 @@ interface PaymentPDFProps {
 
 export const PaymentPDF: React.FC<PaymentPDFProps> = ({ selectedPayment }) => {
   const [center, setCenter] = useState<ICenter>({} as ICenter)
+  const [schoolYear, setSchoolYear] = useState('')
 
   const [imageFromDB, setImageFromDB] = useState('')
   useEffect(() => {
@@ -33,6 +35,14 @@ export const PaymentPDF: React.FC<PaymentPDFProps> = ({ selectedPayment }) => {
     loadStorageData()
   }, [])
 
+  async function fetchCurrentYear(): Promise<void> {
+    const year = await getCurrentSchoolYearService(center?._id as string)
+    setSchoolYear(year.description)
+  }
+  useEffect(() => {
+    fetchCurrentYear()
+  }, [])
+
   return (
     <Document>
       <Page size={'A4'} style={styles.page} orientation="portrait">
@@ -46,9 +56,7 @@ export const PaymentPDF: React.FC<PaymentPDFProps> = ({ selectedPayment }) => {
           />
           <Text style={styles.titleCenter}>{center.name}</Text>
           <Text>Secretaria Geral</Text>
-          <Text style={styles.titleDocument}>
-            Recibo de Pagamento - Ano Lectivo {center.year_school}
-          </Text>
+          <Text style={styles.titleDocument}>Recibo de Pagamento - Ano Lectivo {schoolYear}</Text>
         </View>
         <View style={styles.section}>
           <View style={[styles.horiSection, styles.textMin]}>
@@ -100,14 +108,14 @@ export const PaymentPDF: React.FC<PaymentPDFProps> = ({ selectedPayment }) => {
           <TablePaymentDetails
             rows={[
               {
-                year: center.year_school as string,
+                year: schoolYear,
                 service: 'Propina',
                 description: selectedPayment.payment.paymentMonthReference,
                 amount: selectedPayment.payment.amount - selectedPayment.payment.lateFee,
                 status: selectedPayment.payment.status as string
               },
               {
-                year: center.year_school as string,
+                year: schoolYear,
                 service: 'Multa',
                 description: selectedPayment.payment.paymentMonthReference,
                 amount: selectedPayment.payment.lateFee,
@@ -119,14 +127,14 @@ export const PaymentPDF: React.FC<PaymentPDFProps> = ({ selectedPayment }) => {
           <TablePaymentMode
             rows={[
               {
-                year: center.year_school as string,
+                year: schoolYear,
                 paymentDate: new Date(selectedPayment.payment.paymentDate as Date),
                 paymentMode: selectedPayment.payment.paymentMethod as string,
                 amount: selectedPayment.payment.amount - selectedPayment.payment.lateFee,
                 status: selectedPayment.payment.status as string
               },
               {
-                year: center.year_school as string,
+                year: schoolYear,
                 paymentDate: new Date(selectedPayment.payment.paymentDate as Date),
                 paymentMode: selectedPayment.payment.paymentMethod as string,
                 amount: selectedPayment.payment.lateFee,
@@ -157,11 +165,14 @@ export const PaymentPDF: React.FC<PaymentPDFProps> = ({ selectedPayment }) => {
           }}
           fixed
         ></View>
-        <Text style={{
-              color: '#5f5f5f'
-            }}>Processado por Letrus Care v1.0.0</Text>
+        <Text
+          style={{
+            color: '#5f5f5f'
+          }}
+        >
+          Processado por Letrus Care v1.0.0
+        </Text>
 
-       
         <View style={styles.sheetWrapper}>
           <View style={styles.header}>
             <Image
@@ -173,9 +184,7 @@ export const PaymentPDF: React.FC<PaymentPDFProps> = ({ selectedPayment }) => {
             />
             <Text style={styles.titleCenter}>{center.name}</Text>
             <Text>Secretaria Geral</Text>
-            <Text style={styles.titleDocument}>
-              Recibo de Pagamento - Ano Lectivo {center.year_school}
-            </Text>
+            <Text style={styles.titleDocument}>Recibo de Pagamento - Ano Lectivo {schoolYear}</Text>
           </View>
           <View style={styles.section}>
             <View style={[styles.horiSection, styles.textMin]}>
@@ -229,14 +238,14 @@ export const PaymentPDF: React.FC<PaymentPDFProps> = ({ selectedPayment }) => {
             <TablePaymentDetails
               rows={[
                 {
-                  year: center.year_school as string,
+                  year: schoolYear,
                   service: 'Propina',
                   description: selectedPayment.payment.paymentMonthReference,
                   amount: selectedPayment.payment.amount - selectedPayment.payment.lateFee,
                   status: selectedPayment.payment.status as string
                 },
                 {
-                  year: center.year_school as string,
+                  year: schoolYear,
                   service: 'Multa',
                   description: selectedPayment.payment.paymentMonthReference,
                   amount: selectedPayment.payment.lateFee,
@@ -248,14 +257,14 @@ export const PaymentPDF: React.FC<PaymentPDFProps> = ({ selectedPayment }) => {
             <TablePaymentMode
               rows={[
                 {
-                  year: center.year_school as string,
+                  year: schoolYear,
                   paymentDate: new Date(selectedPayment.payment.paymentDate as Date),
                   paymentMode: selectedPayment.payment.paymentMethod as string,
                   amount: selectedPayment.payment.amount - selectedPayment.payment.lateFee,
                   status: selectedPayment.payment.status as string
                 },
                 {
-                  year: center.year_school as string,
+                  year: schoolYear,
                   paymentDate: new Date(selectedPayment.payment.paymentDate as Date),
                   paymentMode: selectedPayment.payment.paymentMethod as string,
                   amount: selectedPayment.payment.lateFee,
@@ -288,9 +297,13 @@ export const PaymentPDF: React.FC<PaymentPDFProps> = ({ selectedPayment }) => {
             }}
             fixed
           ></View>
-          <Text style={{
+          <Text
+            style={{
               color: '#5f5f5f'
-            }}>Processado por Letrus Care v1.0.0</Text>
+            }}
+          >
+            Processado por Letrus Care v1.0.0
+          </Text>
         </View>
       </Page>
     </Document>

@@ -136,7 +136,7 @@ export const CenterScreen: React.FC = () => {
     }
   }
 
-  async function fetchCurrentYear() {
+  async function fetchCurrentYear(): Promise<void> {
     const year = await getCurrentSchoolYearService(center?._id as string)
     setSchoolYear(year.description)
   }

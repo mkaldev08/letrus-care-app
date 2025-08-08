@@ -11,7 +11,6 @@ import { Info } from 'lucide-react'
 const schema = yup
   .object({
     name: yup.string().required('Preecha o Nome do Centro'),
-    year_school: yup.string().required('Ano lectivo Obrigatório'),
     address: yup.string().required('Preecha o endereço do centro'),
     phoneNumber: yup.string().required('Preecha o Telefone'),
     email: yup.string().email('Email Inválido'),
@@ -33,10 +32,9 @@ export const CreateCenterScreen: React.FC = () => {
   })
   const onSubmit = async (data: FormData): Promise<void> => {
     try {
-      const { address, documentCode, email, name, nif, phoneNumber, year_school } = data
+      const { address, documentCode, email, name, nif, phoneNumber } = data
       const { status } = await createCenter({
         address,
-        year_school,
         documentCode,
         email,
         name,
@@ -144,24 +142,6 @@ export const CreateCenterScreen: React.FC = () => {
                   className="w-full h-12 p-3  bg-zinc-950 rounded-md  focus:border-0  border-gray-700 outline-none text-gray-100 text-base font-normal placeholder:text-zinc-500"
                 />
                 {errors.nif && <span className="text-red-500">{errors.nif?.message}</span>}
-              </article>
-              <article className="flex flex-col flex-1 justify-center gap-3">
-                <label htmlFor="year_school">
-                  Ano Lectivo Actual{' '}
-                  <span className="text-orange-700" title="atenção não poderá alterar facilmente">
-                    <Info size={18} className="inline" />
-                  </span>
-                </label>
-                <input
-                  id="year_school"
-                  {...register('year_school')}
-                  placeholder="Ano Lectivo"
-                  type="text"
-                  className="w-full h-12 p-3  bg-zinc-950 rounded-md  focus:border-0  border-gray-700 outline-none text-gray-100 text-base font-normal placeholder:text-zinc-500"
-                />
-                {errors.year_school && (
-                  <span className="text-red-500">{errors.year_school?.message}</span>
-                )}
               </article>
             </div>
             <label htmlFor="center-phone">

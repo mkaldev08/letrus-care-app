@@ -28,7 +28,7 @@ export const createCenterService = async (
       email,
       name,
       nif,
-      phoneNumber,
+      phoneNumber
     })
     return response
   } catch (error) {

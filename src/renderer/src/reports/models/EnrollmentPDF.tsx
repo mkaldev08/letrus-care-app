@@ -7,6 +7,7 @@ import { formatDateWithTimeNoWeekDay, formateCurrency } from '@renderer/utils/fo
 import { createFormalName } from '@renderer/utils'
 import { IEnrollmentForShow, IEnrollmentReceipt } from '@renderer/services/enrollment-service'
 import { TableEnrollmentDetails } from '../components/TableEnrollmentDetails'
+import { getCurrentSchoolYearService } from '@renderer/services/school-year-service'
 
 interface EnrollmentPDFProps {
   selectedEnrollment: {
@@ -19,6 +20,8 @@ export const EnrollmentPDF: React.FC<EnrollmentPDFProps> = ({ selectedEnrollment
   const [center, setCenter] = useState<ICenter>({} as ICenter)
 
   const [imageFromDB, setImageFromDB] = useState('')
+  const [schoolYear, setSchoolYear] = useState('')
+
   useEffect(() => {
     async function loadStorageData(): Promise<void> {
       const storagedCenter: ICenter = getFromStorage('center') as ICenter
@@ -38,6 +41,14 @@ export const EnrollmentPDF: React.FC<EnrollmentPDFProps> = ({ selectedEnrollment
     return today - birthDate
   }
 
+  async function fetchCurrentYear(): Promise<void> {
+    const year = await getCurrentSchoolYearService(center?._id as string)
+    setSchoolYear(year.description)
+  }
+  useEffect(() => {
+    fetchCurrentYear()
+  }, [])
+
   return (
     <Document>
       <Page size={'A4'} style={styles.page} orientation="portrait">
@@ -52,7 +63,7 @@ export const EnrollmentPDF: React.FC<EnrollmentPDFProps> = ({ selectedEnrollment
           <Text style={styles.titleCenter}>{center.name}</Text>
           <Text>Secretaria Geral</Text>
           <Text style={styles.titleDocument}>
-            Confirmação de Matrícula - Ano Lectivo {center.year_school}
+            Confirmação de Matrícula - Ano Lectivo {schoolYear}
           </Text>
         </View>
         <View style={styles.section}>
@@ -115,7 +126,7 @@ export const EnrollmentPDF: React.FC<EnrollmentPDFProps> = ({ selectedEnrollment
           <TableEnrollmentDetails
             rows={[
               {
-                year: center.year_school as string,
+                year: schoolYear,
                 service: 'Emolumento',
                 description: 'Taxa de Inscrição',
                 amount: selectedEnrollment.enrollment.courseId?.enrollmentFee as number,
@@ -169,7 +180,7 @@ export const EnrollmentPDF: React.FC<EnrollmentPDFProps> = ({ selectedEnrollment
             <Text style={styles.titleCenter}>{center.name}</Text>
             <Text>Secretaria Geral</Text>
             <Text style={styles.titleDocument}>
-              Confirmação de Matrícula - Ano Lectivo {center.year_school}
+              Confirmação de Matrícula - Ano Lectivo {schoolYear}
             </Text>
           </View>
           <View style={styles.section}>
@@ -234,7 +245,7 @@ export const EnrollmentPDF: React.FC<EnrollmentPDFProps> = ({ selectedEnrollment
             <TableEnrollmentDetails
               rows={[
                 {
-                  year: center.year_school as string,
+                  year: schoolYear,
                   service: 'Emolumento',
                   description: 'Taxa de Inscrição',
                   amount: selectedEnrollment.enrollment.courseId?.enrollmentFee as number,

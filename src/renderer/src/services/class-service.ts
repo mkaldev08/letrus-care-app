@@ -16,7 +16,6 @@ export interface IClass {
   userId: string
   schedule: string
   grade: string
-  
 }
 
 export interface IClassOnEdit {

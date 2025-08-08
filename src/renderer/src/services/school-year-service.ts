@@ -5,7 +5,7 @@ export interface ISchoolYear {
   description: string
   startDate: Date
   endDate: Date
-  isCurrent:boolean
+  isCurrent: boolean
 }
 
 export async function createSchoolYear(data: ISchoolYear, centerId: string): Promise<void> {
@@ -33,7 +33,7 @@ export async function getSchoolYearsService(page: number, centerId: string): Pro
   }
 }
 
-export async function getCurrentSchoolYearService( centerId: string): Promise<ISchoolYear> {
+export async function getCurrentSchoolYearService(centerId: string): Promise<ISchoolYear> {
   try {
     const { data } = await apiMananger.get(`school-year/current/${centerId}`)
     return data
