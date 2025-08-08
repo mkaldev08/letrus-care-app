@@ -19,7 +19,7 @@ import { getCoursesAll, ICourse } from '@renderer/services/course-service'
 import { formatDate } from '@renderer/utils/format'
 import { LoaderComponent } from '@renderer/components/Loader'
 import { Footer } from '@renderer/components/Footer'
-import { HeaderMain } from '@renderer/components/HeaderMain'
+import { Header } from '@renderer/components/Header'
 import Pagination from '@renderer/components/Pagination'
 import { ModalEditTeacher } from './ModalEditTeacher'
 import { Eye, PenBox, Trash } from 'lucide-react'
@@ -261,7 +261,7 @@ export const TeacherScreen: React.FC = () => {
   return (
     <div className="flex flex-col h-screen">
       {/* Header */}
-      <HeaderMain isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
+      <Header isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
       <div className="flex flex-1 justify-center  pt-[62px] lg:pt-[70px] overflow-hidden">
         <Sidebar isOpen={isSidebarOpen} />
         {isLoaderTeacherList ? (

@@ -14,7 +14,7 @@ import { DownloadCloud, PenSquare, Trash } from 'lucide-react'
 import { Modal } from '@renderer/components/Modal'
 import Swal from 'sweetalert2'
 import { Footer } from '@renderer/components/Footer'
-import { HeaderMain } from '@renderer/components/HeaderMain'
+import { Header } from '@renderer/components/Header'
 import { pdf } from '@react-pdf/renderer'
 
 import { EnrollmentPDF } from '@renderer/reports/models/EnrollmentPDF'
@@ -149,7 +149,7 @@ export const EnrollmentScreen: React.FC = () => {
   return (
     <div className="flex flex-col h-screen">
       {/* Header */}
-      <HeaderMain isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
+      <Header isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
       <div className="flex flex-1 justify-center  pt-[62px] lg:pt-[70px] overflow-hidden">
         <Sidebar isOpen={isSidebarOpen} />
         <div className="flex flex-col flex-1 pt-4 overflow-auto">

@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Sidebar } from '@renderer/components/Sidebar'
 import { Panel } from '@renderer/components/Panel'
-import { HeaderMain } from '@renderer/components/HeaderMain'
+import { Header } from '@renderer/components/Header'
 
 export const CreateEnrollmentScreen: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
@@ -9,7 +9,7 @@ export const CreateEnrollmentScreen: React.FC = () => {
   return (
     <div className="flex flex-col h-screen">
       {/* Header */}
-      <HeaderMain isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
+      <Header isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
       <div className="flex flex-1 justify-center  pt-[62px] lg:pt-[70px] overflow-hidden">
         <Sidebar isOpen={isSidebarOpen} />
         <div className="flex-1 overflow-auto p-4">

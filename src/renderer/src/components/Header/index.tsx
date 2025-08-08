@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { LogoLectrus } from '../LogoLectrus'
 import { Menu, Search, UserRound, School } from 'lucide-react'
-import { Link, useNavigate } from 'react-router'
+import { Link, useNavigate, useLocation } from 'react-router'
 import { useAuth } from '@renderer/contexts/auth-context'
 import { useCenter } from '@renderer/contexts/center-context'
 import Swal from 'sweetalert2'
@@ -59,6 +59,13 @@ const Dropdown: React.FC = () => {
             >
               Professores
             </Link>
+            <Link
+              to="/school-year"
+              className="text-zinc-100 block px-4 py-2 text-sm hover:bg-zinc-900 hover:transition-all"
+              role="menuitem"
+            >
+              Ano Letivo
+            </Link>
           </div>
         </div>
       )}
@@ -69,6 +76,7 @@ const Dropdown: React.FC = () => {
 const DropdownUser: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false)
   const navigate = useNavigate()
+  const location = useLocation()
 
   const { logout, user } = useAuth()
 
@@ -158,14 +166,16 @@ export const Header: React.FC<HeaderProps> = ({ isSidebarOpen, setIsSidebarOpen 
         </button>
         <LogoLectrus sizeFont="text-xl" sizeImage={28} />
       </section>
-      <section className="flex items-center justify-center w-96 bg-zinc-950 px-2 rounded">
-        <Search className="text-zinc-500" />
-        <input
-          type="search"
-          placeholder="Pesquise por serviços ou professores"
-          className="w-full bg-transparent border-0 outline-0 placeholder:text-zinc-500"
-        />
-      </section>
+      {location.pathname === '/home' && (
+        <section className="flex items-center justify-center w-96 bg-zinc-950 px-2 rounded">
+          <Search className="text-zinc-500" />
+          <input
+            type="search"
+            placeholder="Pesquise por serviços ou professores"
+            className="w-full bg-transparent border-0 outline-0 placeholder:text-zinc-500"
+          />
+        </section>
+      )}
       <section className="flex items-center justify-between gap-4">
         <Dropdown />
         <DropdownUser />

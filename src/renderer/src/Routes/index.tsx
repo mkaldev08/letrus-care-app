@@ -27,6 +27,7 @@ import { SettingsScreen } from '@renderer/screens/SettingsScreen'
 import { RecoveryPasswordScreen } from '@renderer/screens/RecoveryPasswordScreen'
 import { NewPassword } from '@renderer/screens/RecoveryPasswordScreen/NewPassword'
 import { ConfirmationEnrollmentScreen } from '@renderer/screens/ConfirmationEnrollmentScreen'
+import { SchoolYearScreen } from '@renderer/screens/SchoolYearScreen'
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { signed } = useAuth()
@@ -150,6 +151,15 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <CoursesScreen />
+      </ProtectedRoute>
+    )
+  },
+  {
+    path: '/school-year',
+    errorElement: <ErrorScreen />,
+    element: (
+      <ProtectedRoute>
+        <SchoolYearScreen />
       </ProtectedRoute>
     )
   },

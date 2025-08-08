@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react'
 import { Sidebar } from '@renderer/components/Sidebar'
 import { ConfirmationPanel } from '@renderer/components/ConfirmationPanel'
-import { HeaderMain } from '@renderer/components/HeaderMain'
+import { Header } from '@renderer/components/Header'
 import { SearchStudent } from '@renderer/components/SearchStudent'
 import { IStudent } from '@renderer/services/student'
 
@@ -19,7 +19,7 @@ export const ConfirmationEnrollmentScreen: React.FC = () => {
   return (
     <div className="flex flex-col h-screen">
       {/* Header */}
-      <HeaderMain isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
+      <Header isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
       <div className="flex flex-1 justify-center  pt-[62px] lg:pt-[70px] overflow-hidden">
         <Sidebar isOpen={isSidebarOpen} />
         <div className="flex-1 overflow-auto p-4">

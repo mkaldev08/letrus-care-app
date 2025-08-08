@@ -11,7 +11,7 @@ import {
 } from '@renderer/services/payment-service'
 import { formateCurrency, formatNormaleDate } from '@renderer/utils/format'
 import { DownloadCloud, Filter, Search } from 'lucide-react'
-import { HeaderMain } from '@renderer/components/HeaderMain'
+import { Header } from '@renderer/components/Header'
 import { useCenter } from '@renderer/contexts/center-context'
 import Pagination from '@renderer/components/Pagination'
 import { pdf } from '@react-pdf/renderer'
@@ -134,7 +134,7 @@ export const PaymentScreen: React.FC = () => {
   return (
     <div className="flex flex-col h-screen">
       {/* Header */}
-      <HeaderMain isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
+      <Header isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
       <div className="flex flex-1 justify-center  pt-[62px] lg:pt-[70px] overflow-hidden">
         <Sidebar isOpen={isSidebarOpen} />
         <div className="flex flex-col flex-1 pt-4 overflow-auto">

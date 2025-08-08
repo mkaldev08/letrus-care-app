@@ -64,7 +64,7 @@ export const PaymentForm: React.FC<PaymentFormProps> = (props) => {
   const [enrollmentByStudent, setEnrollmentByStudent] = useState<IEnrollmentForShow | null>(null)
   const onSubmitPaymentForm = async (data: FormPaymentData): Promise<void> => {
     try {
-      //Se aluno for novo,completa o processo de inscrição
+      //Se aluno for novo,completa o processo de inscrição com pagamento
       const results = await getStudentPaymentsService(enrollmentByStudent?._id as string)
       if (results.length === 0) {
         await changeStatusService(enrollmentByStudent?._id as string, 'completed')
