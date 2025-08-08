@@ -16,6 +16,7 @@ export interface IClass {
   userId: string
   schedule: string
   grade: string
+  schoolYear: string
 }
 
 export interface IClassOnEdit {
@@ -38,6 +39,7 @@ export interface IResponseClass {
   userId: string
   schedule: string
   grade: IGrade
+  schoolYear: string
 }
 
 export const getClassesService = async (centerId: string): Promise<IResponseClass[]> => {
