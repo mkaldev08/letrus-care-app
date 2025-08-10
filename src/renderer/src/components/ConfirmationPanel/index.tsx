@@ -3,20 +3,17 @@ import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
-import {
-  createEnrollment,
-  getEnrollmentByStudentService
-} from '@renderer/services/enrollment-service'
+import { createEnrollment } from '@renderer/services/enrollment-service'
 import Swal from 'sweetalert2'
 import { useCenter } from '@renderer/contexts/center-context'
 
 import { useAuth } from '@renderer/contexts/auth-context'
-import { getGradesServiceAll, IGrade } from '@renderer/services/grade-service'
-import { getCoursesAll, ICourse } from '@renderer/services/course-service'
+
 import { useNavigate } from 'react-router'
 import { Rings } from 'react-loader-spinner'
 
 import { type IStudent } from '@renderer/services/student'
+import { getClassesService, IResponseClass } from '@renderer/services/class-service'
 
 const schema = yup
   .object({
@@ -47,8 +44,8 @@ const schema = yup
     address: yup.string().required('Preecha o Endereço'),
     phoneNumber: yup.string().required('Preecha o Telefone'),
     email: yup.string().email('Email Inválido'),
-    grade: yup.string().required('Seleciona um nível'),
-    courseId: yup.string().required('Seleciona um curso disponível'),
+    hasScholarShip: yup.boolean(),
+    classId: yup.string().required('Seleciona um Turma disponível'),
     doc_file: yup.mixed().nullable(),
     image_file: yup.mixed().nullable(),
     userId: yup.string().required(),
@@ -75,44 +72,15 @@ export const ConfirmationPanel: React.FC<ConfirmationPanelProps> = ({ resultInFo
   const { user } = useAuth()
   const navigate = useNavigate()
 
-  const [courses, setCourses] = useState<ICourse[] | null>(null)
+  const [classRooms, setClassRooms] = useState<IResponseClass[] | null>(null)
 
   useEffect(() => {
-    async function getCourses(): Promise<void> {
-      const data = await getCoursesAll(center?._id as string)
-      setCourses(data)
+    async function getClassRooms(): Promise<void> {
+      const data = await getClassesService(center?._id as string)
+      setClassRooms(data)
     }
 
-    getCourses()
-  }, [])
-
-  const [grades, setGrades] = useState<IGrade[] | null>(null)
-
-  useEffect(() => {
-    async function getGrades(): Promise<void> {
-      const data = await getGradesServiceAll(center?._id as string)
-      setGrades(data)
-    }
-
-    getGrades()
-  }, [])
-
-  const [selectedCourse, setSelectedCourse] = useState<string>('')
-  const [selectedGrade, setSelectedGrade] = useState<string>('')
-
-  async function selectCourseAndGrade(): Promise<void> {
-    try {
-      const enrollment = await getEnrollmentByStudentService(resultInForm._id as string)
-      setSelectedCourse(enrollment?.courseId?._id as string)
-      setSelectedGrade(enrollment?.grade?._id as string)
-    } catch (err) {
-      throw new Error('Erro ao selecionar curso e classe...')
-    }
-  }
-
-  //FIXME: Melhorar a perfomance desta requisicao
-  useEffect(() => {
-    selectCourseAndGrade()
+    getClassRooms()
   }, [])
 
   const onSubmit = async (data: FormData): Promise<void> => {
@@ -123,12 +91,11 @@ export const ConfirmationPanel: React.FC<ConfirmationPanelProps> = ({ resultInFo
         address,
         birthDate,
         gender,
-        grade,
         fullName,
         surname,
         phoneNumber,
         email,
-        courseId,
+        classId,
         userId,
         centerId
       } = data
@@ -139,12 +106,11 @@ export const ConfirmationPanel: React.FC<ConfirmationPanelProps> = ({ resultInFo
         address,
         birthDate,
         gender,
-        grade,
         phoneNumber,
         email,
         name,
         centerId,
-        courseId,
+        classId,
         userId
       })
       Swal.fire({
@@ -160,7 +126,8 @@ export const ConfirmationPanel: React.FC<ConfirmationPanelProps> = ({ resultInFo
         },
         timerProgressBar: true // Ativa a barra de progresso
       })
-
+      //Limpa o Form
+      // reset()
       await navigate('/payments/new', { state: { studentEnrollment: enrollment } })
     } catch (error: unknown) {
       type errorTyped = {
@@ -180,11 +147,11 @@ export const ConfirmationPanel: React.FC<ConfirmationPanelProps> = ({ resultInFo
         showConfirmButton: false,
         timer: 2000,
         customClass: {
-          popup: 'h-44 p-2',
-          title: 'text-sm',
-          icon: 'text-xs'
+          popup: 'h-44 p-2', // Define a largura e o padding do card
+          title: 'text-sm', // Tamanho do texto do título
+          icon: 'text-xs' // Reduz o tamanho do ícone
         },
-        timerProgressBar: true
+        timerProgressBar: true // Ativa a barra de progresso
       })
     }
   }
@@ -317,55 +284,31 @@ export const ConfirmationPanel: React.FC<ConfirmationPanelProps> = ({ resultInFo
       </>
     )
   }
+
+  //TODO: Criar um componente unico para formulario de inscricao e confirmacao
   const EnrollmentForm: React.FC = () => {
     return (
       <>
-        <div className="flex items-center gap-12 justify-between">
-          <div className="flex flex-col gap-4 w-1/2">
-            <label htmlFor="courseId">
-              Curso <span className="text-orange-700">*</span>
+        <div className="flex flex-col gap-12 justify-between">
+          <div className="flex flex-col gap-4 ">
+            <label htmlFor="classId">
+              Turma <span className="text-orange-700">*</span>
             </label>
             <select
-              id="courseId"
-              {...register('courseId')}
+              id="classId"
+              {...register('classId')}
               className="flex-1 w-full h-12 p-3  bg-zinc-950 rounded-md  focus:border-0  border-gray-700 outline-none text-gray-100 text-base font-normal placeholder:text-zinc-500"
-              value={selectedCourse}
-              onChange={(e) => {
-                const value = e.target.value
-                setSelectedCourse(value)
-                setValue('courseId', value)
-              }}
             >
-              {courses?.map((course, index) => (
-                <option value={course?._id} key={index}>
-                  {course?.name}
+              <option selected>Selecione uma turma</option>
+              {classRooms?.map((room, index) => (
+                <option value={room?._id} key={index}>
+                  {room?.className}
                 </option>
               ))}
             </select>
-            {errors.courseId && <span className="text-red-500">{errors.courseId?.message}</span>}
-            <label htmlFor="grade">
-              Nível Inicial <span className="text-orange-700">*</span>
-            </label>
-            <select
-              id="grade"
-              {...register('grade')}
-              className="flex-1 w-full h-12 p-3  bg-zinc-950 rounded-md  focus:border-0  border-gray-700 outline-none text-gray-100 text-base font-normal placeholder:text-zinc-500"
-              value={selectedGrade}
-              onChange={(e) => {
-                const value = e.target.value
-                setSelectedGrade(value)
-                setValue('grade', value)
-              }}
-            >
-              {grades?.map((grade, index) => (
-                <option value={grade?._id} key={index}>
-                  {grade?.grade}
-                </option>
-              ))}
-            </select>
-            {errors.grade && <span className="text-red-500">{errors.grade?.message}</span>}
+            {errors.classId && <span className="text-red-500">{errors.classId?.message}</span>}
           </div>
-          <div className="flex flex-col justify-between gap-4 w-1/2">
+          <div className="flex flex-col justify-between gap-4">
             <label htmlFor="doc_file">Cópia do Documento de Identidade (tamanho máx. 1MB)</label>
             <input
               id="doc_file"
