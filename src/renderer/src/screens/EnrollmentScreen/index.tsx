@@ -22,6 +22,8 @@ import Pagination from '@renderer/components/Pagination'
 import { ContentLoader } from '@renderer/components/ContentLoader'
 import { TailSpin } from 'react-loader-spinner'
 import { ModalEditEnrollment } from './ModalEditEnrollment'
+import { getCurrentSchoolYearService } from '@renderer/services/school-year-service'
+import { ICenter } from '@renderer/services/center-service'
 
 export const EnrollmentScreen: React.FC = () => {
   const navigate = useNavigate()
@@ -105,8 +107,15 @@ export const EnrollmentScreen: React.FC = () => {
     if (selectedEnrollment) {
       const generatePDF = async (): Promise<void> => {
         setIsLoadingPDF(true)
+        const year = await getCurrentSchoolYearService(center?._id as string)
 
-        const blob = await pdf(<EnrollmentPDF selectedEnrollment={selectedEnrollment} />).toBlob()
+        const blob = await pdf(
+          <EnrollmentPDF
+            selectedEnrollment={selectedEnrollment}
+            center={center as ICenter}
+            schoolYear={year.description}
+          />
+        ).toBlob()
         const url = URL.createObjectURL(blob)
         const a = document.createElement('a')
         a.href = url
@@ -122,6 +131,7 @@ export const EnrollmentScreen: React.FC = () => {
         a.click()
         document.body.removeChild(a)
         URL.revokeObjectURL(url)
+
         setSelectedEnrollment(null)
         setIsLoadingPDF(false)
       }

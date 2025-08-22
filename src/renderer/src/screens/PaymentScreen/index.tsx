@@ -19,6 +19,8 @@ import { PaymentPDF } from '@renderer/reports/models/PaymentPDF'
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useForm } from 'react-hook-form'
+import { getCurrentSchoolYearService } from '@renderer/services/school-year-service'
+import { ICenter } from '@renderer/services/center-service'
 
 const schemaStudentSearch = yup
   .object({
@@ -73,12 +75,16 @@ export const PaymentScreen: React.FC = () => {
   useEffect(() => {
     if (selectedPayment) {
       const generatePDF = async (): Promise<void> => {
+        const year = await getCurrentSchoolYearService(center?._id as string)
+
         const blob = await pdf(
           <PaymentPDF
             selectedPayment={{
               payment: selectedPayment?.payment,
               receipt: selectedPayment?.receipt
             }}
+            center={center as ICenter}
+            schoolYear={year.description}
           />
         ).toBlob()
         const url = URL.createObjectURL(blob)

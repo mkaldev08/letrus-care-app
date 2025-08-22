@@ -8,39 +8,33 @@ import { IPaymentForShow, IPaymentReceipt } from '@renderer/services/payment-ser
 import { TablePaymentDetails } from '../components/TablePaymentDetails'
 import { TablePaymentMode } from '../components/TablePaymentMode'
 import { createFormalName } from '@renderer/utils'
-import { getCurrentSchoolYearService } from '@renderer/services/school-year-service'
 
 interface PaymentPDFProps {
   selectedPayment: {
     payment: IPaymentForShow
     receipt: IPaymentReceipt
   }
+  center: ICenter
+  schoolYear: string
 }
 
-export const PaymentPDF: React.FC<PaymentPDFProps> = ({ selectedPayment }) => {
-  const [center, setCenter] = useState<ICenter>({} as ICenter)
-  const [schoolYear, setSchoolYear] = useState('')
-
+export const PaymentPDF: React.FC<PaymentPDFProps> = ({ selectedPayment, center, schoolYear }) => {
   const [imageFromDB, setImageFromDB] = useState('')
+
   useEffect(() => {
-    async function loadStorageData(): Promise<void> {
-      const storagedCenter: ICenter = getFromStorage('center') as ICenter
-      if (storagedCenter) {
-        setCenter(storagedCenter)
+    const loadData = async () => {
+      try {
+        const storagedCenter = getFromStorage('center') as ICenter
+
         if (storagedCenter?.fileData) {
           setImageFromDB(storagedCenter.fileData)
         }
+      } catch (error) {
+        console.error('Erro ao carregar dados:', error)
       }
     }
-    loadStorageData()
-  }, [])
 
-  async function fetchCurrentYear(): Promise<void> {
-    const year = await getCurrentSchoolYearService(center?._id as string)
-    setSchoolYear(year.description)
-  }
-  useEffect(() => {
-    fetchCurrentYear()
+    loadData()
   }, [])
 
   return (
@@ -89,7 +83,8 @@ export const PaymentPDF: React.FC<PaymentPDFProps> = ({ selectedPayment }) => {
             </View>
             <View>
               <Text style={styles.lineSpace}>
-                <Text style={styles.label}>Turma: </Text> [Geral]
+                <Text style={styles.label}>Turma: </Text>{' '}
+                {selectedPayment.payment.enrollmentId?.classId?.className}
               </Text>
               <Text style={styles.lineSpace}>
                 <Text style={styles.label}>Nível: </Text>{' '}
@@ -219,7 +214,8 @@ export const PaymentPDF: React.FC<PaymentPDFProps> = ({ selectedPayment }) => {
               </View>
               <View>
                 <Text style={styles.lineSpace}>
-                  <Text style={styles.label}>Turma: </Text> [Geral]
+                  <Text style={styles.label}>Turma: </Text>{' '}
+                  {selectedPayment.payment.enrollmentId?.classId?.className}
                 </Text>
                 <Text style={styles.lineSpace}>
                   <Text style={styles.label}>Nível: </Text>{' '}

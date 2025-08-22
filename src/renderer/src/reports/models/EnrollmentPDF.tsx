@@ -7,32 +7,37 @@ import { formatDateWithTimeNoWeekDay, formateCurrency } from '@renderer/utils/fo
 import { createFormalName } from '@renderer/utils'
 import { IEnrollmentForShow, IEnrollmentReceipt } from '@renderer/services/enrollment-service'
 import { TableEnrollmentDetails } from '../components/TableEnrollmentDetails'
-import { getCurrentSchoolYearService } from '@renderer/services/school-year-service'
 
 interface EnrollmentPDFProps {
   selectedEnrollment: {
     enrollment: IEnrollmentForShow
     receipt: IEnrollmentReceipt
   }
+  center: ICenter
+  schoolYear: string
 }
 
-export const EnrollmentPDF: React.FC<EnrollmentPDFProps> = ({ selectedEnrollment }) => {
-  const [center, setCenter] = useState<ICenter>({} as ICenter)
-
+export const EnrollmentPDF: React.FC<EnrollmentPDFProps> = ({
+  selectedEnrollment,
+  center,
+  schoolYear
+}) => {
   const [imageFromDB, setImageFromDB] = useState('')
-  const [schoolYear, setSchoolYear] = useState('')
 
   useEffect(() => {
-    async function loadStorageData(): Promise<void> {
-      const storagedCenter: ICenter = getFromStorage('center') as ICenter
-      if (storagedCenter) {
-        setCenter(storagedCenter)
+    const loadData = async () => {
+      try {
+        const storagedCenter = getFromStorage('center') as ICenter
+
         if (storagedCenter?.fileData) {
           setImageFromDB(storagedCenter.fileData)
         }
+      } catch (error) {
+        console.error('Erro ao carregar dados:', error)
       }
     }
-    loadStorageData()
+
+    loadData()
   }, [])
 
   function calculateAge(): number {
@@ -40,14 +45,6 @@ export const EnrollmentPDF: React.FC<EnrollmentPDFProps> = ({ selectedEnrollment
     const birthDate = new Date(selectedEnrollment.enrollment.studentId?.birthDate).getFullYear()
     return today - birthDate
   }
-
-  async function fetchCurrentYear(): Promise<void> {
-    const year = await getCurrentSchoolYearService(center?._id as string)
-    setSchoolYear(year.description)
-  }
-  useEffect(() => {
-    fetchCurrentYear()
-  }, [])
 
   return (
     <Document>
@@ -92,7 +89,7 @@ export const EnrollmentPDF: React.FC<EnrollmentPDFProps> = ({ selectedEnrollment
               </Text>
               <Text style={styles.lineSpace}>
                 <Text style={styles.label}>Curso: </Text>{' '}
-                {selectedEnrollment.enrollment?.courseId?.name}
+                {selectedEnrollment.enrollment?.classId?.courseId?.name}
               </Text>
               <Text style={styles.lineSpace}>
                 <Text style={styles.label}>Idade: </Text>{' '}
@@ -101,21 +98,24 @@ export const EnrollmentPDF: React.FC<EnrollmentPDFProps> = ({ selectedEnrollment
             </View>
             <View>
               <Text style={styles.lineSpace}>
-                <Text style={styles.label}>Turma: </Text> [Geral]
+                <Text style={styles.label}>Turma: </Text>{' '}
+                {selectedEnrollment.enrollment.classId?.className}
               </Text>
               <Text style={styles.lineSpace}>
                 <Text style={styles.label}>Nível: </Text>{' '}
-                {selectedEnrollment.enrollment?.grade?.grade}
+                {selectedEnrollment.enrollment?.classId?.grade?.grade}
               </Text>
               <Text style={styles.lineSpace}>
-                <Text style={styles.label}>Periodo: </Text> [Manhã]
+                <Text style={styles.label}>Periodo: </Text>{' '}
+                {selectedEnrollment.enrollment.classId?.period}
               </Text>
               <Text style={styles.lineSpace}>
-                <Text style={styles.label}>Turno: </Text> [7h-9h20]
+                <Text style={styles.label}>Turno: </Text>{' '}
+                {selectedEnrollment.enrollment.classId?.schedule}
               </Text>
               <Text style={styles.lineSpace}>
                 <Text style={styles.label}>Total Pago: </Text>{' '}
-                {formateCurrency(selectedEnrollment.enrollment.courseId?.enrollmentFee)}
+                {formateCurrency(selectedEnrollment.enrollment.classId?.course?.enrollmentFee)}
               </Text>
             </View>
           </View>
@@ -129,7 +129,7 @@ export const EnrollmentPDF: React.FC<EnrollmentPDFProps> = ({ selectedEnrollment
                 year: schoolYear,
                 service: 'Emolumento',
                 description: 'Taxa de Inscrição',
-                amount: selectedEnrollment.enrollment.courseId?.enrollmentFee as number,
+                amount: selectedEnrollment.enrollment.classId?.course?.enrollmentFee as number,
                 status: 'Pago'
               }
             ]}
@@ -211,7 +211,7 @@ export const EnrollmentPDF: React.FC<EnrollmentPDFProps> = ({ selectedEnrollment
                 </Text>
                 <Text style={styles.lineSpace}>
                   <Text style={styles.label}>Curso: </Text>{' '}
-                  {selectedEnrollment.enrollment?.courseId?.name}
+                  {selectedEnrollment.enrollment?.classId?.course?.name}
                 </Text>
                 <Text style={styles.lineSpace}>
                   <Text style={styles.label}>Idade: </Text>{' '}
@@ -220,21 +220,24 @@ export const EnrollmentPDF: React.FC<EnrollmentPDFProps> = ({ selectedEnrollment
               </View>
               <View>
                 <Text style={styles.lineSpace}>
-                  <Text style={styles.label}>Turma: </Text> [Geral]
+                  <Text style={styles.label}>Turma: </Text>{' '}
+                  {selectedEnrollment.enrollment.classId?.className}
                 </Text>
                 <Text style={styles.lineSpace}>
                   <Text style={styles.label}>Nível: </Text>{' '}
-                  {selectedEnrollment.enrollment?.grade?.grade}
+                  {selectedEnrollment.enrollment?.classId?.grade?.grade}
                 </Text>
                 <Text style={styles.lineSpace}>
-                  <Text style={styles.label}>Periodo: </Text> [Manhã]
+                  <Text style={styles.label}>Periodo: </Text>{' '}
+                  {selectedEnrollment.enrollment.classId?.period}
                 </Text>
                 <Text style={styles.lineSpace}>
-                  <Text style={styles.label}>Turno: </Text> [7h-9h20]
+                  <Text style={styles.label}>Turno: </Text>{' '}
+                  {selectedEnrollment.enrollment.classId?.schedule}
                 </Text>
                 <Text style={styles.lineSpace}>
                   <Text style={styles.label}>Total Pago: </Text>{' '}
-                  {formateCurrency(selectedEnrollment.enrollment.courseId?.enrollmentFee)}
+                  {formateCurrency(selectedEnrollment.enrollment.classId?.course?.enrollmentFee)}
                 </Text>
               </View>
             </View>
@@ -248,7 +251,7 @@ export const EnrollmentPDF: React.FC<EnrollmentPDFProps> = ({ selectedEnrollment
                   year: schoolYear,
                   service: 'Emolumento',
                   description: 'Taxa de Inscrição',
-                  amount: selectedEnrollment.enrollment.courseId?.enrollmentFee as number,
+                  amount: selectedEnrollment.enrollment.classId?.course?.enrollmentFee as number,
                   status: 'Pago'
                 }
               ]}
