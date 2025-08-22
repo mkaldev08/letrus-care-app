@@ -149,8 +149,8 @@ export const ModalEditEnrollment: React.FC<ModalEditEnrollmentProps> = (
   const [selectedGrade, setSelectedGrade] = useState<string>('')
 
   useEffect(() => {
-    setSelectedCourse(props.data?.courseId?._id as string)
-    setSelectedGrade(props.data?.grade?._id as string)
+    setSelectedCourse(props.data?.classId?.course?._id as string)
+    setSelectedGrade(props.data?.classId?.grade?._id as string)
   }, [])
 
   return (

@@ -1,9 +1,8 @@
 import { AxiosResponse } from 'axios'
 import apiMananger from './api'
-import { ICourse } from './course-service'
-import { IGrade } from './grade-service'
 import { IStudent } from './student'
 import { IAuth } from './user'
+import { IClass } from './class-service'
 
 export interface IEnrollmentForApply {
   studentId?: string
@@ -44,8 +43,7 @@ export interface IEnrollmentForEdit {
 
 export interface IEnrollmentForShow {
   _id?: string
-  courseId: ICourse
-  grade: IGrade
+  classId: IClass
   doc_file?: File
   image_file?: File
   studentId: IStudent

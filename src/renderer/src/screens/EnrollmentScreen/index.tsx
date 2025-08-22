@@ -174,6 +174,9 @@ export const EnrollmentScreen: React.FC = () => {
                       Nome Completo
                     </th>
                     <th className="bg-orange-800 text-white p-2 md:border md:border-zinc-700 text-center block md:table-cell">
+                      Turma
+                    </th>
+                    <th className="bg-orange-800 text-white p-2 md:border md:border-zinc-700 text-center block md:table-cell">
                       Curso
                     </th>
                     <th className="bg-orange-800 text-white p-2 md:border md:border-zinc-700 text-center block md:table-cell">
@@ -205,10 +208,13 @@ export const EnrollmentScreen: React.FC = () => {
                           {row?.studentId?.name.fullName}
                         </td>
                         <td className="p-2 md:border md:border-zinc-700 text-center block md:table-cell">
-                          {row?.courseId?.name}
+                          {row?.classId?.className}
                         </td>
                         <td className="p-2 md:border md:border-zinc-700 text-center block md:table-cell">
-                          {row?.grade?.grade}
+                          {row?.classId?.course?.name}
+                        </td>
+                        <td className="p-2 md:border md:border-zinc-700 text-center block md:table-cell">
+                          {row?.classId?.grade?.grade}
                         </td>
                         <td className="p-2 md:border md:border-zinc-700 text-center block md:table-cell">
                           {formatDate(row?.enrollmentDate)}

@@ -84,7 +84,7 @@ export const PaymentPDF: React.FC<PaymentPDFProps> = ({ selectedPayment }) => {
               </Text>
               <Text style={styles.lineSpace}>
                 <Text style={styles.label}>Curso: </Text>{' '}
-                {selectedPayment.payment.enrollmentId?.courseId?.name}
+                {selectedPayment.payment.enrollmentId?.classId?.course?.name}
               </Text>
             </View>
             <View>
@@ -93,7 +93,7 @@ export const PaymentPDF: React.FC<PaymentPDFProps> = ({ selectedPayment }) => {
               </Text>
               <Text style={styles.lineSpace}>
                 <Text style={styles.label}>Nível: </Text>{' '}
-                {selectedPayment.payment.enrollmentId?.grade?.grade}
+                {selectedPayment.payment.enrollmentId?.classId?.grade?.grade}
               </Text>
               <Text style={styles.lineSpace}>
                 <Text style={styles.label}>Total Pago: </Text>{' '}
@@ -214,7 +214,7 @@ export const PaymentPDF: React.FC<PaymentPDFProps> = ({ selectedPayment }) => {
                 </Text>
                 <Text style={styles.lineSpace}>
                   <Text style={styles.label}>Curso: </Text>{' '}
-                  {selectedPayment.payment.enrollmentId?.courseId?.name}
+                  {selectedPayment.payment.enrollmentId?.classId?.course?.name}
                 </Text>
               </View>
               <View>
@@ -223,7 +223,7 @@ export const PaymentPDF: React.FC<PaymentPDFProps> = ({ selectedPayment }) => {
                 </Text>
                 <Text style={styles.lineSpace}>
                   <Text style={styles.label}>Nível: </Text>{' '}
-                  {selectedPayment.payment.enrollmentId?.grade?.grade}
+                  {selectedPayment.payment.enrollmentId?.classId?.grade?.grade}
                 </Text>
                 <Text style={styles.lineSpace}>
                   <Text style={styles.label}>Total Pago: </Text>{' '}
