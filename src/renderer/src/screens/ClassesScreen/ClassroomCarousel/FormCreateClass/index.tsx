@@ -9,6 +9,7 @@ import { getGradesServiceAll, IGrade } from '@renderer/services/grade-service'
 import { getCoursesAll, ICourse } from '@renderer/services/course-service'
 import { createClassService } from '@renderer/services/class-service'
 import Swal from 'sweetalert2'
+import { getCurrentSchoolYearService } from '@renderer/services/school-year-service'
 
 const classSchema = yup
   .object({
@@ -21,7 +22,8 @@ const classSchema = yup
     teachers: yup.array().of(yup.string().required()).required(),
     center: yup.string().required(),
     userId: yup.string().required(),
-    schedule: yup.string().required()
+    schedule: yup.string().required(),
+    schoolYear: yup.string().required()
   })
   .required()
 
@@ -58,11 +60,18 @@ export const FormCreateClass: React.FC<{ onClose: () => void }> = (props) => {
     fetchTeachers()
     fetchGrades()
     fetchCourses()
+    fetchCurrentYear()
   }, [center?._id])
+
+  async function fetchCurrentYear(): Promise<void> {
+    const year = await getCurrentSchoolYearService(center?._id as string)
+    setValue('schoolYear', year?._id as string)
+  }
 
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors }
   } = useForm<FormData>({
     resolver: yupResolver(classSchema),
@@ -227,6 +236,7 @@ export const FormCreateClass: React.FC<{ onClose: () => void }> = (props) => {
         <div>
           <input type="hidden" {...register('center')} value={center?._id as string} />
           <input type="hidden" {...register('userId')} value={user?._id} />
+          <input type="hidden" {...register('schoolYear')} value={user?._id} />
         </div>
 
         <div className="flex justify-end">

@@ -18,7 +18,7 @@ import { formatDate, formateCurrency } from '@renderer/utils/format'
 import { LoaderComponent } from '@renderer/components/Loader'
 import { Rings } from 'react-loader-spinner'
 import { Footer } from '@renderer/components/Footer'
-import { HeaderMain } from '@renderer/components/HeaderMain'
+import { Header } from '@renderer/components/Header'
 import Pagination from '@renderer/components/Pagination'
 import { Eye, PenBox, Trash } from 'lucide-react'
 import { ModalEditCourse } from './ModalEditCourse'
@@ -276,7 +276,7 @@ export const CoursesScreen: React.FC = () => {
   return (
     <div className="flex flex-col h-screen">
       {/* Header */}
-      <HeaderMain isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
+      <Header isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
       <div className="flex flex-1 justify-center  pt-[62px] lg:pt-[70px] overflow-hidden">
         <Sidebar isOpen={isSidebarOpen} />
         {isLoaderCourseList ? (

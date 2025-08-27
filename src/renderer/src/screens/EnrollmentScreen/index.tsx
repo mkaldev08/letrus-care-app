@@ -14,7 +14,7 @@ import { DownloadCloud, PenSquare, Trash } from 'lucide-react'
 import { Modal } from '@renderer/components/Modal'
 import Swal from 'sweetalert2'
 import { Footer } from '@renderer/components/Footer'
-import { HeaderMain } from '@renderer/components/HeaderMain'
+import { Header } from '@renderer/components/Header'
 import { pdf } from '@react-pdf/renderer'
 
 import { EnrollmentPDF } from '@renderer/reports/models/EnrollmentPDF'
@@ -22,6 +22,8 @@ import Pagination from '@renderer/components/Pagination'
 import { ContentLoader } from '@renderer/components/ContentLoader'
 import { TailSpin } from 'react-loader-spinner'
 import { ModalEditEnrollment } from './ModalEditEnrollment'
+import { getCurrentSchoolYearService } from '@renderer/services/school-year-service'
+import { ICenter } from '@renderer/services/center-service'
 
 export const EnrollmentScreen: React.FC = () => {
   const navigate = useNavigate()
@@ -105,8 +107,15 @@ export const EnrollmentScreen: React.FC = () => {
     if (selectedEnrollment) {
       const generatePDF = async (): Promise<void> => {
         setIsLoadingPDF(true)
+        const year = await getCurrentSchoolYearService(center?._id as string)
 
-        const blob = await pdf(<EnrollmentPDF selectedEnrollment={selectedEnrollment} />).toBlob()
+        const blob = await pdf(
+          <EnrollmentPDF
+            selectedEnrollment={selectedEnrollment}
+            center={center as ICenter}
+            schoolYear={year.description}
+          />
+        ).toBlob()
         const url = URL.createObjectURL(blob)
         const a = document.createElement('a')
         a.href = url
@@ -122,6 +131,7 @@ export const EnrollmentScreen: React.FC = () => {
         a.click()
         document.body.removeChild(a)
         URL.revokeObjectURL(url)
+
         setSelectedEnrollment(null)
         setIsLoadingPDF(false)
       }
@@ -149,7 +159,7 @@ export const EnrollmentScreen: React.FC = () => {
   return (
     <div className="flex flex-col h-screen">
       {/* Header */}
-      <HeaderMain isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
+      <Header isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
       <div className="flex flex-1 justify-center  pt-[62px] lg:pt-[70px] overflow-hidden">
         <Sidebar isOpen={isSidebarOpen} />
         <div className="flex flex-col flex-1 pt-4 overflow-auto">
@@ -172,6 +182,9 @@ export const EnrollmentScreen: React.FC = () => {
                     </th>
                     <th className="bg-orange-800 text-white p-2 md:border md:border-zinc-700 text-center block md:table-cell">
                       Nome Completo
+                    </th>
+                    <th className="bg-orange-800 text-white p-2 md:border md:border-zinc-700 text-center block md:table-cell">
+                      Turma
                     </th>
                     <th className="bg-orange-800 text-white p-2 md:border md:border-zinc-700 text-center block md:table-cell">
                       Curso
@@ -205,10 +218,13 @@ export const EnrollmentScreen: React.FC = () => {
                           {row?.studentId?.name.fullName}
                         </td>
                         <td className="p-2 md:border md:border-zinc-700 text-center block md:table-cell">
-                          {row?.courseId?.name}
+                          {row?.classId?.className}
                         </td>
                         <td className="p-2 md:border md:border-zinc-700 text-center block md:table-cell">
-                          {row?.grade?.grade}
+                          {row?.classId?.course?.name}
+                        </td>
+                        <td className="p-2 md:border md:border-zinc-700 text-center block md:table-cell">
+                          {row?.classId?.grade?.grade}
                         </td>
                         <td className="p-2 md:border md:border-zinc-700 text-center block md:table-cell">
                           {formatDate(row?.enrollmentDate)}

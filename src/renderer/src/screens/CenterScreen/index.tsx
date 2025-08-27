@@ -1,6 +1,6 @@
 import { yupResolver } from '@hookform/resolvers/yup'
 import { Footer } from '@renderer/components/Footer'
-import { HeaderMain } from '@renderer/components/HeaderMain'
+import { Header } from '@renderer/components/Header'
 import { Sidebar } from '@renderer/components/Sidebar'
 import { useCenter } from '@renderer/contexts/center-context'
 import { CircleHelp } from 'lucide-react'
@@ -10,6 +10,7 @@ import Swal from 'sweetalert2'
 import Logo from '../../assets/logo-vector.png'
 
 import * as yup from 'yup'
+import { getCurrentSchoolYearService } from '@renderer/services/school-year-service'
 
 const schema = yup
   .object({
@@ -78,6 +79,8 @@ export const CenterScreen: React.FC = () => {
   const [imageFromUser, setImageFromUser] = useState('')
   const [imageFromDB, setImageFromDB] = useState('')
 
+  const [schoolYear, setSchoolYear] = useState('')
+
   useEffect(() => {
     if (centerImage?.fileData) {
       setImageFromDB(centerImage.fileData)
@@ -133,10 +136,18 @@ export const CenterScreen: React.FC = () => {
     }
   }
 
+  async function fetchCurrentYear(): Promise<void> {
+    const year = await getCurrentSchoolYearService(center?._id as string)
+    setSchoolYear(year.description)
+  }
+  useEffect(() => {
+    fetchCurrentYear()
+  }, [])
+
   return (
     <div className="flex flex-col h-screen">
       {/* Header */}
-      <HeaderMain isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
+      <Header isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
       <div className="flex flex-1 justify-center  pt-[62px] lg:pt-[70px] overflow-hidden">
         <Sidebar isOpen={isSidebarOpen} />
         <div className="flex flex-col flex-1 pt-4 overflow-auto">
@@ -218,7 +229,7 @@ export const CenterScreen: React.FC = () => {
                   <input
                     disabled
                     id="year-school"
-                    defaultValue={center?.year_school}
+                    defaultValue={schoolYear}
                     placeholder="Ano Lectivo"
                     type="text"
                     className="w-full h-12 p-3 bg-zinc-950 rounded-md focus:border-0  border-gray-700 outline-none text-gray-100 text-base font-normal placeholder:text-zinc-500"

@@ -10,7 +10,6 @@ export interface ICenter {
   email?: string
   documentCode?: string
   createdBy?: string
-  year_school?: string
   fileData?: string
   fileType?: string
 }
@@ -20,7 +19,7 @@ export const createCenterService = async (
   createdBy: string
 ): Promise<AxiosResponse> => {
   try {
-    const { address, documentCode, email, name, nif, phoneNumber, year_school } = data
+    const { address, documentCode, email, name, nif, phoneNumber } = data
 
     const response = await apiMananger.post('/centers/new', {
       address,
@@ -29,8 +28,7 @@ export const createCenterService = async (
       email,
       name,
       nif,
-      phoneNumber,
-      year_school
+      phoneNumber
     })
     return response
   } catch (error) {

@@ -64,7 +64,7 @@ export const PaymentForm: React.FC<PaymentFormProps> = (props) => {
   const [enrollmentByStudent, setEnrollmentByStudent] = useState<IEnrollmentForShow | null>(null)
   const onSubmitPaymentForm = async (data: FormPaymentData): Promise<void> => {
     try {
-      //Se aluno for novo,completa o processo de inscrição
+      //Se aluno for novo,completa o processo de inscrição com pagamento
       const results = await getStudentPaymentsService(enrollmentByStudent?._id as string)
       if (results.length === 0) {
         await changeStatusService(enrollmentByStudent?._id as string, 'completed')
@@ -128,11 +128,11 @@ export const PaymentForm: React.FC<PaymentFormProps> = (props) => {
         const currentReferenceDate = new Date(Number(paymentYear), monthsList.indexOf(paymentMonth))
         const monthsDiference = differenceInMonths(dueDate, currentReferenceDate)
 
-        const lateFeeRate = enrollmentByStudent?.courseId?.feeFine || 0
+        const lateFeeRate = enrollmentByStudent?.classId?.course?.feeFine || 0
         const calculatedLateFee = monthsDiference > 1 ? monthsDiference * lateFeeRate : 0
 
         setLateFee(calculatedLateFee)
-        const totalAmount = Number(enrollmentByStudent?.courseId?.fee) + calculatedLateFee
+        const totalAmount = Number(enrollmentByStudent?.classId?.course?.fee) + calculatedLateFee
 
         setAmount(totalAmount)
 
@@ -213,7 +213,7 @@ export const PaymentForm: React.FC<PaymentFormProps> = (props) => {
           {/* Valor a Pagar */}
           <label className="text-zinc-300">Propina</label>
           <input
-            value={formateCurrency(enrollmentByStudent?.courseId?.fee)}
+            value={formateCurrency(enrollmentByStudent?.classId?.course?.fee)}
             disabled
             className="w-full h-12 p-3 bg-zinc-950 rounded-md border-gray-700 text-gray-100"
             placeholder="Exemplo: 150.00"

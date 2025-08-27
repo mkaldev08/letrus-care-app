@@ -1,5 +1,5 @@
 import { Footer } from '@renderer/components/Footer'
-import { HeaderMain } from '@renderer/components/HeaderMain'
+import { Header } from '@renderer/components/Header'
 import { Sidebar } from '@renderer/components/Sidebar'
 import { Construction } from 'lucide-react'
 import React, { useState } from 'react'
@@ -10,7 +10,7 @@ export const HelpScreen: React.FC = () => {
   return (
     <div className="flex flex-col h-screen">
       {/* Header */}
-      <HeaderMain isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
+      <Header isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
       <div className="flex flex-1 justify-center  pt-[62px] lg:pt-[70px] overflow-hidden">
         <Sidebar isOpen={isSidebarOpen} />
         <div className="flex flex-col flex-1 overflow-auto pt-4">

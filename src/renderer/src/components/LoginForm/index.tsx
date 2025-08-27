@@ -73,7 +73,7 @@ export const LoginForm: React.FC = () => {
     }
   }
 
-  //Erro quando uso method Post
+  //SEACH: Erro quando uso method Post
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex gap-3 flex-col my-[5%]">
       <label className="text-gray-200" htmlFor="username">

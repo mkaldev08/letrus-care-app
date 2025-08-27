@@ -36,7 +36,7 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
    * @returns {number[]} Um array de números de página que devem ser exibidos.
    */
   const getPageNumbers = (): number[] => {
-    const pagesToShow = 5 
+    const pagesToShow = 5
     const halfPagesToShow = Math.floor(pagesToShow / 2)
     let startPage = Math.max(1, currentPage - halfPagesToShow)
     let endPage = Math.min(totalPages, currentPage + halfPagesToShow)

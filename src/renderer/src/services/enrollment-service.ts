@@ -1,14 +1,12 @@
 import { AxiosResponse } from 'axios'
 import apiMananger from './api'
-import { ICourse } from './course-service'
-import { IGrade } from './grade-service'
 import { IStudent } from './student'
 import { IAuth } from './user'
+import { ClassToShow } from './class-service'
 
 export interface IEnrollmentForApply {
   studentId?: string
-  courseId: string
-  grade: string
+  classId: string
   name: { fullName: string; surname?: string }
   fullName?: string
   surname?: string
@@ -24,6 +22,7 @@ export interface IEnrollmentForApply {
   userId: string
   doc_file?: File
   image_file?: File
+  hasScholarShip?: boolean
 }
 
 export interface IEnrollmentForEdit {
@@ -44,8 +43,7 @@ export interface IEnrollmentForEdit {
 
 export interface IEnrollmentForShow {
   _id?: string
-  courseId: ICourse
-  grade: IGrade
+  classId: ClassToShow
   doc_file?: File
   image_file?: File
   studentId: IStudent
@@ -88,9 +86,9 @@ export const createEnrollment = async (data: IEnrollmentForApply): Promise<Axios
     phoneNumber,
     email,
     centerId,
-    courseId,
-    grade,
-    userId
+    classId,
+    userId,
+    hasScholarShip
   } = data
 
   try {
@@ -109,11 +107,11 @@ export const createEnrollment = async (data: IEnrollmentForApply): Promise<Axios
 
     // Usa o ID do estudante recém-criado para criar a inscrição
     const newEnrollment = await apiMananger.post('/enrollments/new', {
-      courseId,
-      grade,
+      classId,
       centerId,
       studentId: studentData?._id,
-      userId
+      userId,
+      hasScholarShip
     })
 
     return newEnrollment

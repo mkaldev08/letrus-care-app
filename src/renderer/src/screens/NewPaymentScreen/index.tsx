@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react'
-import { HeaderMain } from '@renderer/components/HeaderMain'
+import { Header } from '@renderer/components/Header'
 import { Sidebar } from '@renderer/components/Sidebar'
 
 import { getStudentById, IStudent } from '@renderer/services/student'
@@ -41,7 +41,7 @@ export const NewPaymentScreen: React.FC = () => {
   return (
     <div className="flex flex-col h-screen">
       {/* Header */}
-      <HeaderMain isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
+      <Header isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
       <div className="flex flex-1 justify-center  pt-[62px] lg:pt-[70px] overflow-hidden">
         <Sidebar isOpen={isSidebarOpen} />
         <div className="flex-1 overflow-auto p-4">
@@ -59,7 +59,7 @@ export const NewPaymentScreen: React.FC = () => {
               resetSearchTrigger={resetSearchStudent}
             />
           )}
-          
+
           {selectedStudent && (
             <div className="flex flex-col bg-zinc-800 w-11/12 mx-auto p-4 rounded-lg shadow-md transition-all">
               <PaymentForm resultsInForm={selectedStudent} />

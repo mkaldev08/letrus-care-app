@@ -16,6 +16,22 @@ export interface IClass {
   userId: string
   schedule: string
   grade: string
+  schoolYear: string
+}
+
+export type ClassToShow = {
+  _id?: string
+  course: ICourse
+  period: 'morning' | 'moon' | 'evening' | string
+  students?: string[]
+  teachers: string[]
+  className: string
+  center: string
+  classLimit?: number
+  userId: string
+  schedule: string
+  grade: IGrade
+  schoolYear: string
 }
 
 export interface IClassOnEdit {
@@ -38,6 +54,7 @@ export interface IResponseClass {
   userId: string
   schedule: string
   grade: IGrade
+  schoolYear: string
 }
 
 export const getClassesService = async (centerId: string): Promise<IResponseClass[]> => {

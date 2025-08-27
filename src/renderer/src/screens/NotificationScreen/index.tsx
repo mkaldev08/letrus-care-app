@@ -1,5 +1,5 @@
 import { Footer } from '@renderer/components/Footer'
-import { HeaderMain } from '@renderer/components/HeaderMain'
+import { Header } from '@renderer/components/Header'
 import { Sidebar } from '@renderer/components/Sidebar'
 import { useCenter } from '@renderer/contexts/center-context'
 import { Construction } from 'lucide-react'
@@ -12,7 +12,7 @@ export const NotificationScreen: React.FC = () => {
   return (
     <div>
       <div className="flex flex-col h-screen">
-        <HeaderMain isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
+        <Header isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
 
         <div className="flex flex-1 pt-[62px] lg:pt-[70px] overflow-hidden">
           <Sidebar isOpen={isSidebarOpen} />
@@ -24,7 +24,7 @@ export const NotificationScreen: React.FC = () => {
               </article>
               <main className="flex-1">
                 <p className="flex flex-col justify-center items-center w-full h-full text-3xl text-zinc-400">
-                  <Construction size={140}/>
+                  <Construction size={140} />
                   Tela em Construção
                 </p>
               </main>
