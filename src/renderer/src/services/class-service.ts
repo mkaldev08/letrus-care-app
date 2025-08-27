@@ -19,6 +19,21 @@ export interface IClass {
   schoolYear: string
 }
 
+export type ClassToShow = {
+  _id?: string
+  course: ICourse
+  period: 'morning' | 'moon' | 'evening' | string
+  students?: string[]
+  teachers: string[]
+  className: string
+  center: string
+  classLimit?: number
+  userId: string
+  schedule: string
+  grade: IGrade
+  schoolYear: string
+}
+
 export interface IClassOnEdit {
   period: 'morning' | 'moon' | 'evening' | string
   teachers: string[]

@@ -63,7 +63,10 @@ export const ModalEditEnrollment: React.FC<ModalEditEnrollmentProps> = (
     setValue,
     formState: { errors }
   } = useForm<FormData>({
-    defaultValues: { grade: props.data?.grade?._id, courseId: props.data?.courseId?._id },
+    defaultValues: {
+      grade: props.data?.classId?.grade?._id,
+      courseId: props.data?.classId.course?._id
+    },
     resolver: yupResolver(schema)
   })
 

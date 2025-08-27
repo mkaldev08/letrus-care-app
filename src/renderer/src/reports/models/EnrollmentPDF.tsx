@@ -89,7 +89,7 @@ export const EnrollmentPDF: React.FC<EnrollmentPDFProps> = ({
               </Text>
               <Text style={styles.lineSpace}>
                 <Text style={styles.label}>Curso: </Text>{' '}
-                {selectedEnrollment.enrollment?.classId?.courseId?.name}
+                {selectedEnrollment.enrollment?.classId?.course?.name}
               </Text>
               <Text style={styles.lineSpace}>
                 <Text style={styles.label}>Idade: </Text>{' '}
