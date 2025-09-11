@@ -10,7 +10,8 @@ import {
   IEnrollmentReceipt
 } from '@renderer/services/enrollment-service'
 import { useCenter } from '@renderer/contexts/center-context'
-import { DownloadCloud, PenSquare, Trash } from 'lucide-react'
+import { DownloadCloud, PenSquare, Trash, Eye, Filter, Search } from 'lucide-react'
+
 import { Modal } from '@renderer/components/Modal'
 import Swal from 'sweetalert2'
 import { Footer } from '@renderer/components/Footer'
@@ -24,8 +25,25 @@ import { TailSpin } from 'react-loader-spinner'
 import { ModalEditEnrollment } from './ModalEditEnrollment'
 import { getCurrentSchoolYearService } from '@renderer/services/school-year-service'
 import { ICenter } from '@renderer/services/center-service'
+import * as yup from 'yup'
+import { useForm } from 'react-hook-form'
+import { yupResolver } from '@hookform/resolvers/yup'
+
+const schemaStudentSearch = yup
+  .object({
+    studentSearch: yup.string().required('Preencha o campo para pesquisar um aluno')
+  })
+  .required()
+
+type FormSearchData = yup.InferType<typeof schemaStudentSearch>
 
 export const EnrollmentScreen: React.FC = () => {
+  const { register, watch } = useForm<FormSearchData>({
+    resolver: yupResolver(schemaStudentSearch)
+  })
+
+  const studentSearch = watch('studentSearch')
+
   const navigate = useNavigate()
   const { center } = useCenter()
   const ENROLLMENT_STATUS = ['Inscrito', 'Completa', 'Cancelada']
@@ -156,6 +174,10 @@ export const EnrollmentScreen: React.FC = () => {
     })
   }
 
+  function handleStudentDetails(id: string): void {
+    navigate(`/enrollment/student/${id}`)
+  }
+
   return (
     <div className="flex flex-col h-screen">
       {/* Header */}
@@ -172,6 +194,21 @@ export const EnrollmentScreen: React.FC = () => {
             >
               Inscrever Aluno
             </button>
+
+            <div className="flex items-center gap-3 mt-6">
+              <Search className="text-zinc-500" />
+              <input
+                {...register('studentSearch')}
+                type="search"
+                placeholder="Buscar por aluno ou código..."
+                className="flex-1 p-2 rounded-md border border-gray-400 bg-zinc-300 text-gray-700 placeholder:text-gray-700"
+              />
+              <Filter
+                className="text-zinc-500 cursor-pointer hover:opacity-90 transition-opacity"
+                xlinkTitle="filtrar por"
+              />
+            </div>
+
             {/* Tabela */}
             <div className="overflow-x-auto mt-6">
               <table className="min-w-full border-collapse block md:table">
@@ -247,12 +284,12 @@ export const EnrollmentScreen: React.FC = () => {
                         <td className="p-2 md:border md:border-zinc-700 text-center block md:table-cell">
                           {/* Botões para Ações */}
                           <div className="flex items-center justify-evenly gap-1">
-                            {/* <button
-                              onClick={() => handleDelete(row?._id)}
+                            <button
+                              onClick={() => handleStudentDetails(row?._id as string)}
                               className="bg-zinc-500 text-white px-2 py-1 rounded hover:brightness-125"
                             >
                               <Eye />
-                            </button> */}
+                            </button>
                             <button
                               onClick={() => handleDownloadPDF(row)}
                               className="bg-orange-200 text-orange-700 px-2 py-1 rounded hover:brightness-125"
