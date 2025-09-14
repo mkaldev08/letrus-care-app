@@ -14,7 +14,6 @@ import Swal from 'sweetalert2'
 import * as yup from 'yup'
 import { getMonths, getYearsInterval } from '@renderer/utils/date'
 import { useNavigate } from 'react-router'
-import { differenceInMonths } from 'date-fns'
 import { IStudent } from '@renderer/services/student'
 import { Rings } from 'react-loader-spinner'
 
@@ -53,8 +52,8 @@ export const PaymentForm: React.FC<PaymentFormProps> = (props) => {
     resolver: yupResolver(schemaPayment)
   })
 
-  const yearsList = getYearsInterval() // Obter lista de anos
-  const monthsList = getMonths() // Obter lista de meses
+  const yearsList = getYearsInterval()
+  const monthsList = getMonths()
 
   const { user } = useAuth()
   const { center } = useCenter()
@@ -122,14 +121,12 @@ export const PaymentForm: React.FC<PaymentFormProps> = (props) => {
     //melhorar para ter multa quando o aluno vai pagar meses muitos anteriores, sem nenhum pagamento ainda
     async function calculateAmount(): Promise<void> {
       if (enrollmentByStudent) {
-        // const results = await getStudentPaymentsService(enrollmentByStudent?._id)
-        // const dueDate = results ? new Date(results[results?.length - 1]?.dueDate) : new Date()
-        const dueDate = new Date()
-        const currentReferenceDate = new Date(Number(paymentYear), monthsList.indexOf(paymentMonth))
-        const monthsDiference = differenceInMonths(dueDate, currentReferenceDate)
+        const today = new Date()
+        const referenceDate = new Date(Number(paymentYear), monthsList.indexOf(paymentMonth), 10)
+        const isLate = today > referenceDate
 
         const lateFeeRate = enrollmentByStudent?.classId?.course?.feeFine || 0
-        const calculatedLateFee = monthsDiference > 1 ? monthsDiference * lateFeeRate : 0
+        const calculatedLateFee = isLate ? lateFeeRate : 0
 
         setLateFee(calculatedLateFee)
         const totalAmount = Number(enrollmentByStudent?.classId?.course?.fee) + calculatedLateFee

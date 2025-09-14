@@ -107,7 +107,7 @@ export async function getPaymentService(
 export const searchPaymentsService = async (
   centerId: string,
   query: string
-): Promise<IPaymentForShow[]> => {
+): Promise<IResponse> => {
   try {
     const { data } = await apiMananger.get(`/payments/search/${centerId}?query=${query}`)
     return data
