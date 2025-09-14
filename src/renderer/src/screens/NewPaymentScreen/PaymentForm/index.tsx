@@ -14,7 +14,6 @@ import Swal from 'sweetalert2'
 import * as yup from 'yup'
 import { getMonths, getYearsInterval } from '@renderer/utils/date'
 import { useNavigate } from 'react-router'
-import { differenceInMonths } from 'date-fns'
 import { IStudent } from '@renderer/services/student'
 import { Rings } from 'react-loader-spinner'
 
@@ -53,7 +52,7 @@ export const PaymentForm: React.FC<PaymentFormProps> = (props) => {
     resolver: yupResolver(schemaPayment)
   })
 
-  const yearsList = getYearsInterval() 
+  const yearsList = getYearsInterval()
   const monthsList = getMonths()
 
   const { user } = useAuth()
@@ -122,7 +121,6 @@ export const PaymentForm: React.FC<PaymentFormProps> = (props) => {
     //melhorar para ter multa quando o aluno vai pagar meses muitos anteriores, sem nenhum pagamento ainda
     async function calculateAmount(): Promise<void> {
       if (enrollmentByStudent) {
-      
         const today = new Date()
         const referenceDate = new Date(Number(paymentYear), monthsList.indexOf(paymentMonth), 10)
         const isLate = today > referenceDate

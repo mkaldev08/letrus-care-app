@@ -120,8 +120,9 @@ export const PaymentScreen: React.FC = () => {
     }
 
     try {
-      const payments = await searchPaymentsService(center?._id as string, query)
+      const { payments, totalPayments } = await searchPaymentsService(center?._id as string, query)
       setFilteredPayments(payments)
+      setTotalPages(totalPayments)
     } catch (error) {
       console.error('Erro ao buscar pagamentos:', error)
     }

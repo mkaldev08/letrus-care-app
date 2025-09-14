@@ -7,7 +7,8 @@ import {
   getEnrollmentsService,
   getOneEnrollmentService,
   IEnrollmentForShow,
-  IEnrollmentReceipt
+  IEnrollmentReceipt,
+  searchEnrollmentsService
 } from '@renderer/services/enrollment-service'
 import { useCenter } from '@renderer/contexts/center-context'
 import { DownloadCloud, PenSquare, Trash, Eye, Filter, Search } from 'lucide-react'
@@ -105,6 +106,20 @@ export const EnrollmentScreen: React.FC = () => {
     setTotalPages(data.totalEnrollments)
   }
 
+  const fetchSearchedEnrollments = async (query: string): Promise<void> => {
+    if (!query) {
+      fetchEnrollments(currentPage)
+      return
+    }
+    try {
+      const data = await searchEnrollmentsService(center?._id as string, query)
+      setEnrollments(data.enrollments)
+      setTotalPages(data.totalEnrollments)
+    } catch (error) {
+      console.error('Erro ao buscar pagamentos:', error)
+    }
+  }
+
   useEffect(() => {
     if (center?._id as string) fetchEnrollments(currentPage)
   }, [center?._id as string, currentPage, isModalOpen])
@@ -177,6 +192,16 @@ export const EnrollmentScreen: React.FC = () => {
   function handleStudentDetails(id: string): void {
     navigate(`/enrollment/student/${id}`)
   }
+
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      fetchSearchedEnrollments(studentSearch)
+    }, 500)
+
+    return (): void => clearTimeout(delayDebounceFn)
+  }, [studentSearch])
+
+  //FIXME: manter a pesquisa ao mudar de pagina
 
   return (
     <div className="flex flex-col h-screen">

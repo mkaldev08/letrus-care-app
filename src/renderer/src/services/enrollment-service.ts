@@ -220,3 +220,17 @@ export const changeStatusService = async (id: string, status: string): Promise<v
     throw error
   }
 }
+
+export const searchEnrollmentsService = async (
+  centerId: string,
+  query: string
+): Promise<IResponse> => {
+  try {
+    const { data } = await apiMananger.get(`/enrollments/search/${centerId}?query=${query}`)
+
+    return data
+  } catch (error) {
+    console.log('Erro ao pesquisar inscricoes: ', error)
+    throw error
+  }
+}
