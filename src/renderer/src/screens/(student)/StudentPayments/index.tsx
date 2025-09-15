@@ -7,12 +7,17 @@ import { useCenter } from '@renderer/contexts/center-context'
 import { PaidServicesTab } from './PaidServicesTab'
 import { DuePaymentsTab } from './DuePaymentsTab'
 import { useParams } from 'react-router'
+import {
+  getFinancialPlanForStudentService,
+  IFinancialPlan
+} from '@renderer/services/financial-plan-services'
 
 export const StudentPayments: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
   const { center } = useCenter()
   const [schoolYears, setschoolYears] = useState<ISchoolYear[]>([])
   const [activeTab, setActiveTab] = useState<'paidServices' | 'duePayments'>('paidServices')
+  const [financialPlans, setFinancialPlans] = useState<IFinancialPlan[]>([])
 
   const { enrollmentId } = useParams<string>()
 
@@ -25,9 +30,36 @@ export const StudentPayments: React.FC = () => {
       console.log(error)
     }
   }
+
+  async function fetchFinancialPlan(
+    centerId: string,
+    enrollmentId: string,
+    queryConfig: { status: string; schoolYear: string }
+  ): Promise<void> {
+    try {
+      const financialPlans = await getFinancialPlanForStudentService(
+        centerId,
+        enrollmentId,
+        queryConfig
+      )
+
+      setFinancialPlans(financialPlans)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   useEffect(() => {
     getSchoolYears()
-  }, [])
+  }, [center])
+
+  useEffect(() => {
+    fetchFinancialPlan(center?._id as string, enrollmentId as string, {
+      status: 'pending',
+      schoolYear: schoolYears.find((year) => year.isCurrent)?._id as string
+    })
+  }, [schoolYears, center, enrollmentId])
+
   return (
     <div className="flex flex-col h-screen">
       <Header isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
@@ -88,7 +120,11 @@ export const StudentPayments: React.FC = () => {
                   </ul>
                 </nav>
                 <div className="px-8 my-6">
-                  {activeTab === 'paidServices' ? <PaidServicesTab /> : <DuePaymentsTab />}
+                  {activeTab === 'paidServices' ? (
+                    <PaidServicesTab data={financialPlans} />
+                  ) : (
+                    <DuePaymentsTab />
+                  )}
                 </div>
               </div>
             </section>
