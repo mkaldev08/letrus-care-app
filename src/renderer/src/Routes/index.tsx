@@ -28,6 +28,7 @@ import { RecoveryPasswordScreen } from '@renderer/screens/RecoveryPasswordScreen
 import { NewPassword } from '@renderer/screens/RecoveryPasswordScreen/NewPassword'
 import { ConfirmationEnrollmentScreen } from '@renderer/screens/ConfirmationEnrollmentScreen'
 import { SchoolYearScreen } from '@renderer/screens/SchoolYearScreen'
+import { StudentPayments } from '@renderer/screens/(student)/StudentPayments'
 import { EnrollmentAndStudentDetailsScreen } from '@renderer/screens/(student)/EnrollmentAndStudentDetailsScreen'
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -61,7 +62,14 @@ const router = createBrowserRouter([
   {
     path: '/enrollment',
     children: [
-      { index: true, element: <EnrollmentScreen /> },
+      {
+        index: true,
+        element: (
+          <ProtectedRoute>
+            <EnrollmentScreen />
+          </ProtectedRoute>
+        )
+      },
       {
         path: 'new',
         errorElement: <ErrorScreen />,
@@ -79,10 +87,16 @@ const router = createBrowserRouter([
             <ConfirmationEnrollmentScreen />
           </ProtectedRoute>
         )
-      },
+      }
+    ]
+  },
+  {
+    path: '/student/:enrollmentId',
+    errorElement: <ErrorScreen />,
+    children: [
       {
-        path: 'student/:enrollmentId',
-        errorElement: <ErrorScreen />,
+        index: true,
+        path: 'show',
         element: (
           <ProtectedRoute>
             <EnrollmentAndStudentDetailsScreen />
@@ -90,11 +104,10 @@ const router = createBrowserRouter([
         )
       },
       {
-        path: 'student/:enrollmentId/payment',
-        errorElement: <ErrorScreen />,
+        path: 'payment',
         element: (
           <ProtectedRoute>
-            <EnrollmentAndStudentDetailsScreen />
+            <StudentPayments />
           </ProtectedRoute>
         )
       }

@@ -190,7 +190,7 @@ export const EnrollmentScreen: React.FC = () => {
   }
 
   function handleStudentDetails(id: string): void {
-    navigate(`/enrollment/student/${id}`)
+    navigate(`/student/${id}/show`, { state: { enrollmentId: id } })
   }
 
   useEffect(() => {
