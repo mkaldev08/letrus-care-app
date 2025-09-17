@@ -23,11 +23,9 @@ export async function getFinancialPlanForStudentService(
     const { data } = await apiMananger.get(
       `/financial-plan/${centerId}/enrollment/${enrollmentId}?status=${queryConfig.status}&schoolYear=${queryConfig.schoolYear}`
     )
-
-    console.log('Planos financeiros encontrados:', data)
     return data
   } catch (error) {
-    console.log('Erro ao buscar plano financeiro do aluno', error)
+    console.error('Erro ao buscar plano financeiro do aluno', error)
     throw error
   }
 }

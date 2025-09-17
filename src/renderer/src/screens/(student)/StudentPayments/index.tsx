@@ -17,7 +17,8 @@ export const StudentPayments: React.FC = () => {
   const { center } = useCenter()
   const [schoolYears, setschoolYears] = useState<ISchoolYear[]>([])
   const [activeTab, setActiveTab] = useState<'paidServices' | 'duePayments'>('paidServices')
-  const [financialPlans, setFinancialPlans] = useState<IFinancialPlan[]>([])
+  const [financialPlansPaid, setFinancialPlansPaid] = useState<IFinancialPlan[]>([])
+  const [financialPlansDue, setFinancialPlansDue] = useState<IFinancialPlan[]>([])
 
   const { enrollmentId } = useParams<string>()
 
@@ -37,13 +38,19 @@ export const StudentPayments: React.FC = () => {
     queryConfig: { status: string; schoolYear: string }
   ): Promise<void> {
     try {
-      const financialPlans = await getFinancialPlanForStudentService(
-        centerId,
-        enrollmentId,
-        queryConfig
-      )
+      const [financialPlansPaid, financialPlansDue] = await Promise.all([
+        getFinancialPlanForStudentService(centerId, enrollmentId, {
+          status: 'paid',
+          schoolYear: queryConfig.schoolYear
+        }),
+        getFinancialPlanForStudentService(centerId, enrollmentId, {
+          status: 'all', // informe qualquer estado que não seja 'paid'
+          schoolYear: queryConfig.schoolYear
+        })
+      ])
 
-      setFinancialPlans(financialPlans)
+      setFinancialPlansPaid(financialPlansPaid)
+      setFinancialPlansDue(financialPlansDue)
     } catch (error) {
       console.log(error)
     }
@@ -54,11 +61,14 @@ export const StudentPayments: React.FC = () => {
   }, [center])
 
   useEffect(() => {
-    fetchFinancialPlan(center?._id as string, enrollmentId as string, {
-      status: 'pending',
-      schoolYear: schoolYears.find((year) => year.isCurrent)?._id as string
-    })
-  }, [schoolYears, center, enrollmentId])
+    const schoolYear = schoolYears.find((year) => year.isCurrent)
+    if (center?._id && enrollmentId && schoolYear?._id) {
+      fetchFinancialPlan(center._id, enrollmentId, {
+        status: 'paid',
+        schoolYear: schoolYear._id
+      })
+    }
+  }, [center, enrollmentId, schoolYears])
 
   return (
     <div className="flex flex-col h-screen">
@@ -121,9 +131,9 @@ export const StudentPayments: React.FC = () => {
                 </nav>
                 <div className="px-8 my-6">
                   {activeTab === 'paidServices' ? (
-                    <PaidServicesTab data={financialPlans} />
+                    <PaidServicesTab data={financialPlansPaid} />
                   ) : (
-                    <DuePaymentsTab />
+                    <DuePaymentsTab data={financialPlansDue} />
                   )}
                 </div>
               </div>

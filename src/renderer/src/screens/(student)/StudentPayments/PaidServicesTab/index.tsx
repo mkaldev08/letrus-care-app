@@ -16,7 +16,7 @@ export const PaidServicesTab: React.FC<{ data: IFinancialPlan[] }> = ({ data }) 
             <th className="py-3 px-4">Multa</th>
             <th className="py-3 px-4">Data de Pagamento</th>
             <th className="py-3 px-4">Referência</th>
-            <th className="py-3 px-4">Valor</th>
+            <th className="py-3 px-4">Mensalidade</th>
           </tr>
         </thead>
         <tbody className="select-none">
@@ -27,8 +27,10 @@ export const PaidServicesTab: React.FC<{ data: IFinancialPlan[] }> = ({ data }) 
                 className={`border-b ${index % 2 === 0 ? 'bg-zinc-800' : 'bg-zinc-800'} text-white border-zinc-600`}
               >
                 <td className="py-3 px-4 text-center">Propina</td>
-                <td className="py-3 px-4 text-center">{'N/A'}</td>
-                <td className="py-3 px-4 text-center">{formateCurrency(data?.tutionFee)}</td>
+                <td className="py-3 px-4 text-center">{data.month}</td>
+                <td className="py-3 px-4 text-center">
+                  {formateCurrency(data?.linkedPayment?.lateFee)}
+                </td>
 
                 <td className="py-3 px-4 text-center">{formatNormaleDate(data.dueDate as Date)}</td>
                 <td className="py-3 px-4 text-center">

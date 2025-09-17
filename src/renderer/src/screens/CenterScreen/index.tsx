@@ -142,7 +142,7 @@ export const CenterScreen: React.FC = () => {
   }
   useEffect(() => {
     fetchCurrentYear()
-  }, [])
+  }, [center?._id])
 
   return (
     <div className="flex flex-col h-screen">
