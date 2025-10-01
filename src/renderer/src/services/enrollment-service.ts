@@ -51,6 +51,7 @@ export interface IEnrollmentForShow {
   status: 'enrolled' | 'completed' | 'dropped' | string
   centerId: string
   userId: IAuth
+  hasScholarShip?: boolean
 }
 
 export interface IEnrollment {

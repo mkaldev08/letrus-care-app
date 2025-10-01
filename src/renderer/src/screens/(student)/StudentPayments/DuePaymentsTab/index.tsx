@@ -1,15 +1,11 @@
 import Pagination from '@renderer/components/Pagination'
-import { useCenter } from '@renderer/contexts/center-context'
-import { IPaymentForShow } from '@renderer/services/payment-service'
+import { IFinancialPlan } from '@renderer/services/financial-plan-services'
 import { formateCurrency, formatNormaleDate } from '@renderer/utils/format'
 import React, { useState } from 'react'
 
-export const DuePaymentsTab: React.FC = () => {
-  const [filteredPayments, setFilteredPayments] = useState<IPaymentForShow[]>([])
-  const { center } = useCenter()
-
+export const DuePaymentsTab: React.FC<{ data: IFinancialPlan[] }> = ({ data }) => {
   const [currentPage, setCurrentPage] = useState(1)
-  const [totalPages, setTotalPages] = useState(1)
+  const [totalPages] = useState(1)
   return (
     <div className="overflow-x-auto shadow-md">
       <table className="w-full text-sm text-center">
@@ -19,28 +15,34 @@ export const DuePaymentsTab: React.FC = () => {
             <th className="py-3 px-4">Descrição</th>
             <th className="py-3 px-4">Referência</th>
             <th className="py-3 px-4">Data de Limite</th>
-            <th className="py-3 px-4">Valor</th>
+            <th className="py-3 px-4">Mensalidade (sem multa)</th>
             <th className="py-3 px-4">Estado</th>
           </tr>
         </thead>
         <tbody className="select-none">
-          {filteredPayments?.length > 0 ? (
-            filteredPayments.map((payment, index) => (
+          {data?.length > 0 ? (
+            data.map((payment, index) => (
               <tr
                 key={index}
                 className={`border-b ${index % 2 === 0 ? 'bg-zinc-800' : 'bg-zinc-800'} text-white border-zinc-600`}
               >
                 <td className="py-3 px-4 text-center">Propina</td>
-                <td className="py-3 px-4 text-center">{'N/A'}</td>
-                <td className="py-3 px-4 text-center">{formateCurrency(payment?.amount)}</td>
+                <td className="py-3 px-4 text-center">
+                  {payment.month}/{payment.year}
+                </td>
+                <td className="py-3 px-4 text-center">
+                  {payment?.month}/{payment?.year}
+                </td>
 
-                <td className="py-3 px-4 text-center">
-                  {formatNormaleDate(payment.paymentDate as Date)}
+                <td className="py-3 px-4 text-center">{formatNormaleDate(payment.dueDate)}</td>
+                <td className="py-3 px-4 text-center">{formateCurrency(payment.tutionFee)}</td>
+                <td
+                  className={`py-3 px-4 text-center ${
+                    payment?.status === 'overdue' ? 'text-red-500' : 'text-yellow-500'
+                  }`}
+                >
+                  {payment?.status === 'overdue' ? 'Em atraso' : 'Por pagar sem multa'}
                 </td>
-                <td className="py-3 px-4 text-center">
-                  {formatNormaleDate(payment.paymentDate as Date)}
-                </td>
-                <td className="py-3 px-4 text-center">{formateCurrency(payment?.amount)}</td>
               </tr>
             ))
           ) : (

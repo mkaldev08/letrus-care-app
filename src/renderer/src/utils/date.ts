@@ -9,8 +9,8 @@ function getYearsInterval(): number[] {
 }
 
 // Função para obter os meses
-function getMonths(): string[] {
-  return [
+function getMonths(startDate: Date, endDate: Date): { month: string }[] {
+  const meses = [
     'Janeiro',
     'Fevereiro',
     'Março',
@@ -24,6 +24,17 @@ function getMonths(): string[] {
     'Novembro',
     'Dezembro'
   ]
+  const result: { month: string }[] = []
+  const current = new Date(startDate)
+
+  while (current <= endDate) {
+    result.push({
+      month: meses[current.getMonth()]
+    })
+    current.setMonth(current.getMonth() + 1)
+  }
+
+  return result
 }
 
 export { getMonths, getYearsInterval }

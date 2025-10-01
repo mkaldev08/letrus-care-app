@@ -16,6 +16,7 @@ export const StudentPayments: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
   const { center } = useCenter()
   const [schoolYears, setschoolYears] = useState<ISchoolYear[]>([])
+  const [selectedYear, setSelectedYear] = useState<string>('')
   const [activeTab, setActiveTab] = useState<'paidServices' | 'duePayments'>('paidServices')
   const [financialPlansPaid, setFinancialPlansPaid] = useState<IFinancialPlan[]>([])
   const [financialPlansDue, setFinancialPlansDue] = useState<IFinancialPlan[]>([])
@@ -87,25 +88,16 @@ export const StudentPayments: React.FC = () => {
               <div className="flex gap-4 items-center">
                 <label htmlFor="school-year">Ano Lectivo</label>
                 <select
-                  name="schoolYear"
                   id="school-year"
-                  className="w-[10%] h-12 p-3 bg-zinc-950 rounded-md focus:border-0  border-gray-700 outline-none text-gray-100 text-base font-normal placeholder:text-zinc-500"
+                  value={selectedYear}
+                  onChange={(e) => setSelectedYear(e.target.value)}
+                  className="w-[10%] h-12 p-3 bg-zinc-950 rounded-md text-gray-100"
                 >
-                  {schoolYears.map((year) => {
-                    if (year.isCurrent === true) {
-                      return (
-                        <option value={year._id} key={year._id} selected>
-                          {year.description}
-                        </option>
-                      )
-                    }
-
-                    return (
-                      <option value={year._id} key={year._id}>
-                        {year.description}
-                      </option>
-                    )
-                  })}
+                  {schoolYears.map((year) => (
+                    <option key={year._id} value={year._id}>
+                      {year.description}
+                    </option>
+                  ))}
                 </select>
               </div>
               <div className="border rounded border-zinc-800">
