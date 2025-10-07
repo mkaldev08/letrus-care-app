@@ -93,7 +93,7 @@ export const Panel: React.FC = () => {
       } = data
       const parents = { father, mother }
       const name = { fullName, surname }
-      const { data: enrollment } = await createEnrollment({
+      const enrollment = await createEnrollment({
         parents,
         address,
         birthDate,
@@ -120,7 +120,9 @@ export const Panel: React.FC = () => {
       })
       //Limpa o Form
       // reset()
-      await navigate('/payments/new', { state: { studentEnrollment: enrollment } })
+      console.log(enrollment)
+      //Navega para a pagina de novo pagamento com o id da matricula
+      await navigate('/payments/new', { state: { enrollment } })
     } catch (error: unknown) {
       type errorTyped = {
         response?: { data?: { message?: string } }

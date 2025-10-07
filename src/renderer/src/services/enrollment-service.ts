@@ -1,4 +1,3 @@
-import { AxiosResponse } from 'axios'
 import apiMananger from './api'
 import { IStudent } from './student'
 import { IAuth } from './user'
@@ -77,7 +76,7 @@ export interface IEnrollmentReceipt {
   enrollmentId: string
 }
 
-export const createEnrollment = async (data: IEnrollmentForApply): Promise<AxiosResponse> => {
+export const createEnrollment = async (data: IEnrollmentForApply): Promise<IEnrollmentForShow> => {
   const {
     name,
     birthDate,
@@ -107,7 +106,7 @@ export const createEnrollment = async (data: IEnrollmentForApply): Promise<Axios
     })
 
     // Usa o ID do estudante recém-criado para criar a inscrição
-    const newEnrollment = await apiMananger.post('/enrollments/new', {
+    const { data } = await apiMananger.post('/enrollments/new', {
       classId,
       centerId,
       studentId: studentData?._id,
@@ -115,7 +114,7 @@ export const createEnrollment = async (data: IEnrollmentForApply): Promise<Axios
       hasScholarShip
     })
 
-    return newEnrollment
+    return data.enrollment
   } catch (error) {
     console.log('Erro ao criar inscrição:', error)
     throw error

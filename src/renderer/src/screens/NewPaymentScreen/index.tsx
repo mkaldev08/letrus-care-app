@@ -10,7 +10,8 @@ import { SearchStudent } from '@renderer/components/SearchStudent'
 
 export const NewPaymentScreen: React.FC = () => {
   const location = useLocation()
-  const enrollmentFromState = location.state?.studentEnrollment.enrollment || null
+
+  const enrollmentFromState = location.state?.enrollment || null
 
   const [selectedStudent, setSelectedStudent] = useState<IStudent | null>(null)
   const [resetSearchStudent, setResetSearchStudent] = useState(false)
