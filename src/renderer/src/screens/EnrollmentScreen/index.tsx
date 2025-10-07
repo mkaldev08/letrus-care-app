@@ -179,13 +179,17 @@ export const EnrollmentScreen: React.FC = () => {
     Swal.fire({
       title: 'Define o Tipo de Inscrição',
       showCancelButton: true,
-      confirmButtonText: 'Novo Aluno',
-      cancelButtonText: 'Reconfirmação',
+      confirmButtonText: 'Reconfirmação',
+      cancelButtonText: 'Novo Aluno',
+      allowEscapeKey: false,
+      allowOutsideClick: false,
       customClass: {
         confirmButton: 'bg-orange-600'
       }
     }).then(async (result) => {
-      result.isConfirmed ? navigate('/enrollment/new') : navigate('/enrollment/confirmation')
+      result.isConfirmed
+        ? await navigate('/enrollment/confirmation')
+        : await navigate('/enrollment/new')
     })
   }
 
@@ -214,7 +218,7 @@ export const EnrollmentScreen: React.FC = () => {
             <h2 className="text-3xl text-zinc-400">Inscrições</h2>
 
             <button
-              onClick={handleCreateEnrollmentFlow}
+              onClick={() => handleCreateEnrollmentFlow()}
               className="bg-orange-700 text-white px-4 py-2 rounded hover:brightness-110 transition-all mt-4 self-end"
             >
               Inscrever Aluno
