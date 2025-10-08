@@ -74,8 +74,7 @@ interface IResponse {
 export async function getAllPaymentsService(centerId: string, page: number): Promise<IResponse> {
   try {
     const result = await apiMananger.get(`/payments/all/${centerId}?page=${page}`)
-    const typedData: IResponse = result.data
-    return typedData
+    return result.data
   } catch (error) {
     console.log('Erro ao buscar pagamentos: ', error)
     throw error

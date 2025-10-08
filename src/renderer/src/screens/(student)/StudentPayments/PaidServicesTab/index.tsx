@@ -17,6 +17,7 @@ export const PaidServicesTab: React.FC<{ data: IFinancialPlan[] }> = ({ data }) 
             <th className="py-3 px-4">Data de Pagamento</th>
             <th className="py-3 px-4">Referência</th>
             <th className="py-3 px-4">Mensalidade</th>
+            <th className="py-3 px-4">Total Pago</th>
           </tr>
         </thead>
         <tbody className="select-none">
@@ -32,11 +33,16 @@ export const PaidServicesTab: React.FC<{ data: IFinancialPlan[] }> = ({ data }) 
                   {formateCurrency(data?.linkedPayment?.lateFee)}
                 </td>
 
-                <td className="py-3 px-4 text-center">{formatNormaleDate(data.dueDate as Date)}</td>
+                <td className="py-3 px-4 text-center">
+                  {formatNormaleDate(data?.linkedPayment?.paymentDate as Date)}
+                </td>
                 <td className="py-3 px-4 text-center">
                   {data.month}/{data.year}
                 </td>
                 <td className="py-3 px-4 text-center">{formateCurrency(data?.tutionFee)}</td>
+                <td className="py-3 px-4 text-center">
+                  {formateCurrency(data?.linkedPayment?.lateFee + data?.tutionFee)}
+                </td>
               </tr>
             ))
           ) : (

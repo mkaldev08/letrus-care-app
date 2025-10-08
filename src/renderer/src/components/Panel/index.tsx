@@ -120,7 +120,6 @@ export const Panel: React.FC = () => {
       })
       //Limpa o Form
       // reset()
-      console.log(enrollment)
       //Navega para a pagina de novo pagamento com o id da matricula
       await navigate('/payments/new', { state: { enrollment } })
     } catch (error: unknown) {
