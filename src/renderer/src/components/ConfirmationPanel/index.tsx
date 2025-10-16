@@ -14,45 +14,9 @@ import { Rings } from 'react-loader-spinner'
 
 import { type IStudent } from '@renderer/services/student'
 import { getClassesService, IResponseClass } from '@renderer/services/class-service'
+import { studentSchema } from '../Panel'
 
-const schema = yup
-  .object({
-    fullName: yup
-      .string()
-      .required('Preecha o Nome Completo')
-      .test('fullName', 'Insira um nome completo válido', (value) => {
-        // Verifica se o valor contém pelo menos um espaço em branco
-        return /\s/.test(value)
-      }),
-    surname: yup.string(),
-    birthDate: yup.date().required('Preecha data de nascimento'),
-    gender: yup.string().oneOf(['masculino', 'feminino']).required('Seleciona um género'),
-    father: yup
-      .string()
-      .required('Preecha o nome do Pai')
-      .test('father', 'Insira um nome completo válido', (value) => {
-        // Verifica se o valor contém pelo menos um espaço em branco
-        return /\s/.test(value)
-      }),
-    mother: yup
-      .string()
-      .required('Preecha o nome do Mãe')
-      .test('mother', 'Insira um nome completo válido', (value) => {
-        // Verifica se o valor contém pelo menos um espaço em branco
-        return /\s/.test(value)
-      }),
-    address: yup.string().required('Preecha o Endereço'),
-    phoneNumber: yup.string().required('Preecha o Telefone'),
-    email: yup.string().email('Email Inválido'),
-    hasScholarShip: yup.boolean(),
-    classId: yup.string().required('Seleciona um Turma disponível'),
-    doc_file: yup.mixed().nullable(),
-    image_file: yup.mixed().nullable(),
-    userId: yup.string().required(),
-    centerId: yup.string().required()
-  })
-  .required()
-type FormData = yup.InferType<typeof schema>
+type FormData = yup.InferType<typeof studentSchema>
 
 interface ConfirmationPanelProps {
   resultInForm: IStudent
@@ -64,7 +28,7 @@ export const ConfirmationPanel: React.FC<ConfirmationPanelProps> = ({ resultInFo
     handleSubmit,
     formState: { errors, isSubmitting }
   } = useForm<FormData>({
-    resolver: yupResolver(schema)
+    resolver: yupResolver(studentSchema)
   })
 
   const { center } = useCenter()

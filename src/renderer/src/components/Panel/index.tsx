@@ -12,7 +12,7 @@ import { getClassesService, IResponseClass } from '@renderer/services/class-serv
 import { useNavigate } from 'react-router'
 import { Rings } from 'react-loader-spinner'
 
-const schema = yup
+export const studentSchema = yup
   .object({
     fullName: yup
       .string()
@@ -20,8 +20,9 @@ const schema = yup
       .test('fullName', 'Insira um nome completo válido', (value) => {
         // Verifica se o valor contém pelo menos um espaço em branco
         return /\s/.test(value)
-      }),
-    surname: yup.string(),
+      })
+      .trim(),
+    surname: yup.string().trim(),
     birthDate: yup.date().required('Preecha data de nascimento'),
     gender: yup.string().oneOf(['masculino', 'feminino']).required('Seleciona um género'),
     father: yup
@@ -49,7 +50,7 @@ const schema = yup
     centerId: yup.string().required()
   })
   .required()
-type FormData = yup.InferType<typeof schema>
+type FormData = yup.InferType<typeof studentSchema>
 
 export const Panel: React.FC = () => {
   const {
@@ -57,7 +58,7 @@ export const Panel: React.FC = () => {
     handleSubmit,
     formState: { errors, isSubmitting }
   } = useForm<FormData>({
-    resolver: yupResolver(schema)
+    resolver: yupResolver(studentSchema)
   })
 
   const { center } = useCenter()
