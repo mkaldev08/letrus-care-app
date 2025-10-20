@@ -25,7 +25,7 @@ export const EnrollmentPDF: React.FC<EnrollmentPDFProps> = ({
   const [imageFromDB, setImageFromDB] = useState('')
 
   useEffect(() => {
-    const loadData = async () => {
+    const loadData = async (): Promise<void> => {
       try {
         const storagedCenter = getFromStorage('center') as ICenter
 
@@ -44,6 +44,12 @@ export const EnrollmentPDF: React.FC<EnrollmentPDFProps> = ({
     const today = new Date().getFullYear()
     const birthDate = new Date(selectedEnrollment.enrollment.studentId?.birthDate).getFullYear()
     return today - birthDate
+  }
+
+  const PERIODO_PT = {
+    morning: 'Manhã',
+    moon: 'Tarde',
+    evening: 'Noite'
   }
 
   return (
@@ -107,7 +113,7 @@ export const EnrollmentPDF: React.FC<EnrollmentPDFProps> = ({
               </Text>
               <Text style={styles.lineSpace}>
                 <Text style={styles.label}>Periodo: </Text>{' '}
-                {selectedEnrollment.enrollment.classId?.period}
+                {PERIODO_PT[selectedEnrollment.enrollment.classId?.period]}
               </Text>
               <Text style={styles.lineSpace}>
                 <Text style={styles.label}>Turno: </Text>{' '}
@@ -229,7 +235,7 @@ export const EnrollmentPDF: React.FC<EnrollmentPDFProps> = ({
                 </Text>
                 <Text style={styles.lineSpace}>
                   <Text style={styles.label}>Periodo: </Text>{' '}
-                  {selectedEnrollment.enrollment.classId?.period}
+                  {PERIODO_PT[selectedEnrollment.enrollment.classId?.period]}
                 </Text>
                 <Text style={styles.lineSpace}>
                   <Text style={styles.label}>Turno: </Text>{' '}
