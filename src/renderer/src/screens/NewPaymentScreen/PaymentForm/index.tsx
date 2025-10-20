@@ -82,7 +82,8 @@ export const PaymentForm: React.FC<PaymentFormProps> = (props) => {
       })
       //Se aluno for novo,completa o processo de inscrição com pagamento
       const results = await getStudentPaymentsService(enrollmentByStudent?._id as string)
-      if (results.length === 0) {
+
+      if (results.length === 1 || enrollmentByStudent?.status === 'pending') {
         await changeStatusService(enrollmentByStudent?._id as string, 'completed')
       }
 
