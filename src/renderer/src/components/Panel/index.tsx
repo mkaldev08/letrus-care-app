@@ -25,6 +25,7 @@ export const studentSchema = yup
     surname: yup.string().trim(),
     birthDate: yup.date().required('Preecha data de nascimento'),
     gender: yup.string().oneOf(['masculino', 'feminino']).required('Seleciona um género'),
+    identityNumber: yup.string().required('Preecha o Número do BI'),
     father: yup
       .string()
       .required('Preecha o nome do Pai')
@@ -90,7 +91,8 @@ export const Panel: React.FC = () => {
         email,
         classId,
         userId,
-        centerId
+        centerId,
+        identityNumber
       } = data
       const parents = { father, mother }
       const name = { fullName, surname }
@@ -104,7 +106,8 @@ export const Panel: React.FC = () => {
         name,
         centerId,
         classId,
-        userId
+        userId,
+        identityNumber
       })
       Swal.fire({
         position: 'bottom-end',
@@ -205,6 +208,21 @@ export const Panel: React.FC = () => {
           className="w-full h-12 p-3  bg-zinc-950 rounded-md  focus:border-0  border-gray-700 outline-none text-gray-100 text-base font-normal placeholder:text-zinc-500"
         />
         {errors.surname && <span className="text-red-500">{errors.surname?.message}</span>}
+        <label htmlFor="identityNumber">
+          Número do BI <span className="text-orange-700">*</span>
+        </label>
+        <input
+          id="identityNumber"
+          {...register('identityNumber')}
+          placeholder="Número do Bilhete de Identidade"
+          autoComplete="identity-number"
+          type="text"
+          className="w-full h-12 p-3 bg-zinc-950 rounded-md focus:border-0  border-gray-700 outline-none text-gray-100 text-base font-normal placeholder:text-zinc-500"
+          required
+        />
+        {errors.identityNumber && (
+          <span className="text-red-500">{errors.identityNumber?.message}</span>
+        )}
         <label htmlFor="birthDate">
           Data de Nascimento <span className="text-orange-700">*</span>
         </label>

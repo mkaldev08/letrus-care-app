@@ -60,11 +60,12 @@ export const ConfirmationPanel: React.FC<ConfirmationPanelProps> = ({ resultInFo
         email,
         classId,
         userId,
-        centerId
+        centerId,
+        identityNumber
       } = data
       const parents = { father, mother }
       const name = { fullName, surname }
-      const { data: enrollment } = await createEnrollment({
+      const createdEnrollment = await createEnrollment({
         parents,
         address,
         birthDate,
@@ -74,7 +75,8 @@ export const ConfirmationPanel: React.FC<ConfirmationPanelProps> = ({ resultInFo
         name,
         centerId,
         classId,
-        userId
+        userId,
+        identityNumber
       })
       Swal.fire({
         position: 'bottom-end',
@@ -91,7 +93,7 @@ export const ConfirmationPanel: React.FC<ConfirmationPanelProps> = ({ resultInFo
       })
       //Limpa o Form
       // reset()
-      await navigate('/payments/new', { state: { studentEnrollment: enrollment } })
+      await navigate('/payments/new', { state: { studentEnrollment: createdEnrollment } })
     } catch (error: unknown) {
       type errorTyped = {
         response?: { data?: { message?: string } }
@@ -177,6 +179,20 @@ export const ConfirmationPanel: React.FC<ConfirmationPanelProps> = ({ resultInFo
           className="w-full h-12 p-3  bg-zinc-950 rounded-md  focus:border-0  border-gray-700 outline-none text-gray-100 text-base font-normal placeholder:text-zinc-500"
         />
         {errors.surname && <span className="text-red-500">{errors.surname?.message}</span>}
+        <label htmlFor="identityNumber">
+          Número do BI <span className="text-orange-700">*</span>
+        </label>
+        <input
+          id="identityNumber"
+          {...register('identityNumber')}
+          placeholder="Número do BI"
+          defaultValue={resultInForm.identityNumber}
+          type="text"
+          className="w-full h-12 p-3 bg-zinc-950 rounded-md focus:border-0  border-gray-700 outline-none text-gray-100 text-base font-normal placeholder:text-zinc-500"
+        />
+        {errors.identityNumber && (
+          <span className="text-red-500">{errors.identityNumber?.message}</span>
+        )}
         <label htmlFor="birthDate">
           Data de Nascimento <span className="text-orange-700">*</span>
         </label>

@@ -22,6 +22,7 @@ export interface IEnrollmentForApply {
   doc_file?: File
   image_file?: File
   hasScholarShip?: boolean
+  identityNumber: string
 }
 
 export interface IEnrollmentForEdit {
@@ -88,7 +89,8 @@ export const createEnrollment = async (data: IEnrollmentForApply): Promise<IEnro
     centerId,
     classId,
     userId,
-    hasScholarShip
+    hasScholarShip,
+    identityNumber
   } = data
 
   try {
@@ -102,7 +104,8 @@ export const createEnrollment = async (data: IEnrollmentForApply): Promise<IEnro
       email,
       parents,
       centerId,
-      userId
+      userId,
+      identityNumber
     })
 
     // Usa o ID do estudante recém-criado para criar a inscrição

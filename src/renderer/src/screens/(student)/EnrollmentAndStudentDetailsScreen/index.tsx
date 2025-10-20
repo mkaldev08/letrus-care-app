@@ -89,6 +89,10 @@ export const EnrollmentAndStudentDetailsScreen: React.FC = () => {
                     {enrollment.studentId.name.fullName}
                   </p>
                   <p>
+                    <span className="font-semibold">BI: </span>{' '}
+                    {enrollment.studentId.identityNumber}
+                  </p>
+                  <p>
                     <span className="font-semibold">Data de Nascimento:</span>{' '}
                     {formatDate(enrollment.studentId.birthDate)}
                   </p>
