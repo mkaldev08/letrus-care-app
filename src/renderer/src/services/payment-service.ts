@@ -37,14 +37,14 @@ export interface IPaymentReceipt {
   paymentId: string
 }
 
-export async function createPaymentService(data: IPayment): Promise<void> {
+export async function createPaymentService(data): Promise<void> {
   try {
     const {
       enrollmentId,
       amount,
       paymentDate,
       paymentMonthReference,
-      paymentYearReference,
+      targetSchoolYearReference,
       paymentMethod,
       centerId,
       userId,
@@ -55,7 +55,7 @@ export async function createPaymentService(data: IPayment): Promise<void> {
       amount,
       paymentDate,
       paymentMonthReference,
-      paymentYearReference,
+      schoolYearId: targetSchoolYearReference,
       paymentMethod,
       centerId,
       userId,
@@ -74,8 +74,7 @@ interface IResponse {
 export async function getAllPaymentsService(centerId: string, page: number): Promise<IResponse> {
   try {
     const result = await apiMananger.get(`/payments/all/${centerId}?page=${page}`)
-    const typedData: IResponse = result.data
-    return typedData
+    return result.data
   } catch (error) {
     console.log('Erro ao buscar pagamentos: ', error)
     throw error

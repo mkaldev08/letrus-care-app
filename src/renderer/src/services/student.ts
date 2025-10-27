@@ -13,6 +13,7 @@ export interface IStudent {
   centerId: string
   endStudiedDate: Date
   studentCode: string
+  identityNumber: string
 }
 
 export const searchStudentService = async (

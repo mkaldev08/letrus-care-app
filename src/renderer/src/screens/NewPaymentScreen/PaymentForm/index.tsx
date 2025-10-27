@@ -12,10 +12,14 @@ import { formateCurrency } from '@renderer/utils/format'
 import { useForm } from 'react-hook-form'
 import Swal from 'sweetalert2'
 import * as yup from 'yup'
-import { getMonths, getYearsInterval } from '@renderer/utils/date'
 import { useNavigate } from 'react-router'
 import { IStudent } from '@renderer/services/student'
 import { Rings } from 'react-loader-spinner'
+import {
+  getFinancialPlanForStudentService,
+  IFinancialPlanToShow
+} from '@renderer/services/financial-plan-services'
+import { getSchoolYearsServiceAll, ISchoolYear } from '@renderer/services/school-year-service'
 
 const schemaPayment = yup
   .object({
@@ -23,7 +27,7 @@ const schemaPayment = yup
     amount: yup.number().required(),
     lateFee: yup.number().required(),
     paymentMonthReference: yup.string().required(),
-    paymentYearReference: yup.number().required(),
+    targetSchoolYearReference: yup.string().required(),
     paymentMethod: yup
       .string()
       .oneOf(['Dinheiro', 'Multicaixa Express', 'Transferência Bancária (ATM)'])
@@ -47,28 +51,31 @@ export const PaymentForm: React.FC<PaymentFormProps> = (props) => {
     handleSubmit,
     setValue,
     watch,
+    getValues,
     formState: { isSubmitting }
   } = useForm<FormPaymentData>({
     resolver: yupResolver(schemaPayment)
   })
 
-  const yearsList = getYearsInterval()
-  const monthsList = getMonths()
-
   const { user } = useAuth()
   const { center } = useCenter()
   const navigate = useNavigate()
+  const [schoolYears, setSchoolYears] = useState<ISchoolYear[]>([])
 
   const paymentMethods = ['Dinheiro', 'Multicaixa Express', 'Transferência Bancária (ATM)']
+  const [financialPlans, setFinancialPlans] = useState<IFinancialPlanToShow[]>([])
   const [enrollmentByStudent, setEnrollmentByStudent] = useState<IEnrollmentForShow | null>(null)
+
+  const [lateFee, setLateFee] = useState<number>(0)
+  const [amount, setAmount] = useState<number>(0)
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+
+  const paymentMonth = watch('paymentMonthReference')
+
+  const targetSchoolYear = watch('targetSchoolYearReference')
+
   const onSubmitPaymentForm = async (data: FormPaymentData): Promise<void> => {
     try {
-      //Se aluno for novo,completa o processo de inscrição com pagamento
-      const results = await getStudentPaymentsService(enrollmentByStudent?._id as string)
-      if (results.length === 0) {
-        await changeStatusService(enrollmentByStudent?._id as string, 'completed')
-      }
-
       await createPaymentService(data)
       Swal.fire({
         position: 'bottom-end',
@@ -83,6 +90,12 @@ export const PaymentForm: React.FC<PaymentFormProps> = (props) => {
         },
         timerProgressBar: true
       })
+      //Se aluno for novo,completa o processo de inscrição com pagamento
+      const results = await getStudentPaymentsService(enrollmentByStudent?._id as string)
+
+      if (results.length === 1 || enrollmentByStudent?.status === 'pending') {
+        await changeStatusService(enrollmentByStudent?._id as string, 'completed')
+      }
 
       navigate('/payments')
     } catch (error: unknown) {
@@ -109,26 +122,77 @@ export const PaymentForm: React.FC<PaymentFormProps> = (props) => {
       }
     }
     getEnrollmentByStudent(props.resultsInForm?._id as string)
-  }, [props.resultsInForm])
+    getSchoolYears()
 
-  const [lateFee, setLateFee] = useState<number>(0)
-  const [amount, setAmount] = useState<number>(0)
+    setIsLoading(false)
+  }, [props.resultsInForm, center])
 
-  const paymentMonth = watch('paymentMonthReference')
-  const paymentYear = watch('paymentYearReference')
+  // TODO: carregar na lista do usuario todos meses a pagar naquele respectivo ano
+  async function getFinancialPlanToPay(enrollmentId: string, schoolYearArg: string): Promise<void> {
+    try {
+      const financialPlans = await getFinancialPlanForStudentService(
+        center?._id as string,
+        enrollmentId,
+        { status: 'all', schoolYear: schoolYearArg }
+      )
+      setFinancialPlans(financialPlans)
+    } catch (error) {
+      console.error(error)
+      throw error
+    }
+  }
+
+  async function getSchoolYears(): Promise<void> {
+    try {
+      const tmp = await getSchoolYearsServiceAll(center?._id as string)
+
+      setSchoolYears(tmp)
+    } catch (error) {
+      console.error(error)
+      throw error
+    }
+  }
 
   useEffect(() => {
-    //melhorar para ter multa quando o aluno vai pagar meses muitos anteriores, sem nenhum pagamento ainda
+    // só roda quando ambos existem e não são vazios
+    const enrollmentId = enrollmentByStudent?._id
+    if (!enrollmentId || !targetSchoolYear) {
+      return
+    }
+
+    getFinancialPlanToPay(enrollmentId, targetSchoolYear)
+  }, [enrollmentByStudent, targetSchoolYear])
+
+  useEffect(() => {
+    // -  Verificar funcionalidades: melhorar para ter multa quando o aluno vai pagar meses muitos anteriores, sem nenhum pagamento ainda
     async function calculateAmount(): Promise<void> {
       if (enrollmentByStudent) {
         const today = new Date()
-        const referenceDate = new Date(Number(paymentYear), monthsList.indexOf(paymentMonth), 10)
+        const currentPlanToPay = financialPlans.find(
+          (plan) =>
+            plan.schoolYear === getValues('targetSchoolYearReference') &&
+            plan.month === paymentMonth
+        )
+        let lateFeeRate = 0
+        const referenceDate = new Date(currentPlanToPay?.dueDate as Date)
+
+        // // Se a data de referência não estiver definida, aplicar multa se for após o dia 10 do mês atual
+        // if (
+        //   (referenceDate === null || referenceDate === undefined) &&
+        //   today > new Date(today.getFullYear(), today.getMonth(), 10)
+        // ) {
+        //   lateFeeRate = enrollmentByStudent?.classId?.course?.feeFine
+        // }
+        referenceDate.setHours(23, 59, 59, 999)
+
         const isLate = today > referenceDate
 
-        const lateFeeRate = enrollmentByStudent?.classId?.course?.feeFine || 0
+        lateFeeRate = enrollmentByStudent?.classId?.course?.feeFine
         const calculatedLateFee = isLate ? lateFeeRate : 0
 
         setLateFee(calculatedLateFee)
+        // TODO: Considere a lógica para novos alunos sem dueDate ou planos anteriores
+
         const totalAmount = Number(enrollmentByStudent?.classId?.course?.fee) + calculatedLateFee
 
         setAmount(totalAmount)
@@ -140,7 +204,15 @@ export const PaymentForm: React.FC<PaymentFormProps> = (props) => {
     }
 
     calculateAmount()
-  }, [enrollmentByStudent, paymentMonth, paymentYear, setValue])
+  }, [enrollmentByStudent, paymentMonth, setValue])
+
+  if (isLoading || !props.resultsInForm) {
+    return (
+      <div className="flex justify-center items-center h-full">
+        <Rings height="80" width="80" color="#f97316" ariaLabel="loading" visible={true} />
+      </div>
+    )
+  }
 
   return (
     <>
@@ -179,13 +251,12 @@ export const PaymentForm: React.FC<PaymentFormProps> = (props) => {
           </label>
           <select
             id="month-select"
-            defaultValue={monthsList[new Date().getMonth()]}
             {...register('paymentMonthReference')}
             className="w-full h-12 p-3 bg-zinc-950 rounded-md border-gray-700 text-gray-100"
           >
-            {monthsList.map((month) => (
-              <option key={month} value={month}>
-                {month}
+            {financialPlans.map((plan) => (
+              <option key={plan._id} value={plan.month}>
+                {plan.month}
               </option>
             ))}
           </select>
@@ -196,15 +267,24 @@ export const PaymentForm: React.FC<PaymentFormProps> = (props) => {
           </label>
           <select
             id="year-select"
-            defaultValue={new Date().getFullYear()}
-            {...register('paymentYearReference')}
+            {...register('targetSchoolYearReference')}
             className="w-full h-12 p-3 bg-zinc-950 rounded-md border-gray-700 text-gray-100"
           >
-            {yearsList.map((year) => (
-              <option key={year} value={year}>
-                {year}
-              </option>
-            ))}
+            {schoolYears.map((year) => {
+              if (year.isCurrent === true) {
+                return (
+                  <option value={year._id} key={year._id} selected>
+                    {year.description}
+                  </option>
+                )
+              }
+
+              return (
+                <option value={year._id} key={year._id}>
+                  {year.description}
+                </option>
+              )
+            })}
           </select>
 
           {/* Valor a Pagar */}
@@ -281,6 +361,7 @@ export const PaymentForm: React.FC<PaymentFormProps> = (props) => {
             <button
               type="submit"
               className="bg-orange-600 text-white rounded-md py-2 mt-4 hover:bg-orange-700 transition-all p-2"
+              disabled={!enrollmentByStudent || isSubmitting}
             >
               Confirmar Pagamento
             </button>

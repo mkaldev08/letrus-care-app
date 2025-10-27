@@ -175,22 +175,26 @@ export const EnrollmentScreen: React.FC = () => {
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
 
-  function handleCreateEnrollmentFlow(): void {
+  /*   function handleCreateEnrollmentFlow(): void {
     Swal.fire({
       title: 'Define o Tipo de Inscrição',
       showCancelButton: true,
-      confirmButtonText: 'Novo Aluno',
-      cancelButtonText: 'Reconfirmação',
+      confirmButtonText: 'Reconfirmação',
+      cancelButtonText: 'Novo Aluno',
+      allowEscapeKey: false,
+      allowOutsideClick: false,
       customClass: {
         confirmButton: 'bg-orange-600'
       }
     }).then(async (result) => {
-      result.isConfirmed ? navigate('/enrollment/new') : navigate('/enrollment/confirmation')
+      result.isConfirmed
+        ? await navigate('/enrollment/confirmation')
+        : await navigate('/enrollment/new')
     })
-  }
+  } */
 
   function handleStudentDetails(id: string): void {
-    navigate(`/enrollment/student/${id}`)
+    navigate(`/student/${id}/show`, { state: { enrollmentId: id } })
   }
 
   useEffect(() => {
@@ -214,7 +218,7 @@ export const EnrollmentScreen: React.FC = () => {
             <h2 className="text-3xl text-zinc-400">Inscrições</h2>
 
             <button
-              onClick={handleCreateEnrollmentFlow}
+              onClick={async () => await navigate('/enrollment/new')}
               className="bg-orange-700 text-white px-4 py-2 rounded hover:brightness-110 transition-all mt-4 self-end"
             >
               Inscrever Aluno
@@ -225,7 +229,7 @@ export const EnrollmentScreen: React.FC = () => {
               <input
                 {...register('studentSearch')}
                 type="search"
-                placeholder="Buscar por aluno ou código..."
+                placeholder="Buscar por aluno, BI ou código..."
                 className="flex-1 p-2 rounded-md border border-gray-400 bg-zinc-300 text-gray-700 placeholder:text-gray-700"
               />
               <Filter

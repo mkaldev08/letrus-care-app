@@ -1,4 +1,3 @@
-import { AxiosResponse } from 'axios'
 import apiMananger from './api'
 import { IStudent } from './student'
 import { IAuth } from './user'
@@ -23,7 +22,10 @@ export interface IEnrollmentForApply {
   doc_file?: File
   image_file?: File
   hasScholarShip?: boolean
+  identityNumber: string
 }
+
+//TODO: Criar tipagem para inscricao
 
 export interface IEnrollmentForEdit {
   courseId: string
@@ -51,6 +53,7 @@ export interface IEnrollmentForShow {
   status: 'enrolled' | 'completed' | 'dropped' | string
   centerId: string
   userId: IAuth
+  hasScholarShip?: boolean
 }
 
 export interface IEnrollment {
@@ -76,7 +79,7 @@ export interface IEnrollmentReceipt {
   enrollmentId: string
 }
 
-export const createEnrollment = async (data: IEnrollmentForApply): Promise<AxiosResponse> => {
+export const createEnrollment = async (data: IEnrollmentForApply): Promise<IEnrollmentForShow> => {
   const {
     name,
     birthDate,
@@ -88,7 +91,8 @@ export const createEnrollment = async (data: IEnrollmentForApply): Promise<Axios
     centerId,
     classId,
     userId,
-    hasScholarShip
+    hasScholarShip,
+    identityNumber
   } = data
 
   try {
@@ -102,11 +106,12 @@ export const createEnrollment = async (data: IEnrollmentForApply): Promise<Axios
       email,
       parents,
       centerId,
-      userId
+      userId,
+      identityNumber
     })
 
     // Usa o ID do estudante recém-criado para criar a inscrição
-    const newEnrollment = await apiMananger.post('/enrollments/new', {
+    const { data } = await apiMananger.post('/enrollments/new', {
       classId,
       centerId,
       studentId: studentData?._id,
@@ -114,13 +119,14 @@ export const createEnrollment = async (data: IEnrollmentForApply): Promise<Axios
       hasScholarShip
     })
 
-    return newEnrollment
+    return data.enrollment
   } catch (error) {
     console.log('Erro ao criar inscrição:', error)
     throw error
   }
 }
 
+//export const confirmationEnrollment = async(studentId, data)
 export const getEnrollmentsService = async (centerId: string, page: number): Promise<IResponse> => {
   try {
     const { data } = await apiMananger.get(`/enrollments/all/${centerId}?page=${page}`)

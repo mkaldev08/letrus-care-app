@@ -22,7 +22,7 @@ export const PaymentPDF: React.FC<PaymentPDFProps> = ({ selectedPayment, center,
   const [imageFromDB, setImageFromDB] = useState('')
 
   useEffect(() => {
-    const loadData = async () => {
+    const loadData = async (): Promise<void> => {
       try {
         const storagedCenter = getFromStorage('center') as ICenter
 
@@ -40,133 +40,136 @@ export const PaymentPDF: React.FC<PaymentPDFProps> = ({ selectedPayment, center,
   return (
     <Document>
       <Page size={'A4'} style={styles.page} orientation="portrait">
-        <View style={styles.header}>
-          <Image
-            src={imageFromDB ? `data:${center?.fileType};base64,${imageFromDB}` : Logo}
-            style={{
-              width: 30,
-              height: 30
-            }}
-          />
-          <Text style={styles.titleCenter}>{center.name}</Text>
-          <Text>Secretaria Geral</Text>
-          <Text style={styles.titleDocument}>Recibo de Pagamento - Ano Lectivo {schoolYear}</Text>
-        </View>
-        <View style={styles.section}>
-          <View style={[styles.horiSection, styles.textMin]}>
-            <Text>Recibo Nº: {selectedPayment?.receipt.receiptNumber}</Text>
-
-            <Text>
-              Data de Pagamento:{' '}
-              {formatDateWithTimeNoWeekDay(selectedPayment?.payment?.paymentDate as Date)}
-            </Text>
+        <React.Fragment>
+          <View style={styles.header}>
+            <Image
+              src={imageFromDB ? `data:${center?.fileType};base64,${imageFromDB}` : Logo}
+              style={{
+                width: 30,
+                height: 30
+              }}
+            />
+            <Text style={styles.titleCenter}>{center.name}</Text>
+            <Text>Secretaria Geral</Text>
+            <Text style={styles.titleDocument}>Recibo de Pagamento - Ano Lectivo {schoolYear}</Text>
           </View>
-          <View style={styles.boxContent}>
-            <View>
-              <Text style={styles.lineSpace}>
-                <Text style={styles.label}>Nome: </Text>
-                {createFormalName(selectedPayment.payment.enrollmentId?.studentId?.name?.fullName)}
-              </Text>
-              <Text style={styles.lineSpace}>
-                <Text style={styles.label}>
-                  Código: {selectedPayment.payment.enrollmentId?.studentId?.studentCode}
-                </Text>
-              </Text>
-              <Text style={styles.lineSpace}>
-                <Text style={styles.label}>Telefone: </Text>{' '}
-                {selectedPayment.payment.enrollmentId?.studentId?.phoneNumber}
-              </Text>
-              <Text style={styles.lineSpace}>
-                <Text style={styles.label}>Curso: </Text>{' '}
-                {selectedPayment.payment.enrollmentId?.classId?.course?.name}
-              </Text>
-            </View>
-            <View>
-              <Text style={styles.lineSpace}>
-                <Text style={styles.label}>Turma: </Text>{' '}
-                {selectedPayment.payment.enrollmentId?.classId?.className}
-              </Text>
-              <Text style={styles.lineSpace}>
-                <Text style={styles.label}>Nível: </Text>{' '}
-                {selectedPayment.payment.enrollmentId?.classId?.grade?.grade}
-              </Text>
-              <Text style={styles.lineSpace}>
-                <Text style={styles.label}>Total Pago: </Text>{' '}
-                {formateCurrency(selectedPayment.payment.amount)}
-              </Text>
-            </View>
-          </View>
-          <View style={{ marginVertical: 2, fontSize: 10 }}>
-            <Text>Detalhes de Pagamento Descritos Abaixo: </Text>
-          </View>
-
-          <TablePaymentDetails
-            rows={[
-              {
-                year: schoolYear,
-                service: 'Propina',
-                description: selectedPayment.payment.paymentMonthReference,
-                amount: selectedPayment.payment.amount - selectedPayment.payment.lateFee,
-                status: selectedPayment.payment.status as string
-              },
-              {
-                year: schoolYear,
-                service: 'Multa',
-                description: selectedPayment.payment.paymentMonthReference,
-                amount: selectedPayment.payment.lateFee,
-                status: selectedPayment.payment.status as string
-              }
-            ]}
-          />
-          <View style={{ marginVertical: 2 }} />
-          <TablePaymentMode
-            rows={[
-              {
-                year: schoolYear,
-                paymentDate: new Date(selectedPayment.payment.paymentDate as Date),
-                paymentMode: selectedPayment.payment.paymentMethod as string,
-                amount: selectedPayment.payment.amount - selectedPayment.payment.lateFee,
-                status: selectedPayment.payment.status as string
-              },
-              {
-                year: schoolYear,
-                paymentDate: new Date(selectedPayment.payment.paymentDate as Date),
-                paymentMode: selectedPayment.payment.paymentMethod as string,
-                amount: selectedPayment.payment.lateFee,
-                status: selectedPayment.payment.status as string
-              }
-            ]}
-          />
-
-          <View style={[styles.horiSection, { marginTop: 8 }]}>
-            <View style={styles.signView}>
-              <Text>O (a) Encarregado (a)</Text>
-              <Text style={styles.signBar}></Text>
+          <View style={styles.section}>
+            <View style={[styles.horiSection, styles.textMin]}>
+              <Text>Recibo Nº: {selectedPayment?.receipt.receiptNumber}</Text>
               <Text>
-                {createFormalName(selectedPayment.payment.enrollmentId?.studentId?.parents?.mother)}
+                Data de Pagamento:{' '}
+                {formatDateWithTimeNoWeekDay(selectedPayment?.payment?.paymentDate as Date)}
               </Text>
             </View>
-            <View style={styles.signView}>
-              <Text>O (a) Responsável (a)</Text>
-              <Text style={styles.signBar}></Text>
-              <Text>{selectedPayment.payment.userId?.username}</Text>
+            <View style={styles.boxContent}>
+              <View>
+                <Text style={styles.lineSpace}>
+                  <Text style={styles.label}>Nome: </Text>
+                  {createFormalName(
+                    selectedPayment.payment.enrollmentId?.studentId?.name?.fullName
+                  )}
+                </Text>
+                <Text style={styles.lineSpace}>
+                  <Text style={styles.label}>
+                    Código: {selectedPayment.payment.enrollmentId?.studentId?.studentCode}
+                  </Text>
+                </Text>
+                <Text style={styles.lineSpace}>
+                  <Text style={styles.label}>Telefone: </Text>{' '}
+                  {selectedPayment.payment.enrollmentId?.studentId?.phoneNumber}
+                </Text>
+                <Text style={styles.lineSpace}>
+                  <Text style={styles.label}>Curso: </Text>{' '}
+                  {selectedPayment.payment.enrollmentId?.classId?.course?.name}
+                </Text>
+              </View>
+              <View>
+                <Text style={styles.lineSpace}>
+                  <Text style={styles.label}>Turma: </Text>{' '}
+                  {selectedPayment.payment.enrollmentId?.classId?.className}
+                </Text>
+                <Text style={styles.lineSpace}>
+                  <Text style={styles.label}>Nível: </Text>{' '}
+                  {selectedPayment.payment.enrollmentId?.classId?.grade?.grade}
+                </Text>
+                <Text style={styles.lineSpace}>
+                  <Text style={styles.label}>Total Pago: </Text>{' '}
+                  {formateCurrency(selectedPayment.payment.amount)}
+                </Text>
+              </View>
+            </View>
+            <View style={{ marginVertical: 2, fontSize: 10 }}>
+              <Text>Detalhes de Pagamento Descritos Abaixo: </Text>
+            </View>
+            <TablePaymentDetails
+              rows={[
+                {
+                  year: schoolYear,
+                  service: 'Propina',
+                  description: selectedPayment.payment.paymentMonthReference,
+                  amount: selectedPayment.payment.amount - selectedPayment.payment.lateFee,
+                  status: selectedPayment.payment.status as string
+                },
+                {
+                  year: schoolYear,
+                  service: 'Multa',
+                  description: selectedPayment.payment.paymentMonthReference,
+                  amount: selectedPayment.payment.lateFee,
+                  status: selectedPayment.payment.status as string
+                }
+              ]}
+            />
+            <View style={{ marginVertical: 2 }} />
+            <TablePaymentMode
+              rows={[
+                {
+                  year: schoolYear,
+                  paymentDate: new Date(selectedPayment.payment.paymentDate as Date),
+                  paymentMode: selectedPayment.payment.paymentMethod as string,
+                  amount: selectedPayment.payment.amount - selectedPayment.payment.lateFee,
+                  status: selectedPayment.payment.status as string
+                },
+                {
+                  year: schoolYear,
+                  paymentDate: new Date(selectedPayment.payment.paymentDate as Date),
+                  paymentMode: selectedPayment.payment.paymentMethod as string,
+                  amount: selectedPayment.payment.lateFee,
+                  status: selectedPayment.payment.status as string
+                }
+              ]}
+            />
+            <View style={[styles.horiSection, { marginTop: 8 }]}>
+              <View style={styles.signView}>
+                <Text>O (a) Encarregado (a)</Text>
+                <Text style={styles.signBar}></Text>
+                <Text>
+                  {createFormalName(
+                    selectedPayment.payment.enrollmentId?.studentId?.parents?.mother
+                  )}
+                </Text>
+              </View>
+              <View style={styles.signView}>
+                <Text>O (a) Responsável (a)</Text>
+                <Text style={styles.signBar}></Text>
+                <Text>{selectedPayment.payment.userId?.username}</Text>
+              </View>
             </View>
           </View>
-        </View>
-        <View
-          style={{
-            alignSelf: 'flex-start',
-            color: '#5f5f5f'
-          }}
-          fixed
-        ></View>
-        <Text
-          style={{
-            color: '#5f5f5f'
-          }}
-        >
-          Processado por Letrus Care v1.0.0
-        </Text>
+          <View
+            style={{
+              alignSelf: 'flex-start',
+              color: '#5f5f5f'
+            }}
+            fixed
+          ></View>
+          <Text
+            style={{
+              color: '#5f5f5f'
+            }}
+          >
+            Processado por Letrus Care v1.0.0
+          </Text>
+        </React.Fragment>
 
         <View style={styles.sheetWrapper}>
           <View style={styles.header}>

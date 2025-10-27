@@ -14,45 +14,9 @@ import { Rings } from 'react-loader-spinner'
 
 import { type IStudent } from '@renderer/services/student'
 import { getClassesService, IResponseClass } from '@renderer/services/class-service'
+import { studentSchema } from '../Panel'
 
-const schema = yup
-  .object({
-    fullName: yup
-      .string()
-      .required('Preecha o Nome Completo')
-      .test('fullName', 'Insira um nome completo válido', (value) => {
-        // Verifica se o valor contém pelo menos um espaço em branco
-        return /\s/.test(value)
-      }),
-    surname: yup.string(),
-    birthDate: yup.date().required('Preecha data de nascimento'),
-    gender: yup.string().oneOf(['masculino', 'feminino']).required('Seleciona um género'),
-    father: yup
-      .string()
-      .required('Preecha o nome do Pai')
-      .test('father', 'Insira um nome completo válido', (value) => {
-        // Verifica se o valor contém pelo menos um espaço em branco
-        return /\s/.test(value)
-      }),
-    mother: yup
-      .string()
-      .required('Preecha o nome do Mãe')
-      .test('mother', 'Insira um nome completo válido', (value) => {
-        // Verifica se o valor contém pelo menos um espaço em branco
-        return /\s/.test(value)
-      }),
-    address: yup.string().required('Preecha o Endereço'),
-    phoneNumber: yup.string().required('Preecha o Telefone'),
-    email: yup.string().email('Email Inválido'),
-    hasScholarShip: yup.boolean(),
-    classId: yup.string().required('Seleciona um Turma disponível'),
-    doc_file: yup.mixed().nullable(),
-    image_file: yup.mixed().nullable(),
-    userId: yup.string().required(),
-    centerId: yup.string().required()
-  })
-  .required()
-type FormData = yup.InferType<typeof schema>
+type FormData = yup.InferType<typeof studentSchema>
 
 interface ConfirmationPanelProps {
   resultInForm: IStudent
@@ -63,9 +27,7 @@ export const ConfirmationPanel: React.FC<ConfirmationPanelProps> = ({ resultInFo
     register,
     handleSubmit,
     formState: { errors, isSubmitting }
-  } = useForm<FormData>({
-    resolver: yupResolver(schema)
-  })
+  } = useForm<FormData>({ resolver: yupResolver(studentSchema) })
 
   const { center } = useCenter()
   const { user } = useAuth()
@@ -83,24 +45,22 @@ export const ConfirmationPanel: React.FC<ConfirmationPanelProps> = ({ resultInFo
   }, [])
 
   const onSubmit = async (data: FormData): Promise<void> => {
+    console.log('Submitting data: ', data)
+
     try {
-      const {
-        father,
-        mother,
-        address,
-        birthDate,
-        gender,
-        fullName,
-        surname,
-        phoneNumber,
-        email,
-        classId,
-        userId,
-        centerId
-      } = data
+      const fullName = data.fullName ?? resultInForm.name.fullName
+      const surname = data.surname ?? resultInForm.name?.surname
+      const birthDate = data.birthDate ?? resultInForm.birthDate
+      const gender = data.gender ?? resultInForm.gender
+      const father = data.father ?? resultInForm.parents?.father
+      const mother = data.mother ?? resultInForm.parents?.mother
+
+      const { address, phoneNumber, email, classId, userId, centerId, identityNumber } = data
       const parents = { father, mother }
       const name = { fullName, surname }
-      const { data: enrollment } = await createEnrollment({
+
+      // TODO: adicionar rota de confirmação de matricula, sem criar novo estudante
+      const createdEnrollment = await createEnrollment({
         parents,
         address,
         birthDate,
@@ -110,7 +70,8 @@ export const ConfirmationPanel: React.FC<ConfirmationPanelProps> = ({ resultInFo
         name,
         centerId,
         classId,
-        userId
+        userId,
+        identityNumber
       })
       Swal.fire({
         position: 'bottom-end',
@@ -127,7 +88,7 @@ export const ConfirmationPanel: React.FC<ConfirmationPanelProps> = ({ resultInFo
       })
       //Limpa o Form
       // reset()
-      await navigate('/payments/new', { state: { studentEnrollment: enrollment } })
+      await navigate('/payments/new', { state: { studentEnrollment: createdEnrollment } })
     } catch (error: unknown) {
       type errorTyped = {
         response?: { data?: { message?: string } }
@@ -213,6 +174,20 @@ export const ConfirmationPanel: React.FC<ConfirmationPanelProps> = ({ resultInFo
           className="w-full h-12 p-3  bg-zinc-950 rounded-md  focus:border-0  border-gray-700 outline-none text-gray-100 text-base font-normal placeholder:text-zinc-500"
         />
         {errors.surname && <span className="text-red-500">{errors.surname?.message}</span>}
+        <label htmlFor="identityNumber">
+          Número do BI <span className="text-orange-700">*</span>
+        </label>
+        <input
+          id="identityNumber"
+          {...register('identityNumber')}
+          placeholder="Número do BI"
+          defaultValue={resultInForm.identityNumber}
+          type="text"
+          className="w-full h-12 p-3 bg-zinc-950 rounded-md focus:border-0  border-gray-700 outline-none text-gray-100 text-base font-normal placeholder:text-zinc-500"
+        />
+        {errors.identityNumber && (
+          <span className="text-red-500">{errors.identityNumber?.message}</span>
+        )}
         <label htmlFor="birthDate">
           Data de Nascimento <span className="text-orange-700">*</span>
         </label>
