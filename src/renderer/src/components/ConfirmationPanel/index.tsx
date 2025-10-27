@@ -27,9 +27,7 @@ export const ConfirmationPanel: React.FC<ConfirmationPanelProps> = ({ resultInFo
     register,
     handleSubmit,
     formState: { errors, isSubmitting }
-  } = useForm<FormData>({
-    resolver: yupResolver(studentSchema)
-  })
+  } = useForm<FormData>()
 
   const { center } = useCenter()
   const { user } = useAuth()
@@ -47,24 +45,21 @@ export const ConfirmationPanel: React.FC<ConfirmationPanelProps> = ({ resultInFo
   }, [])
 
   const onSubmit = async (data: FormData): Promise<void> => {
+    console.log('Submitting data: ', data)
+
     try {
-      const {
-        father,
-        mother,
-        address,
-        birthDate,
-        gender,
-        fullName,
-        surname,
-        phoneNumber,
-        email,
-        classId,
-        userId,
-        centerId,
-        identityNumber
-      } = data
+      const fullName = data.fullName ?? resultInForm.name.fullName
+      const surname = data.surname ?? resultInForm.name?.surname
+      const birthDate = data.birthDate ?? resultInForm.birthDate
+      const gender = data.gender ?? resultInForm.gender
+      const father = data.father ?? resultInForm.parents?.father
+      const mother = data.mother ?? resultInForm.parents?.mother
+
+      const { address, phoneNumber, email, classId, userId, centerId, identityNumber } = data
       const parents = { father, mother }
       const name = { fullName, surname }
+
+      // TODO: adicionar rota de confirmação de matricula, sem criar novo estudante
       const createdEnrollment = await createEnrollment({
         parents,
         address,

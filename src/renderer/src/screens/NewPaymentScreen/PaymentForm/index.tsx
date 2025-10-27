@@ -51,6 +51,7 @@ export const PaymentForm: React.FC<PaymentFormProps> = (props) => {
     handleSubmit,
     setValue,
     watch,
+    getValues,
     formState: { isSubmitting }
   } = useForm<FormPaymentData>({
     resolver: yupResolver(schemaPayment)
@@ -64,6 +65,15 @@ export const PaymentForm: React.FC<PaymentFormProps> = (props) => {
   const paymentMethods = ['Dinheiro', 'Multicaixa Express', 'Transferência Bancária (ATM)']
   const [financialPlans, setFinancialPlans] = useState<IFinancialPlan[]>([])
   const [enrollmentByStudent, setEnrollmentByStudent] = useState<IEnrollmentForShow | null>(null)
+
+  const [lateFee, setLateFee] = useState<number>(0)
+  const [amount, setAmount] = useState<number>(0)
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+
+  const paymentMonth = watch('paymentMonthReference')
+
+  const targetSchoolYear = watch('targetSchoolYearReference')
+
   const onSubmitPaymentForm = async (data: FormPaymentData): Promise<void> => {
     try {
       await createPaymentService(data)
@@ -112,7 +122,10 @@ export const PaymentForm: React.FC<PaymentFormProps> = (props) => {
       }
     }
     getEnrollmentByStudent(props.resultsInForm?._id as string)
-  }, [props.resultsInForm])
+    getSchoolYears()
+
+    setIsLoading(false)
+  }, [props.resultsInForm, center])
 
   // TODO: carregar na lista do usuario todos meses a pagar naquele respectivo ano
   async function getFinancialPlanToPay(enrollmentId: string, schoolYearArg: string): Promise<void> {
@@ -124,7 +137,7 @@ export const PaymentForm: React.FC<PaymentFormProps> = (props) => {
       )
       setFinancialPlans(financialPlans)
     } catch (error) {
-      console.log(error)
+      console.error(error)
       throw error
     }
   }
@@ -132,22 +145,13 @@ export const PaymentForm: React.FC<PaymentFormProps> = (props) => {
   async function getSchoolYears(): Promise<void> {
     try {
       const tmp = await getSchoolYearsServiceAll(center?._id as string)
+
       setSchoolYears(tmp)
     } catch (error) {
-      console.log(error)
+      console.error(error)
       throw error
     }
   }
-
-  useEffect(() => {
-    getSchoolYears()
-  }, [])
-
-  const [lateFee, setLateFee] = useState<number>(0)
-  const [amount, setAmount] = useState<number>(0)
-
-  const paymentMonth = watch('paymentMonthReference')
-  const targetSchoolYear = '68963ec7062df1edb59e00ad'
 
   useEffect(() => {
     // só roda quando ambos existem e não são vazios
@@ -157,20 +161,38 @@ export const PaymentForm: React.FC<PaymentFormProps> = (props) => {
     }
 
     getFinancialPlanToPay(enrollmentId, targetSchoolYear)
-  }, [enrollmentByStudent?._id, targetSchoolYear])
+  }, [enrollmentByStudent, targetSchoolYear])
 
   useEffect(() => {
-    //melhorar para ter multa quando o aluno vai pagar meses muitos anteriores, sem nenhum pagamento ainda
+    // -  Verificar funcionalidades: melhorar para ter multa quando o aluno vai pagar meses muitos anteriores, sem nenhum pagamento ainda
     async function calculateAmount(): Promise<void> {
       if (enrollmentByStudent) {
         const today = new Date()
-        const referenceDate = new Date() //TODO: colocar a due date do mes de pagamento
+        const currentPlanToPay = financialPlans.find(
+          (plan) =>
+            plan.schoolYear === getValues('targetSchoolYearReference') &&
+            plan.month === paymentMonth
+        )
+        let lateFeeRate = 0
+        const referenceDate = new Date(currentPlanToPay?.dueDate as Date)
+
+        // // Se a data de referência não estiver definida, aplicar multa se for após o dia 10 do mês atual
+        // if (
+        //   (referenceDate === null || referenceDate === undefined) &&
+        //   today > new Date(today.getFullYear(), today.getMonth(), 10)
+        // ) {
+        //   lateFeeRate = enrollmentByStudent?.classId?.course?.feeFine
+        // }
+        referenceDate.setHours(23, 59, 59, 999)
+
         const isLate = today > referenceDate
 
-        const lateFeeRate = enrollmentByStudent?.classId?.course?.feeFine || 0
+        lateFeeRate = enrollmentByStudent?.classId?.course?.feeFine
         const calculatedLateFee = isLate ? lateFeeRate : 0
 
         setLateFee(calculatedLateFee)
+        // TODO: Considere a lógica para novos alunos sem dueDate ou planos anteriores
+
         const totalAmount = Number(enrollmentByStudent?.classId?.course?.fee) + calculatedLateFee
 
         setAmount(totalAmount)
@@ -182,7 +204,15 @@ export const PaymentForm: React.FC<PaymentFormProps> = (props) => {
     }
 
     calculateAmount()
-  }, [enrollmentByStudent, paymentMonth, targetSchoolYear, setValue])
+  }, [enrollmentByStudent, paymentMonth, setValue])
+
+  if (isLoading || !props.resultsInForm) {
+    return (
+      <div className="flex justify-center items-center h-full">
+        <Rings height="80" width="80" color="#f97316" ariaLabel="loading" visible={true} />
+      </div>
+    )
+  }
 
   return (
     <>

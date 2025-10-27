@@ -84,7 +84,6 @@ export async function getAllPaymentsService(centerId: string, page: number): Pro
 export async function getStudentPaymentsService(enrollmentId: string): Promise<IPayment[]> {
   try {
     const { data: results } = await apiMananger.get(`/payments/student/${enrollmentId}`)
-    console.log('Pagamentos do estudante: ', results)
     return results
   } catch (error) {
     console.log('Erro ao buscar pagamentos do estudante: ', error)

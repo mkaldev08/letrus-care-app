@@ -25,6 +25,8 @@ export interface IEnrollmentForApply {
   identityNumber: string
 }
 
+//TODO: Criar tipagem para inscricao
+
 export interface IEnrollmentForEdit {
   courseId: string
   grade: string
@@ -124,6 +126,7 @@ export const createEnrollment = async (data: IEnrollmentForApply): Promise<IEnro
   }
 }
 
+//export const confirmationEnrollment = async(studentId, data)
 export const getEnrollmentsService = async (centerId: string, page: number): Promise<IResponse> => {
   try {
     const { data } = await apiMananger.get(`/enrollments/all/${centerId}?page=${page}`)
