@@ -17,7 +17,7 @@ import { IStudent } from '@renderer/services/student'
 import { Rings } from 'react-loader-spinner'
 import {
   getFinancialPlanForStudentService,
-  IFinancialPlan
+  IFinancialPlanToShow
 } from '@renderer/services/financial-plan-services'
 import { getSchoolYearsServiceAll, ISchoolYear } from '@renderer/services/school-year-service'
 
@@ -63,7 +63,7 @@ export const PaymentForm: React.FC<PaymentFormProps> = (props) => {
   const [schoolYears, setSchoolYears] = useState<ISchoolYear[]>([])
 
   const paymentMethods = ['Dinheiro', 'Multicaixa Express', 'Transferência Bancária (ATM)']
-  const [financialPlans, setFinancialPlans] = useState<IFinancialPlan[]>([])
+  const [financialPlans, setFinancialPlans] = useState<IFinancialPlanToShow[]>([])
   const [enrollmentByStudent, setEnrollmentByStudent] = useState<IEnrollmentForShow | null>(null)
 
   const [lateFee, setLateFee] = useState<number>(0)

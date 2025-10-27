@@ -27,7 +27,7 @@ export const ConfirmationPanel: React.FC<ConfirmationPanelProps> = ({ resultInFo
     register,
     handleSubmit,
     formState: { errors, isSubmitting }
-  } = useForm<FormData>()
+  } = useForm<FormData>({ resolver: yupResolver(studentSchema) })
 
   const { center } = useCenter()
   const { user } = useAuth()

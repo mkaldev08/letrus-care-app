@@ -175,7 +175,7 @@ export const EnrollmentScreen: React.FC = () => {
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
 
-  function handleCreateEnrollmentFlow(): void {
+  /*   function handleCreateEnrollmentFlow(): void {
     Swal.fire({
       title: 'Define o Tipo de Inscrição',
       showCancelButton: true,
@@ -191,7 +191,7 @@ export const EnrollmentScreen: React.FC = () => {
         ? await navigate('/enrollment/confirmation')
         : await navigate('/enrollment/new')
     })
-  }
+  } */
 
   function handleStudentDetails(id: string): void {
     navigate(`/student/${id}/show`, { state: { enrollmentId: id } })
@@ -229,7 +229,7 @@ export const EnrollmentScreen: React.FC = () => {
               <input
                 {...register('studentSearch')}
                 type="search"
-                placeholder="Buscar por aluno ou código..."
+                placeholder="Buscar por aluno, BI ou código..."
                 className="flex-1 p-2 rounded-md border border-gray-400 bg-zinc-300 text-gray-700 placeholder:text-gray-700"
               />
               <Filter

@@ -1,9 +1,9 @@
 import Pagination from '@renderer/components/Pagination'
-import { IFinancialPlan } from '@renderer/services/financial-plan-services'
+import { IFinancialPlanToShow } from '@renderer/services/financial-plan-services'
 import { formateCurrency, formatNormaleDate } from '@renderer/utils/format'
 import React, { useState } from 'react'
 
-export const DuePaymentsTab: React.FC<{ data: IFinancialPlan[] }> = ({ data }) => {
+export const DuePaymentsTab: React.FC<{ data: IFinancialPlanToShow[] }> = ({ data }) => {
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages] = useState(1)
   return (

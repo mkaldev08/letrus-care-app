@@ -9,7 +9,7 @@ import { DuePaymentsTab } from './DuePaymentsTab'
 import { useParams } from 'react-router'
 import {
   getFinancialPlanForStudentService,
-  IFinancialPlan
+  IFinancialPlanToShow
 } from '@renderer/services/financial-plan-services'
 
 export const StudentPayments: React.FC = () => {
@@ -18,8 +18,8 @@ export const StudentPayments: React.FC = () => {
   const [schoolYears, setschoolYears] = useState<ISchoolYear[]>([])
   const [selectedYear, setSelectedYear] = useState<string>('')
   const [activeTab, setActiveTab] = useState<'paidServices' | 'duePayments'>('paidServices')
-  const [financialPlansPaid, setFinancialPlansPaid] = useState<IFinancialPlan[]>([])
-  const [financialPlansDue, setFinancialPlansDue] = useState<IFinancialPlan[]>([])
+  const [financialPlansPaid, setFinancialPlansPaid] = useState<IFinancialPlanToShow[]>([])
+  const [financialPlansDue, setFinancialPlansDue] = useState<IFinancialPlanToShow[]>([])
 
   const { enrollmentId } = useParams<string>()
 
