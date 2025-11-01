@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useAuth } from '@renderer/contexts/auth-context'
 import { useCenter } from '@renderer/contexts/center-context'
@@ -10,7 +10,6 @@ import {
 import { createPaymentService, getStudentPaymentsService } from '@renderer/services/payment-service'
 import { formateCurrency } from '@renderer/utils/format'
 import { useForm } from 'react-hook-form'
-import Swal from 'sweetalert2'
 import * as yup from 'yup'
 import { useNavigate } from 'react-router'
 import { IStudent } from '@renderer/services/student'
@@ -20,21 +19,25 @@ import {
   IFinancialPlanToShow
 } from '@renderer/services/financial-plan-services'
 import { getSchoolYearsServiceAll, ISchoolYear } from '@renderer/services/school-year-service'
+import Swal from 'sweetalert2'
 
 const schemaPayment = yup
   .object({
-    enrollmentId: yup.string().required(),
-    amount: yup.number().required(),
-    lateFee: yup.number().required(),
-    paymentMonthReference: yup.string().required(),
-    targetSchoolYearReference: yup.string().required(),
+    enrollmentId: yup.string().required('O ID da Matrícula é obrigatório.'),
+    amount: yup.number().required('O Valor é obrigatório.'),
+    lateFee: yup.number().required('A Multa é obrigatória.'),
+    paymentMonthReference: yup.string().required('O Mês de Referência é obrigatório.'),
+    targetSchoolYearReference: yup.string().required('O Ano Letivo é obrigatório.'),
     paymentMethod: yup
       .string()
-      .oneOf(['Dinheiro', 'Multicaixa Express', 'Transferência Bancária (ATM)'])
-      .required(),
-    centerId: yup.string().required(),
-    userId: yup.string().required(),
-    notes: yup.string()
+      .oneOf(
+        ['Dinheiro', 'Multicaixa Express', 'Transferência Bancária (ATM)'],
+        'Método de pagamento inválido.'
+      )
+      .required('O Método de Pagamento é obrigatório.'),
+    centerId: yup.string().required('O ID do Centro é obrigatório.'),
+    userId: yup.string().required('O ID do Usuário é obrigatório.'),
+    notes: yup.string().nullable()
   })
   .required()
 
@@ -44,6 +47,7 @@ type FormPaymentData = yup.InferType<typeof schemaPayment>
 interface PaymentFormProps {
   resultsInForm: IStudent | null
 }
+
 export const PaymentForm: React.FC<PaymentFormProps> = (props) => {
   // Hook do formulário de pagamento
   const {
@@ -60,19 +64,167 @@ export const PaymentForm: React.FC<PaymentFormProps> = (props) => {
   const { user } = useAuth()
   const { center } = useCenter()
   const navigate = useNavigate()
-  const [schoolYears, setSchoolYears] = useState<ISchoolYear[]>([])
 
+  const studentData = props.resultsInForm
+
+  const [schoolYears, setSchoolYears] = useState<ISchoolYear[]>([])
   const paymentMethods = ['Dinheiro', 'Multicaixa Express', 'Transferência Bancária (ATM)']
   const [financialPlans, setFinancialPlans] = useState<IFinancialPlanToShow[]>([])
   const [enrollmentByStudent, setEnrollmentByStudent] = useState<IEnrollmentForShow | null>(null)
 
   const [lateFee, setLateFee] = useState<number>(0)
   const [amount, setAmount] = useState<number>(0)
-  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [isLoading, setIsLoading] = useState<boolean>(true)
 
   const paymentMonth = watch('paymentMonthReference')
 
   const targetSchoolYear = watch('targetSchoolYearReference')
+
+  const getSchoolYears = useCallback(
+    async function getSchoolYears(): Promise<void> {
+      try {
+        const tmp = await getSchoolYearsServiceAll(center?._id as string)
+
+        setSchoolYears(tmp)
+      } catch (error) {
+        console.error(error)
+        throw error
+      }
+    },
+    [center?._id]
+  )
+
+  useEffect(() => {
+    async function getEnrollmentByStudent(studentId: string): Promise<void> {
+      if (studentId) {
+        const enrollment = await getEnrollmentByStudentService(studentId)
+        setEnrollmentByStudent(enrollment)
+      }
+    }
+    getEnrollmentByStudent(props.resultsInForm?._id as string)
+    getSchoolYears()
+
+    setIsLoading(false)
+  }, [props.resultsInForm, center, getSchoolYears])
+
+  const getFinancialPlanToPay = useCallback(
+    // TODO: carregar na lista do usuario todos meses a pagar naquele respectivo ano
+    async function getFinancialPlanToPay(
+      enrollmentId: string,
+      schoolYearArg: string
+    ): Promise<void> {
+      try {
+        const financialPlans = await getFinancialPlanForStudentService(
+          center?._id as string,
+          enrollmentId,
+          { status: 'all', schoolYear: schoolYearArg }
+        )
+        setFinancialPlans(financialPlans)
+      } catch (error) {
+        console.error(error)
+        setFinancialPlans([])
+        throw error
+      }
+    },
+    [center?._id]
+  )
+
+  useEffect(() => {
+    const studentId = studentData?._id as string
+    if (!studentId || !center?._id || !user?._id) return
+
+    setIsLoading(true)
+
+    async function initializeFormData(): Promise<void> {
+      try {
+        const enrollment = await getEnrollmentByStudentService(studentId)
+        setEnrollmentByStudent(enrollment)
+        setValue('enrollmentId', enrollment._id as string)
+
+        const years = await getSchoolYearsServiceAll(center?._id as string)
+        setSchoolYears(years)
+
+        const currentYear = years.find((year) => year.isCurrent === true)
+        const initialYearId = currentYear?._id || years[0]?._id || ''
+
+        setValue('targetSchoolYearReference', initialYearId)
+        setValue('centerId', center?._id as string)
+        setValue('userId', user?._id as string)
+      } catch (error) {
+        console.error('Error initializing form data:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    initializeFormData()
+  }, [studentData?._id, center?._id, user?._id, setValue])
+
+  useEffect(() => {
+    const enrollmentId = enrollmentByStudent?._id
+    if (!enrollmentId || !targetSchoolYear) {
+      setFinancialPlans([])
+      return
+    }
+
+    getFinancialPlanToPay(enrollmentId, targetSchoolYear)
+  }, [enrollmentByStudent, getFinancialPlanToPay, targetSchoolYear])
+
+  useEffect(() => {
+    if (financialPlans.length > 0) {
+      const currentMonthReference = getValues('paymentMonthReference')
+      const firstMonthId = financialPlans[0].month
+
+      const isCurrentMonthInPlans = financialPlans.some(
+        (plan) => plan.month === currentMonthReference
+      )
+
+      if (!currentMonthReference || !isCurrentMonthInPlans) {
+        setValue('paymentMonthReference', firstMonthId)
+      }
+    } else {
+      setValue('paymentMonthReference', '')
+    }
+  }, [financialPlans, getValues, setValue])
+
+  useEffect(() => {
+    async function calculateAmount(): Promise<void> {
+      if (!enrollmentByStudent || !paymentMonth || !targetSchoolYear) {
+        setLateFee(0)
+        setAmount(0)
+        setValue('lateFee', 0)
+        setValue('amount', 0)
+        return
+      }
+
+      const today = new Date()
+      const currentPlanToPay = financialPlans.find(
+        (plan) => plan.schoolYear === targetSchoolYear && plan.month === paymentMonth
+      )
+
+      const fee = Number(enrollmentByStudent.classId.course.fee) || 0
+      let calculatedLateFee = 0
+
+      if (currentPlanToPay) {
+        const referenceDate = new Date(currentPlanToPay.dueDate)
+        referenceDate.setHours(23, 59, 59, 999)
+        const isLate = today > referenceDate
+
+        const lateFeeRate = enrollmentByStudent.classId.course.feeFine || 0
+        calculatedLateFee = isLate ? lateFeeRate : 0
+      }
+
+      const totalAmount = fee + calculatedLateFee
+
+      setLateFee(calculatedLateFee)
+      setAmount(totalAmount)
+
+      setValue('lateFee', calculatedLateFee)
+      setValue('amount', totalAmount)
+    }
+
+    calculateAmount()
+  }, [enrollmentByStudent, financialPlans, paymentMonth, targetSchoolYear, setValue])
 
   const onSubmitPaymentForm = async (data: FormPaymentData): Promise<void> => {
     try {
@@ -90,7 +242,6 @@ export const PaymentForm: React.FC<PaymentFormProps> = (props) => {
         },
         timerProgressBar: true
       })
-      //Se aluno for novo,completa o processo de inscrição com pagamento
       const results = await getStudentPaymentsService(enrollmentByStudent?._id as string)
 
       if (results.length === 1 || enrollmentByStudent?.status === 'pending') {
@@ -114,99 +265,7 @@ export const PaymentForm: React.FC<PaymentFormProps> = (props) => {
     }
   }
 
-  useEffect(() => {
-    async function getEnrollmentByStudent(studentId: string): Promise<void> {
-      if (studentId) {
-        const enrollment = await getEnrollmentByStudentService(studentId)
-        setEnrollmentByStudent(enrollment)
-      }
-    }
-    getEnrollmentByStudent(props.resultsInForm?._id as string)
-    getSchoolYears()
-
-    setIsLoading(false)
-  }, [props.resultsInForm, center])
-
-  // TODO: carregar na lista do usuario todos meses a pagar naquele respectivo ano
-  async function getFinancialPlanToPay(enrollmentId: string, schoolYearArg: string): Promise<void> {
-    try {
-      const financialPlans = await getFinancialPlanForStudentService(
-        center?._id as string,
-        enrollmentId,
-        { status: 'all', schoolYear: schoolYearArg }
-      )
-      setFinancialPlans(financialPlans)
-    } catch (error) {
-      console.error(error)
-      throw error
-    }
-  }
-
-  async function getSchoolYears(): Promise<void> {
-    try {
-      const tmp = await getSchoolYearsServiceAll(center?._id as string)
-
-      setSchoolYears(tmp)
-    } catch (error) {
-      console.error(error)
-      throw error
-    }
-  }
-
-  useEffect(() => {
-    // só roda quando ambos existem e não são vazios
-    const enrollmentId = enrollmentByStudent?._id
-    if (!enrollmentId || !targetSchoolYear) {
-      return
-    }
-
-    getFinancialPlanToPay(enrollmentId, targetSchoolYear)
-  }, [enrollmentByStudent, targetSchoolYear])
-
-  useEffect(() => {
-    // -  Verificar funcionalidades: melhorar para ter multa quando o aluno vai pagar meses muitos anteriores, sem nenhum pagamento ainda
-    async function calculateAmount(): Promise<void> {
-      if (enrollmentByStudent) {
-        const today = new Date()
-        const currentPlanToPay = financialPlans.find(
-          (plan) =>
-            plan.schoolYear === getValues('targetSchoolYearReference') &&
-            plan.month === paymentMonth
-        )
-        let lateFeeRate = 0
-        const referenceDate = new Date(currentPlanToPay?.dueDate as Date)
-
-        // // Se a data de referência não estiver definida, aplicar multa se for após o dia 10 do mês atual
-        // if (
-        //   (referenceDate === null || referenceDate === undefined) &&
-        //   today > new Date(today.getFullYear(), today.getMonth(), 10)
-        // ) {
-        //   lateFeeRate = enrollmentByStudent?.classId?.course?.feeFine
-        // }
-        referenceDate.setHours(23, 59, 59, 999)
-
-        const isLate = today > referenceDate
-
-        lateFeeRate = enrollmentByStudent?.classId?.course?.feeFine
-        const calculatedLateFee = isLate ? lateFeeRate : 0
-
-        setLateFee(calculatedLateFee)
-        // TODO: Considere a lógica para novos alunos sem dueDate ou planos anteriores
-
-        const totalAmount = Number(enrollmentByStudent?.classId?.course?.fee) + calculatedLateFee
-
-        setAmount(totalAmount)
-
-        setValue('lateFee', calculatedLateFee)
-        setValue('enrollmentId', enrollmentByStudent?._id as string)
-        setValue('amount', totalAmount)
-      }
-    }
-
-    calculateAmount()
-  }, [enrollmentByStudent, paymentMonth, setValue])
-
-  if (isLoading || !props.resultsInForm) {
+  if (isLoading || !studentData) {
     return (
       <div className="flex justify-center items-center h-full">
         <Rings height="80" width="80" color="#f97316" ariaLabel="loading" visible={true} />
@@ -245,22 +304,6 @@ export const PaymentForm: React.FC<PaymentFormProps> = (props) => {
         </div>
         <h3 className="text-xl text-zinc-100 space-y-2">Detalhes do Pagamento</h3>
         <div className="flex flex-col gap-2">
-          {/* Mês de Referência */}
-          <label className="text-zinc-300" htmlFor="month-select">
-            Mês de Referência
-          </label>
-          <select
-            id="month-select"
-            {...register('paymentMonthReference')}
-            className="w-full h-12 p-3 bg-zinc-950 rounded-md border-gray-700 text-gray-100"
-          >
-            {financialPlans.map((plan) => (
-              <option key={plan._id} value={plan.month}>
-                {plan.month}
-              </option>
-            ))}
-          </select>
-
           {/* Ano de Referência */}
           <label className="text-zinc-300" htmlFor="year-select">
             Ano de Referência
@@ -285,6 +328,29 @@ export const PaymentForm: React.FC<PaymentFormProps> = (props) => {
                 </option>
               )
             })}
+          </select>
+
+          {/* Mês de Referência */}
+          <label className="text-zinc-300 font-medium" htmlFor="month-select">
+            Mês de Referência
+          </label>
+          <select
+            id="month-select"
+            {...register('paymentMonthReference')}
+            className="w-full h-12 p-3 bg-zinc-950 rounded-lg border border-gray-700 text-gray-100 appearance-none focus:ring-2 focus:ring-orange-600 focus:border-orange-600"
+            disabled={financialPlans.length === 0}
+          >
+            {financialPlans.length > 0 ? (
+              financialPlans.map((plan) => (
+                <option key={plan._id} value={plan.month}>
+                  {plan.month}
+                </option>
+              ))
+            ) : (
+              <option value="" disabled>
+                {isLoading ? 'A carregar anos...' : 'Nenhum mês disponível'}
+              </option>
+            )}
           </select>
 
           {/* Valor a Pagar */}
