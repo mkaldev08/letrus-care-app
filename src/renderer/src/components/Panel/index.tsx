@@ -182,7 +182,6 @@ export const Panel: React.FC = () => {
       </>
     )
   }
-  //FIXME: PEDIR NUMERO DO BI
   const StudentForm: React.FC = () => {
     return (
       <>

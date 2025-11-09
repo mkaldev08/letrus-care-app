@@ -122,7 +122,7 @@ export const EnrollmentScreen: React.FC = () => {
 
   useEffect(() => {
     if (center?._id as string) fetchEnrollments(currentPage)
-  }, [center?._id as string, currentPage, isModalOpen])
+  }, [center?._id, currentPage, isModalOpen])
 
   type selectedEnrollmentType = {
     enrollment: IEnrollmentForShow
@@ -171,7 +171,7 @@ export const EnrollmentScreen: React.FC = () => {
 
       generatePDF()
     }
-  }, [selectedEnrollment])
+  }, [center, selectedEnrollment])
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
 

@@ -108,7 +108,6 @@ export const PaymentForm: React.FC<PaymentFormProps> = (props) => {
   }, [props.resultsInForm, center, getSchoolYears])
 
   const getFinancialPlanToPay = useCallback(
-    // TODO: carregar na lista do usuario todos meses a pagar naquele respectivo ano
     async function getFinancialPlanToPay(
       enrollmentId: string,
       schoolYearArg: string

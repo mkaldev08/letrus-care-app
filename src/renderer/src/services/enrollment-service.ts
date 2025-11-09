@@ -25,8 +25,6 @@ export interface IEnrollmentForApply {
   identityNumber: string
 }
 
-//TODO: Criar tipagem para inscricao
-
 export interface IEnrollmentForEdit {
   courseId: string
   grade: string

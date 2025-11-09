@@ -15,55 +15,22 @@ import {
 } from 'recharts'
 import { useDashboard } from '@renderer/hooks/useDashboard'
 import { TailSpin } from 'react-loader-spinner'
+import { useNavigate } from 'react-router'
 
-// const mockData = {
-//   totalCenters: 5,
-//   totalUsers: 120,
-//   totalTeachers: 25,
-//   totalStudents: 300,
-//   studentGrowth: [
-//     { month: 'Jan', students: 200 },
-//     { month: 'Feb', students: 220 },
-//     { month: 'Mar', students: 250 },
-//     { month: 'Apr', students: 270 },
-//     { month: 'May', students: 300 }
-//   ]
-// }
-// const data = [
-//   {
-//     name: 'Mes A',
-//     uv: 4000,
-//     pv: 2400,
-//     amt: 2400
-//   },
-//   {
-//     name: 'Mes B',
-//     uv: 3000,
-//     pv: 1398,
-//     amt: 2210
-//   },
-//   {
-//     name: 'Mes C',
-//     uv: 2000,
-//     pv: 9800,
-//     amt: 2290
-//   },
-//   {
-//     name: 'Mes D',
-//     uv: 2780,
-//     pv: 3908,
-//     amt: 2000
-//   },
-//   {
-//     name: 'Mes E',
-//     uv: 1890,
-//     pv: 4800,
-//     amt: 2181
-//   }
-// ]
+// Tipos para as estatísticas do dashboard (discriminated union por label)
+type StatisticItem =
+  | { label: 'Alunos'; value: number }
+  | { label: 'Turmas'; value: number }
+  | { label: 'Professores'; value: number }
+  | { label: 'Pagamento Diário (kz)'; value: number }
+  | { label: 'Faltas Diárias'; value: number }
+  | { label: 'Inscrições Diária'; value: number }
+  | { label: 'Propinas Atrasadas'; value: number }
+  | { label: 'Inscrições não Concluidas'; value: number }
 
 export const HomeScreen: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
+  const navigate = useNavigate()
 
   const {
     totalActiveClassRoom,
@@ -79,7 +46,8 @@ export const HomeScreen: React.FC = () => {
     isLoading,
     error
   } = useDashboard()
-  const statisticData = [
+
+  const statisticData: StatisticItem[] = [
     { label: 'Alunos', value: totalActiveStudent },
     { label: 'Turmas', value: totalActiveClassRoom },
     { label: 'Professores', value: totalActiveTeachers },
@@ -89,6 +57,21 @@ export const HomeScreen: React.FC = () => {
     { label: 'Propinas Atrasadas', value: totalOverdueFee },
     { label: 'Inscrições não Concluidas', value: totalIncompleteEnrollment }
   ]
+
+  type StatisticLabel = StatisticItem['label']
+
+  function handleNavigateByLabel(label: StatisticLabel): void {
+    switch (label) {
+      case 'Propinas Atrasadas':
+        navigate('/home/overdue-payments')
+        break
+      case 'Pagamento Diário (kz)':
+        navigate('/home/daily-payment')
+        break
+      default:
+        break
+    }
+  }
   return (
     <div className="flex flex-col h-screen">
       {/* Header */}
@@ -105,6 +88,7 @@ export const HomeScreen: React.FC = () => {
                   <div
                     key={index}
                     className="bg-zinc-800 p-4 rounded-lg shadow-md text-center hover:opacity-80 hover:cursor-pointer transition-all h-36 flex flex-col items-center justify-center"
+                    onClick={() => handleNavigateByLabel(item.label)}
                   >
                     <p className="text-zinc-400 text-xl">{item.label}</p>
                     <p className="text-2xl font-bold">{item.value}</p>

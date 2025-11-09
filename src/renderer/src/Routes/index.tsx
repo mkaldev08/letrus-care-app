@@ -30,6 +30,8 @@ import { ConfirmationEnrollmentScreen } from '@renderer/screens/ConfirmationEnro
 import { SchoolYearScreen } from '@renderer/screens/SchoolYearScreen'
 import { StudentPayments } from '@renderer/screens/(student)/StudentPayments'
 import { EnrollmentAndStudentDetailsScreen } from '@renderer/screens/(student)/EnrollmentAndStudentDetailsScreen'
+import { DailyPayment } from '@renderer/screens/summary-dashboard/daily-payment'
+import { OverDuePayments } from '@renderer/screens/summary-dashboard/overdue-payments-students'
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { signed } = useAuth()
@@ -38,26 +40,63 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
   return <>{children}</>
 }
 
-const router = createBrowserRouter([
-  {
-    path: '/',
-    element: (
-      <ProtectedRoute>
-        <LoginScreen />
-      </ProtectedRoute>
-    ),
-    errorElement: <ErrorScreen />
-  },
-  {
-    path: '/home',
-    errorElement: <ErrorScreen />,
-    element: (
+const CurrentIndexPage: React.FC = () => {
+  const { signed } = useAuth()
+
+  if (!signed) {
+    return <LoginScreen />
+  } else {
+    return (
       <ProtectedRoute>
         <DashboardProvider>
           <HomeScreen />
         </DashboardProvider>
       </ProtectedRoute>
     )
+  }
+}
+
+const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <CurrentIndexPage />,
+    errorElement: <ErrorScreen />
+  },
+  {
+    path: '/home',
+    errorElement: <ErrorScreen />,
+    children: [
+      {
+        index: true,
+        element: (
+          <ProtectedRoute>
+            <DashboardProvider>
+              <HomeScreen />
+            </DashboardProvider>
+          </ProtectedRoute>
+        )
+      },
+      {
+        path: 'daily-payment',
+        element: (
+          <ProtectedRoute>
+            <DashboardProvider>
+              <DailyPayment />
+            </DashboardProvider>
+          </ProtectedRoute>
+        )
+      },
+      {
+        path: 'overdue-payments',
+        element: (
+          <ProtectedRoute>
+            <DashboardProvider>
+              <OverDuePayments />
+            </DashboardProvider>
+          </ProtectedRoute>
+        )
+      }
+    ]
   },
   {
     path: '/enrollment',
