@@ -4,18 +4,24 @@ import React, { useEffect, useState } from 'react'
 import { ContentLoader } from '@renderer/components/ContentLoader'
 import Pagination from '@renderer/components/Pagination'
 import { useCenter } from '@renderer/contexts/center-context'
-import { getOverduePaymentsService } from '@renderer/services/dashboard-service'
+import {
+  getOverduePaymentsService,
+  getOverduePaymentsWithoutLimitService
+} from '@renderer/services/dashboard-service'
 import { pdf } from '@react-pdf/renderer'
 import { OverDuePaymentsPDF } from '@renderer/reports/models/OverDuePaymentsPDF'
 import { Rings } from 'react-loader-spinner'
-
+import type { TuitionPaymentResponse } from '@renderer/types/dashboard'
+import { useAuth } from '@renderer/contexts/auth-context'
 export const OverDuePayments: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
-  const [overduePaymentsList, setOverduePaymentList] = useState([])
+  const [overduePaymentsList, setOverduePaymentList] = useState<TuitionPaymentResponse | null>(null)
+
   const [isLoadingPDF, setIsLoadingPDF] = useState(false)
 
   const { center } = useCenter()
+  const { user } = useAuth()
 
   useEffect(() => {
     async function fetchOverduePayments(): Promise<void> {
@@ -36,8 +42,9 @@ export const OverDuePayments: React.FC = () => {
   async function handleDownloadPDF(): Promise<void> {
     setIsLoadingPDF(true)
     try {
+      const result = await getOverduePaymentsWithoutLimitService(String(center?._id))
       const blob = await pdf(
-        <OverDuePaymentsPDF data={overduePaymentsList as []} center={center!} />
+        <OverDuePaymentsPDF data={result} center={center!} user={user!} />
       ).toBlob()
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')

@@ -3,14 +3,18 @@ import { ICenter } from '@renderer/services/center-service'
 import { getFromStorage } from '@renderer/utils/storage'
 import React, { useState, useEffect } from 'react'
 import Logo from '../../assets/logo-vector.png'
+import { TuitionPaymentResponse } from '@renderer/types/dashboard'
+import { IAuth } from '@renderer/services/user'
 
 interface OverDuePaymentsPDFProps {
-  data: []
+  data: TuitionPaymentResponse
   center: ICenter
+  user: IAuth
 }
 
-const OverDuePaymentsPDF: React.FC<OverDuePaymentsPDFProps> = ({ center, data }) => {
+const OverDuePaymentsPDF: React.FC<OverDuePaymentsPDFProps> = ({ center, data, user }) => {
   const [imageFromDB, setImageFromDB] = useState('')
+  const currentDate = new Date()
 
   useEffect(() => {
     const loadData = async (): Promise<void> => {
@@ -29,7 +33,7 @@ const OverDuePaymentsPDF: React.FC<OverDuePaymentsPDFProps> = ({ center, data })
   }, [])
   return (
     <Document>
-      <Page size={'A4'} orientation="portrait">
+      <Page size={'A4'} orientation="portrait" style={{ padding: 10 }}>
         <View style={styles.header}>
           <Image
             src={imageFromDB ? `data:${center?.fileType};base64,${imageFromDB}` : Logo}
@@ -40,11 +44,11 @@ const OverDuePaymentsPDF: React.FC<OverDuePaymentsPDFProps> = ({ center, data })
           />
           <Text style={styles.titleCenter}>{center.name}</Text>
           <Text>Secretaria Geral</Text>
-          <Text style={styles.titleDocument}>Relação Nominal para Propina em Atraso</Text>
+          <Text style={styles.titleDocument}>Relação Nominal de Propinas em Atraso</Text>
         </View>
         <View style={styles.section}>
           <>
-            <View style={[styles.tableRow, styles.tableHeader]} fixed>
+            <View style={[styles.tableRow, styles.tableHeader]}>
               <Text style={[styles.cell, styles.colSmall]}>#</Text>
               <Text style={[styles.cell, styles.colMedium]}>Inscrição</Text>
               <Text style={[styles.cell, styles.colLarge]}>Nome Completo</Text>
@@ -52,28 +56,39 @@ const OverDuePaymentsPDF: React.FC<OverDuePaymentsPDFProps> = ({ center, data })
               <Text style={[styles.cell, styles.colSmall]}>Mês</Text>
               <Text style={[styles.cell, styles.colSmall]}>Ano</Text>
             </View>
-            {data.map((item: any, index) => (
+            {data.map((item, index) => (
               <View key={index} style={styles.tableRow} wrap>
                 <Text style={[styles.cell, styles.colSmall]}>{index + 1}</Text>
                 <Text style={[styles.cell, styles.colMedium]}>
-                  {item.enrollmentId.studentId.studentCode}
+                  {item.enrollmentId.studentId?.studentCode}
                 </Text>
                 <Text style={[styles.cell, styles.colLarge]}>
-                  {item.enrollmentId.studentId.name?.fullName}
+                  {item.enrollmentId.studentId?.name?.fullName}
                 </Text>
                 <Text style={[styles.cell, styles.colMedium]}>
-                  {item.enrollmentId.classId.className}
+                  {item.enrollmentId?.classId.className}
                 </Text>
                 <Text style={[styles.cell, styles.colSmall]}>{item.month}</Text>
                 <Text style={[styles.cell, styles.colSmall]}>{item.year}</Text>
               </View>
             ))}
           </>
-        </View>
-        <View style={styles.sheetWrapper}>
-          <Text style={styles.textMin}>
-            Documento emitido por sistema informatizado, dispensando assinatura e carimbo.
-          </Text>
+          <View style={styles.footerArea}>
+            <Text
+              style={{
+                alignSelf: 'center',
+                marginTop: 10
+              }}
+            >
+              {center.name} - {center.documentCode} aos {currentDate.getDate()} de{' '}
+              {currentDate.getMonth().toLocaleString()} de {currentDate.getFullYear()}
+            </Text>
+            <View style={styles.signView}>
+              <Text>O (a) Responsável (a)</Text>
+              <Text style={styles.signBar}></Text>
+              <Text>{user.username}</Text>
+            </View>
+          </View>
         </View>
       </Page>
     </Document>
@@ -85,15 +100,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     color: '#000',
     fontSize: 11,
-    paddingVertical: 5,
-    paddingHorizontal: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 15,
     flex: 1
   },
   sheetWrapper: {
     marginTop: 50,
     paddingTop: 30,
-    borderTopWidth: 1,
-    borderTopStyle: 'dashed'
+    borderTopWidth: 1
   },
   header: {
     alignItems: 'center',
@@ -113,7 +127,8 @@ const styles = StyleSheet.create({
     marginVertical: 8
   },
   section: {
-    margin: 8,
+    marginHorizontal: 8,
+    marginVertical: 12,
     padding: 8,
     gap: 2
   },
@@ -137,7 +152,7 @@ const styles = StyleSheet.create({
     lineHeight: 1.15
   },
   signBar: {
-    width: '100%',
+    width: '35%',
     borderWidth: 1,
     marginTop: 10
   },
@@ -145,14 +160,20 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    textTransform: 'capitalize'
+    textTransform: 'capitalize',
+    marginTop: 10
+  },
+
+  footerArea: {
+    fontSize: 11,
+    marginTop: 10
   },
 
   // Tabela
   tableRow: {
     flexDirection: 'row',
     alignItems: 'stretch',
-    borderBottomWidth: 1,
+    borderBottomWidth: 0.8,
     borderColor: '#000'
   },
   tableHeader: {
@@ -162,7 +183,7 @@ const styles = StyleSheet.create({
     fontSize: 9,
     paddingVertical: 4,
     paddingHorizontal: 3,
-    borderRightWidth: 1,
+    borderRightWidth: 0.8,
     borderColor: '#000',
     justifyContent: 'center'
   },
