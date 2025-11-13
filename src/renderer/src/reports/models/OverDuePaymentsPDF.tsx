@@ -16,6 +16,16 @@ const OverDuePaymentsPDF: React.FC<OverDuePaymentsPDFProps> = ({ center, data, u
   const [imageFromDB, setImageFromDB] = useState('')
   const currentDate = new Date()
 
+  const getMonthName = (date: Date): string => {
+    try {
+      const month = new Intl.DateTimeFormat('pt-PT', { month: 'long' }).format(date)
+      // Capitalize first letter
+      return month.charAt(0).toUpperCase() + month.slice(1)
+    } catch (error) {
+      return String(date.getMonth() + 1)
+    }
+  }
+
   useEffect(() => {
     const loadData = async (): Promise<void> => {
       try {
@@ -81,7 +91,7 @@ const OverDuePaymentsPDF: React.FC<OverDuePaymentsPDFProps> = ({ center, data, u
               }}
             >
               {center.name} - {center.documentCode} aos {currentDate.getDate()} de{' '}
-              {currentDate.getMonth().toLocaleString()} de {currentDate.getFullYear()}
+              {getMonthName(currentDate)} de {currentDate.getFullYear()}
             </Text>
             <View style={styles.signView}>
               <Text>O (a) Responsável (a)</Text>

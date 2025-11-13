@@ -49,7 +49,7 @@ export const OverDuePayments: React.FC = () => {
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
-      a.download = `pagamento-atrasado-alunos-${center!.documentCode}-${Date.now()}.pdf`
+      a.download = `propinas-em-atraso-alunos-${center!.documentCode}-${new Date().toLocaleDateString()}.pdf`
       document.body.appendChild(a)
       a.click()
       document.body.removeChild(a)
