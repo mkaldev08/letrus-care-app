@@ -4,7 +4,11 @@ import { Sidebar } from '@renderer/components/Sidebar'
 import { Modal } from '@renderer/components/Modal'
 import { useCenter } from '@renderer/contexts/center-context'
 
-import { getSchoolYearsService, ISchoolYear } from '@renderer/services/school-year-service'
+import {
+  editSchoolYearService,
+  getSchoolYearsService,
+  ISchoolYear
+} from '@renderer/services/school-year-service'
 import { formatDate } from '@renderer/utils/format'
 
 import { Footer } from '@renderer/components/Footer'
@@ -12,6 +16,8 @@ import { Header } from '@renderer/components/Header'
 import Pagination from '@renderer/components/Pagination'
 import { ContentLoader } from '@renderer/components/ContentLoader'
 import { ModalCreateSchoolYear } from './ModalCreateSchoolYear'
+import { X, Check } from 'lucide-react'
+import Swal from 'sweetalert2'
 
 export const SchoolYearScreen: React.FC = () => {
   const { center } = useCenter()
@@ -35,7 +41,50 @@ export const SchoolYearScreen: React.FC = () => {
 
   useEffect(() => {
     getSchoolYears(currentPage)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isModalOpen, currentPage])
+
+  async function handleSelectSchoolYearState(newState: boolean, id: string): Promise<void> {
+    if (id) {
+      // Se está a tentar definir como atual, verificar se já existe um
+      if (newState && schoolYears?.some((year) => year.isCurrent)) {
+        const result = await Swal.fire({
+          title: 'Já existe um ano letivo actual',
+          text: 'Deseja substituir o ano letivo actual?',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Sim, substituir!',
+          cancelButtonText: 'Cancelar'
+        })
+        if (result.isConfirmed) {
+          const currentYear = schoolYears?.find((year) => year.isCurrent)
+          if (currentYear) {
+            await editSchoolYearService(String(currentYear._id), {
+              isCurrent: false
+            } as ISchoolYear)
+          }
+          await editSchoolYearService(id, { isCurrent: newState } as ISchoolYear)
+          await getSchoolYears(currentPage)
+          Swal.fire('Substituído!', 'O ano letivo actual foi substituído.', 'success')
+        }
+      } else {
+        //se quer desativar o actual, pede para colocar outro como actual antes
+        if (!newState) {
+          await Swal.fire({
+            title: 'Encerrar ano letivo actual',
+            text: 'Para encerrar o ano letivo actual, deve definir outro ano letivo como actual.',
+            icon: 'warning',
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'Entendi'
+          })
+
+          return
+        }
+      }
+    }
+  }
 
   const [isLoaderSchoolYearList, setIsLoaderSchoolYearList] = useState(true)
 
@@ -77,6 +126,9 @@ export const SchoolYearScreen: React.FC = () => {
                     <th className="bg-orange-800 text-white p-2 md:border md:border-zinc-700 text-center block md:table-cell">
                       Estado
                     </th>
+                    <th className="bg-orange-800 text-white p-2 md:border md:border-zinc-700 text-center block md:table-cell">
+                      Ações
+                    </th>
                   </tr>
                 </thead>
 
@@ -98,6 +150,31 @@ export const SchoolYearScreen: React.FC = () => {
                         </td>
                         <td className="p-2 md:border md:border-zinc-700 text-center block md:table-cell">
                           {row?.isCurrent ? 'Actual' : 'Encerrado'}
+                        </td>
+                        <td className="p-2 md:border md:border-zinc-700 text-center block md:table-cell">
+                          {/* Botões para Ações */}
+                          <div className="flex items-center justify-evenly gap-1">
+                            <button
+                              className="bg-zinc-200 text-zinc-700 px-2 py-1 rounded hover:brightness-125 disabled:opacity-70"
+                              title="Definir como actual"
+                              disabled={row.isCurrent}
+                              onClick={async () =>
+                                await handleSelectSchoolYearState(true, String(row._id))
+                              }
+                            >
+                              <Check />
+                            </button>
+                            <button
+                              disabled={!row.isCurrent}
+                              className="bg-red-500 text-white px-2 py-1 rounded hover:brightness-125 disabled:opacity-70"
+                              title="Encerrar ano letivo"
+                              onClick={async () =>
+                                await handleSelectSchoolYearState(false, String(row._id))
+                              }
+                            >
+                              <X />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))

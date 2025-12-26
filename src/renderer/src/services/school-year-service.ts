@@ -1,4 +1,4 @@
-import apiMananger from './api'
+import apiManager from './api'
 
 export interface ISchoolYear {
   _id?: string
@@ -10,7 +10,7 @@ export interface ISchoolYear {
 
 export async function createSchoolYear(data: ISchoolYear, centerId: string): Promise<void> {
   try {
-    await apiMananger.post(`school-year/new/${centerId}`, data)
+    await apiManager.post(`school-year/new/${centerId}`, data)
   } catch (error) {
     console.log('Erro ao criar ano letivo: ', error)
     throw error
@@ -24,7 +24,7 @@ type IResponse = {
 
 export async function getSchoolYearsService(page: number, centerId: string): Promise<IResponse> {
   try {
-    const { data } = await apiMananger.get(`school-year/all/${centerId}?page=${page}`)
+    const { data } = await apiManager.get(`school-year/all/${centerId}?page=${page}`)
     const typeData: IResponse = data
     return typeData
   } catch (error) {
@@ -35,7 +35,7 @@ export async function getSchoolYearsService(page: number, centerId: string): Pro
 
 export async function getCurrentSchoolYearService(centerId: string): Promise<ISchoolYear> {
   try {
-    const { data } = await apiMananger.get(`school-year/current/${centerId}`)
+    const { data } = await apiManager.get(`school-year/current/${centerId}`)
     return data
   } catch (error) {
     console.log('Erro ao buscar ano letivo atual')
@@ -45,7 +45,7 @@ export async function getCurrentSchoolYearService(centerId: string): Promise<ISc
 
 export async function getSchoolYearsServiceAll(centerId: string): Promise<ISchoolYear[]> {
   try {
-    const { data } = await apiMananger.get(`school-year/${centerId}`)
+    const { data } = await apiManager.get(`school-year/${centerId}`)
     const typeData: ISchoolYear[] = data
     return typeData
   } catch (error) {
@@ -56,7 +56,7 @@ export async function getSchoolYearsServiceAll(centerId: string): Promise<ISchoo
 
 export async function getSchoolYearService(schoolYearId: string): Promise<ISchoolYear> {
   try {
-    const { data } = await apiMananger.get(`school-year/${schoolYearId}`)
+    const { data } = await apiManager.get(`school-year/${schoolYearId}`)
     const typeData: ISchoolYear = data
     return typeData
   } catch (error) {
@@ -70,7 +70,7 @@ export async function editSchoolYearService(
   data: ISchoolYear
 ): Promise<void> {
   try {
-    await apiMananger.put(`school-year/edit/${schoolYearId}`, data)
+    await apiManager.put(`school-year/edit/${schoolYearId}`, data)
   } catch (error) {
     console.log('Erro ao editar ')
     throw error
