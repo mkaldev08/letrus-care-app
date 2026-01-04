@@ -11,6 +11,7 @@ import { useAuth } from '@renderer/contexts/auth-context'
 import { getClassesService, IResponseClass } from '@renderer/services/class-service'
 import { useNavigate } from 'react-router'
 import { Rings } from 'react-loader-spinner'
+import { useSchoolYear } from '@renderer/contexts/school-year-context'
 
 export const studentSchema = yup
   .object({
@@ -65,17 +66,21 @@ export const Panel: React.FC = () => {
   const { center } = useCenter()
   const { user } = useAuth()
   const navigate = useNavigate()
+  const { currentSchoolYear } = useSchoolYear()
 
   const [classRooms, setClassRooms] = useState<IResponseClass[] | null>(null)
 
   useEffect(() => {
     async function getClassRooms(): Promise<void> {
-      const data = await getClassesService(center?._id as string)
+      const data = await getClassesService({
+        centerId: center?._id as string,
+        schoolYearId: currentSchoolYear?._id as string
+      })
       setClassRooms(data)
     }
 
     getClassRooms()
-  }, [])
+  }, [center, currentSchoolYear])
 
   const onSubmit = async (data: FormData): Promise<void> => {
     try {
