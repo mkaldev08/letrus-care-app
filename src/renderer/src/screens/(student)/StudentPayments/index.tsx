@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react'
 import { Footer } from '@renderer/components/Footer'
 import { StudentSidebar } from '@renderer/components/StudentSidebar'
 import { Header } from '@renderer/components/Header'
-import { getSchoolYearsServiceAll, ISchoolYear } from '@renderer/services/school-year-service'
 import { useCenter } from '@renderer/contexts/center-context'
 import { PaidServicesTab } from './PaidServicesTab'
 import { DuePaymentsTab } from './DuePaymentsTab'
@@ -11,11 +10,12 @@ import {
   getFinancialPlanForStudentService,
   IFinancialPlanToShow
 } from '@renderer/services/financial-plan-services'
+import { useSchoolYear } from '@renderer/contexts/school-year-context'
 
 export const StudentPayments: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
   const { center } = useCenter()
-  const [schoolYears, setschoolYears] = useState<ISchoolYear[]>([])
+  const { schoolYears, fetchAllSchoolYears } = useSchoolYear()
   const [selectedYear, setSelectedYear] = useState<string>('')
   const [activeTab, setActiveTab] = useState<'paidServices' | 'duePayments'>('paidServices')
   const [financialPlansPaid, setFinancialPlansPaid] = useState<IFinancialPlanToShow[]>([])
@@ -25,9 +25,7 @@ export const StudentPayments: React.FC = () => {
 
   async function getSchoolYears(): Promise<void> {
     try {
-      const tmp = await getSchoolYearsServiceAll(center?._id as string)
-
-      setschoolYears(tmp)
+      await fetchAllSchoolYears(center?._id as string)
     } catch (error) {
       console.log(error)
     }
@@ -59,7 +57,7 @@ export const StudentPayments: React.FC = () => {
 
   useEffect(() => {
     getSchoolYears()
-  }, [center])
+  }, [center, schoolYears])
 
   useEffect(() => {
     const schoolYear = schoolYears.find((year) => year.isCurrent)

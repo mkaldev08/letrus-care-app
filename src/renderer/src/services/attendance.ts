@@ -1,4 +1,4 @@
-import apiMananger from './api'
+import apiManager from './api'
 
 export interface IAttendance {
   _id?: string
@@ -13,7 +13,7 @@ export interface IAttendance {
 //ToDo studant não ter falta e presença na mesma aula e no mesmo dia
 export async function createAttendanceServicePerStudent(data: IAttendance): Promise<void> {
   try {
-    await apiMananger.post('/attendances/new', data)
+    await apiManager.post('/attendances/new', data)
   } catch (error) {
     console.log(error)
     throw error
@@ -25,7 +25,7 @@ export async function editAttendanceServicePerStudent(
   data: IAttendance
 ): Promise<void> {
   try {
-    await apiMananger.put(`/attendances/edit/${id}`, data)
+    await apiManager.put(`/attendances/edit/${id}`, data)
   } catch (error) {
     console.log(error)
     throw error

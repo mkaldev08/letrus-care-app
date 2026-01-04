@@ -46,10 +46,10 @@ export async function getCurrentSchoolYearService(centerId: string): Promise<ISc
 export async function getSchoolYearsServiceAll(centerId: string): Promise<ISchoolYear[]> {
   try {
     const { data } = await apiManager.get(`school-year/${centerId}`)
-    const typeData: ISchoolYear[] = data
-    return typeData
+
+    return data
   } catch (error) {
-    console.log('Erro ao buscar...')
+    console.error('Erro ao buscar...')
     throw error
   }
 }
@@ -57,10 +57,9 @@ export async function getSchoolYearsServiceAll(centerId: string): Promise<ISchoo
 export async function getSchoolYearService(schoolYearId: string): Promise<ISchoolYear> {
   try {
     const { data } = await apiManager.get(`school-year/${schoolYearId}`)
-    const typeData: ISchoolYear = data
-    return typeData
+    return data
   } catch (error) {
-    console.log('Erro ao buscar ...')
+    console.error('Erro ao buscar ...')
     throw error
   }
 }
@@ -72,7 +71,7 @@ export async function editSchoolYearService(
   try {
     await apiManager.put(`school-year/edit/${schoolYearId}`, data)
   } catch (error) {
-    console.log('Erro ao editar ')
+    console.log('Erro ao editar: ', error)
     throw error
   }
 }

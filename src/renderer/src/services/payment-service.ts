@@ -1,4 +1,4 @@
-import apiMananger from './api'
+import apiManager from './api'
 import { IEnrollmentForShow } from './enrollment-service'
 import { IAuth } from './user'
 
@@ -50,7 +50,7 @@ export async function createPaymentService(data): Promise<void> {
       userId,
       lateFee
     } = data
-    await apiMananger.post('/payments/new', {
+    await apiManager.post('/payments/new', {
       enrollmentId,
       amount,
       paymentDate,
@@ -73,7 +73,7 @@ interface IResponse {
 
 export async function getAllPaymentsService(centerId: string, page: number): Promise<IResponse> {
   try {
-    const result = await apiMananger.get(`/payments/all/${centerId}?page=${page}`)
+    const result = await apiManager.get(`/payments/all/${centerId}?page=${page}`)
     return result.data
   } catch (error) {
     console.log('Erro ao buscar pagamentos: ', error)
@@ -83,7 +83,7 @@ export async function getAllPaymentsService(centerId: string, page: number): Pro
 
 export async function getStudentPaymentsService(enrollmentId: string): Promise<IPayment[]> {
   try {
-    const { data: results } = await apiMananger.get(`/payments/student/${enrollmentId}`)
+    const { data: results } = await apiManager.get(`/payments/student/${enrollmentId}`)
     return results
   } catch (error) {
     console.log('Erro ao buscar pagamentos do estudante: ', error)
@@ -95,7 +95,7 @@ export async function getPaymentService(
   id: string
 ): Promise<{ payment: IPaymentForShow; receipt: IPaymentReceipt }> {
   try {
-    const { data: result } = await apiMananger.get(`/payments/${id}`)
+    const { data: result } = await apiManager.get(`/payments/${id}`)
     return result
   } catch (error) {
     console.log('Erro ao buscar pagamento: ', error)
@@ -108,7 +108,7 @@ export const searchPaymentsService = async (
   query: string
 ): Promise<IResponse> => {
   try {
-    const { data } = await apiMananger.get(`/payments/search/${centerId}?query=${query}`)
+    const { data } = await apiManager.get(`/payments/search/${centerId}?query=${query}`)
     return data
   } catch (error) {
     console.log('Erro ao pesquisar pagamentos: ', error)

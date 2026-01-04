@@ -1,4 +1,4 @@
-import apiMananger from './api'
+import apiManager from './api'
 import { ICourse } from './course-service'
 
 export interface ITeacher {
@@ -33,7 +33,7 @@ export interface ITeacherForShow {
 
 export async function createTeacher(data: ITeacher): Promise<number> {
   try {
-    await apiMananger.post('/teachers/new', data)
+    await apiManager.post('/teachers/new', data)
     return 201
   } catch (error) {
     console.log('Erro ao criar professor', error)
@@ -51,7 +51,7 @@ export async function getTeachersService(
   page: number
 ): Promise<IResponseTeacher> {
   try {
-    const { data } = await apiMananger.get(`/teachers/all/paginated/${centerId}?page=${page}`)
+    const { data } = await apiManager.get(`/teachers/all/paginated/${centerId}?page=${page}`)
     return data
   } catch (error) {
     console.log('Erro ao buscar professores', error)
@@ -61,7 +61,7 @@ export async function getTeachersService(
 
 export async function getTeachersServiceAll(centerId: string): Promise<ITeacherForShow[]> {
   try {
-    const { data } = await apiMananger.get(`/teachers/all/${centerId}`)
+    const { data } = await apiManager.get(`/teachers/all/${centerId}`)
     return data
   } catch (error) {
     console.log('Erro ao buscar professores', error)
@@ -71,7 +71,7 @@ export async function getTeachersServiceAll(centerId: string): Promise<ITeacherF
 
 export async function editTeacherService(id: string, data: ITeacher): Promise<ITeacher> {
   try {
-    const response = await apiMananger.put(`/teachers/edit/${id}`, data)
+    const response = await apiManager.put(`/teachers/edit/${id}`, data)
     return response.data
   } catch (error) {
     console.log('Erro ao editar professor', error)
@@ -81,7 +81,7 @@ export async function editTeacherService(id: string, data: ITeacher): Promise<IT
 
 export async function updateTeacherStatusService(id: string, status: string): Promise<ITeacher> {
   try {
-    const response = await apiMananger.patch(`/teachers/${id}/${status}`)
+    const response = await apiManager.patch(`/teachers/${id}/${status}`)
     return response.data
   } catch (error) {
     console.log('Erro ao editar professor', error)

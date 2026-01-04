@@ -35,21 +35,27 @@ export const CenterProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
   // Persistência do centro no local storage
   useEffect(() => {
-    async function loadStorageData(): Promise<void> {
-      const storagedCenter: ICenter = getFromStorage('center') as ICenter
+    async function loadStoredData(): Promise<void> {
+      const storedCenter: ICenter = getFromStorage('center') as ICenter
 
-      if (storagedCenter) {
-        setCenter(storagedCenter)
+      if (storedCenter) {
+        setCenter(storedCenter)
 
-        if (storagedCenter.fileData && storagedCenter.fileType) {
-          setCenterImage({ fileData: storagedCenter.fileData, fileType: storagedCenter.fileType })
+        if (storedCenter.fileData && storedCenter.fileType) {
+          setCenterImage({ fileData: storedCenter.fileData, fileType: storedCenter.fileType })
         }
       } else if (user) {
         try {
           const response = await getCenterService(user?._id as string)
           setCenter(response.data)
-          saveToStorage('center', response.data)
 
+          saveToStorage('center', {
+            _id: response.data._id,
+            name: response.data.name,
+            documentCode: response.data.documentCode,
+            fileData: response.data.fileData,
+            fileType: response.data.fileType
+          })
           if (response.data.fileData && response.data.fileType) {
             setCenterImage({ fileData: response.data.fileData, fileType: response.data.fileType })
           }
@@ -60,14 +66,20 @@ export const CenterProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       setLoading(false)
     }
 
-    loadStorageData()
-  }, [user?._id])
+    loadStoredData()
+  }, [user])
 
   async function createCenter(data: ICenter): Promise<AxiosResponse> {
     try {
       const response = await createCenterService(data, user?._id as string)
       setCenter(response?.data)
-      saveToStorage('center', response?.data)
+      saveToStorage('center', {
+        _id: response.data._id,
+        name: response.data.name,
+        documentCode: response.data.documentCode,
+        fileData: response.data.fileData,
+        fileType: response.data.fileType
+      })
       return response
     } catch (error) {
       console.log('Erro ao criar centro no contexto: ', error)
@@ -79,7 +91,13 @@ export const CenterProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     try {
       const response = await editCenterService(centerId, data)
       setCenter(response)
-      saveToStorage('center', response)
+      saveToStorage('center', {
+        _id: response._id,
+        name: response.name,
+        documentCode: response.documentCode,
+        fileData: response.fileData,
+        fileType: response.fileType
+      })
 
       if (response.fileData && response.fileType) {
         setCenterImage({ fileData: response.fileData, fileType: response.fileType })
@@ -102,8 +120,15 @@ export const CenterProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     }
 
     const { isExists, response } = await isCenterExists(userId)
-    if (isExists) {
-      saveToStorage('center', response?.data)
+    if (isExists && response) {
+      saveToStorage('center', {
+        _id: response.data._id,
+        name: response.data.name,
+        documentCode: response.data.documentCode,
+        fileData: response.data.fileData,
+        fileType: response.data.fileType
+      })
+
       setCenter(response?.data)
 
       if (response?.data.fileData && response?.data.fileType) {
@@ -117,7 +142,13 @@ export const CenterProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     try {
       const response = await upload_logoService(centerId, fileData)
       setCenter(response)
-      saveToStorage('center', response)
+      saveToStorage('center', {
+        _id: response._id,
+        name: response.name,
+        documentCode: response.documentCode,
+        fileData: response.fileData,
+        fileType: response.fileType
+      })
 
       if (response.fileData && response.fileType) {
         setCenterImage({ fileData: response.fileData, fileType: response.fileType })

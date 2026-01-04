@@ -1,9 +1,12 @@
 import { DashboardContextData } from '@renderer/hooks/useDashboard'
-import apiMananger from './api'
+import apiManager from './api'
 import { TuitionPaymentResponse } from '@renderer/types/dashboard'
-export const getDashboardDataService = async (centerId: string): Promise<DashboardContextData> => {
+export const getDashboardDataService = async (
+  centerId: string,
+  schoolYearId: string
+): Promise<DashboardContextData> => {
   try {
-    const { data } = await apiMananger.get(`/dashboard/${centerId}`)
+    const { data } = await apiManager.get(`/dashboard/${centerId}/${schoolYearId}`)
     return data
   } catch (err) {
     console.log(err)
@@ -13,10 +16,11 @@ export const getDashboardDataService = async (centerId: string): Promise<Dashboa
 
 export const getOverduePaymentsService = async (
   centerId: string,
+  schoolYearId: string,
   page: number
 ): Promise<{ overduePayments: TuitionPaymentResponse; total: number }> => {
   try {
-    const { data } = await apiMananger.get(`/dashboard/overdue/${centerId}`, {
+    const { data } = await apiManager.get(`/dashboard/overdue/${centerId}/${schoolYearId}`, {
       params: {
         page
       }
@@ -28,10 +32,13 @@ export const getOverduePaymentsService = async (
   }
 }
 export const getOverduePaymentsWithoutLimitService = async (
-  centerId: string
+  centerId: string,
+  schoolYearId: string
 ): Promise<TuitionPaymentResponse> => {
   try {
-    const { data } = await apiMananger.get(`/dashboard/overdue-without-limit/${centerId}`)
+    const { data } = await apiManager.get(
+      `/dashboard/overdue-without-limit/${centerId}/${schoolYearId}`
+    )
     return data
   } catch (err) {
     console.log(err)
