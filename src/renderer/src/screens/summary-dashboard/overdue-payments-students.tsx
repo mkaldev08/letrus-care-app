@@ -13,6 +13,7 @@ import { OverDuePaymentsPDF } from '@renderer/reports/models/OverDuePaymentsPDF'
 import { Rings } from 'react-loader-spinner'
 import type { TuitionPaymentResponse } from '@renderer/types/dashboard'
 import { useAuth } from '@renderer/contexts/auth-context'
+import { useSchoolYear } from '@renderer/contexts/school-year-context'
 export const OverDuePayments: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
@@ -22,11 +23,18 @@ export const OverDuePayments: React.FC = () => {
 
   const { center } = useCenter()
   const { user } = useAuth()
+  const { fetchCurrentSchoolYear, setSelectedSchoolYear, currentSchoolYear } = useSchoolYear()
 
   useEffect(() => {
     async function fetchOverduePayments(): Promise<void> {
       try {
-        const data = await getOverduePaymentsService(String(center?._id), currentPage)
+        const current = await fetchCurrentSchoolYear(center?._id as string)
+        setSelectedSchoolYear(current)
+        const data = await getOverduePaymentsService(
+          String(center?._id),
+          String(currentSchoolYear?._id),
+          currentPage
+        )
         setOverduePaymentList(data.overduePayments)
         setTotalPages(Math.ceil(data.total))
       } catch (error) {
@@ -37,12 +45,15 @@ export const OverDuePayments: React.FC = () => {
     }
 
     fetchOverduePayments()
-  }, [currentPage, center])
+  }, [currentPage, center, fetchCurrentSchoolYear, setSelectedSchoolYear, currentSchoolYear?._id])
 
   async function handleDownloadPDF(): Promise<void> {
     setIsLoadingPDF(true)
     try {
-      const result = await getOverduePaymentsWithoutLimitService(String(center?._id))
+      const result = await getOverduePaymentsWithoutLimitService(
+        String(center?._id),
+        String(currentSchoolYear?._id)
+      )
       const blob = await pdf(
         <OverDuePaymentsPDF data={result} center={center!} user={user!} />
       ).toBlob()

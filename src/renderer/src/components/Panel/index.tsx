@@ -11,6 +11,7 @@ import { useAuth } from '@renderer/contexts/auth-context'
 import { getClassesService, IResponseClass } from '@renderer/services/class-service'
 import { useNavigate } from 'react-router'
 import { Rings } from 'react-loader-spinner'
+import { useSchoolYear } from '@renderer/contexts/school-year-context'
 
 export const studentSchema = yup
   .object({
@@ -65,17 +66,21 @@ export const Panel: React.FC = () => {
   const { center } = useCenter()
   const { user } = useAuth()
   const navigate = useNavigate()
+  const { currentSchoolYear } = useSchoolYear()
 
   const [classRooms, setClassRooms] = useState<IResponseClass[] | null>(null)
 
   useEffect(() => {
     async function getClassRooms(): Promise<void> {
-      const data = await getClassesService(center?._id as string)
+      const data = await getClassesService({
+        centerId: center?._id as string,
+        schoolYearId: currentSchoolYear?._id as string
+      })
       setClassRooms(data)
     }
 
     getClassRooms()
-  }, [])
+  }, [center, currentSchoolYear])
 
   const onSubmit = async (data: FormData): Promise<void> => {
     try {
@@ -329,6 +334,7 @@ export const Panel: React.FC = () => {
           <button
             type="submit"
             className="flex items-center justify-center bg-orange-700 w-1/6 h-12 p-3 mt-6 text-white shadow-shape rounded-md self-end hover:brightness-110"
+            disabled={isSubmitting}
           >
             <Rings height="32" width="32" color="#fff" ariaLabel="bars-loading" visible={true} />
           </button>

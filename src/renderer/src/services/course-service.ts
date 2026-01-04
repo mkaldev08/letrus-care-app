@@ -1,4 +1,4 @@
-import apiMananger from './api'
+import apiManager from './api'
 
 export interface ICourse {
   _id?: string
@@ -27,7 +27,7 @@ export interface ICourseOnEdit {
 
 export async function createCourse(data: ICourse): Promise<void> {
   try {
-    await apiMananger.post('/courses/new', data)
+    await apiManager.post('/courses/new', data)
   } catch (error) {
     console.log('Erro ao criar curso ', error)
     throw error
@@ -36,7 +36,7 @@ export async function createCourse(data: ICourse): Promise<void> {
 
 export const getOneCourseService = async (courseId: string): Promise<ICourse> => {
   try {
-    const { data } = await apiMananger.get(`/courses/${courseId}`)
+    const { data } = await apiManager.get(`/courses/${courseId}`)
     const typeData: ICourse = data
     return typeData
   } catch (error) {
@@ -51,7 +51,7 @@ type IResponse = {
 }
 export async function getCoursesService(centerId: string, page: number): Promise<IResponse> {
   try {
-    const { data } = await apiMananger.get(`/courses/all/paginated/${centerId}?page=${page}`)
+    const { data } = await apiManager.get(`/courses/all/paginated/${centerId}?page=${page}`)
     const typeData: IResponse = data
     return typeData
   } catch (error) {
@@ -62,7 +62,7 @@ export async function getCoursesService(centerId: string, page: number): Promise
 
 export async function getCoursesAll(centerId: string): Promise<ICourse[]> {
   try {
-    const { data } = await apiMananger.get(`/courses/all/${centerId}`)
+    const { data } = await apiManager.get(`/courses/all/${centerId}`)
     const typeData: ICourse[] = data
     return typeData
   } catch (error) {
@@ -73,7 +73,7 @@ export async function getCoursesAll(centerId: string): Promise<ICourse[]> {
 
 export const editCourse = async (courseId: string, data: ICourseOnEdit): Promise<void> => {
   try {
-    await apiMananger.put(`/courses/edit/${courseId}`, data)
+    await apiManager.put(`/courses/edit/${courseId}`, data)
   } catch (error) {
     console.log('Erro ao editar curso: ', error)
     throw error
@@ -82,7 +82,7 @@ export const editCourse = async (courseId: string, data: ICourseOnEdit): Promise
 
 export async function deleteCourseService(id: string): Promise<void> {
   try {
-    await apiMananger.patch(`/courses/delete/${id}`)
+    await apiManager.patch(`/courses/delete/${id}`)
   } catch (error) {
     console.log('Erro ao eliminar curso', error)
     throw error

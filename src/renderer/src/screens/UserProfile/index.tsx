@@ -10,8 +10,8 @@ export const UserProfile: React.FC = () => {
   const [user, setUser] = useState<IAuth | null>()
 
   useEffect(() => {
-    const userStoraged = getFromStorage('user') as IAuth
-    setUser(userStoraged)
+    const userstored = getFromStorage('user') as IAuth
+    setUser(userstored)
   }, [])
   return (
     <div className="flex flex-col h-screen">

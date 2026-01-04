@@ -27,10 +27,10 @@ export const EnrollmentPDF: React.FC<EnrollmentPDFProps> = ({
   useEffect(() => {
     const loadData = async (): Promise<void> => {
       try {
-        const storagedCenter = getFromStorage('center') as ICenter
+        const storedCenter = getFromStorage('center') as ICenter
 
-        if (storagedCenter?.fileData) {
-          setImageFromDB(storagedCenter.fileData)
+        if (storedCenter?.fileData) {
+          setImageFromDB(storedCenter.fileData)
         }
       } catch (error) {
         console.error('Erro ao carregar dados:', error)

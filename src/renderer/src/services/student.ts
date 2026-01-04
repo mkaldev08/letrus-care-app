@@ -1,5 +1,5 @@
 import axios from 'axios'
-import apiMananger from './api'
+import apiManager from './api'
 
 export interface IStudent {
   _id?: string
@@ -21,7 +21,7 @@ export const searchStudentService = async (
   query: string
 ): Promise<IStudent[] | null> => {
   try {
-    const { data } = await apiMananger.get(`/students/search/${centerId}?query=${query}`)
+    const { data } = await apiManager.get(`/students/search/${centerId}?query=${query}`)
     return data
   } catch (error) {
     if (axios.isAxiosError(error) && error.response?.status === 404) {
@@ -35,7 +35,7 @@ export const searchStudentService = async (
 
 export const getStudentById = async (id: string): Promise<IStudent | null> => {
   try {
-    const { data } = await apiMananger.get(`/students/${id}`)
+    const { data } = await apiManager.get(`/students/${id}`)
     return data
   } catch (error) {
     if (axios.isAxiosError(error) && error.response?.status === 404) {

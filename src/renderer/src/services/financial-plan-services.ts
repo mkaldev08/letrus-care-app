@@ -1,4 +1,4 @@
-import apiMananger from './api'
+import apiManager from './api'
 import { IPaymentForShow } from './payment-service'
 
 export interface IFinancialPlan {
@@ -35,7 +35,7 @@ export async function getFinancialPlanForStudentService(
   queryConfig: { status: string; schoolYear: string }
 ): Promise<IFinancialPlanToShow[]> {
   try {
-    const { data } = await apiMananger.get(
+    const { data } = await apiManager.get(
       `/financial-plan/${centerId}/enrollment/${enrollmentId}?status=${queryConfig.status}&schoolYear=${queryConfig.schoolYear}`
     )
     return data

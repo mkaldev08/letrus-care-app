@@ -15,6 +15,7 @@ import { Rings } from 'react-loader-spinner'
 import { type IStudent } from '@renderer/services/student'
 import { getClassesService, IResponseClass } from '@renderer/services/class-service'
 import { studentSchema } from '../Panel'
+import { useSchoolYear } from '@renderer/contexts/school-year-context'
 
 type FormData = yup.InferType<typeof studentSchema>
 
@@ -34,15 +35,19 @@ export const ConfirmationPanel: React.FC<ConfirmationPanelProps> = ({ resultInFo
   const navigate = useNavigate()
 
   const [classRooms, setClassRooms] = useState<IResponseClass[] | null>(null)
+  const { currentSchoolYear } = useSchoolYear()
 
   useEffect(() => {
     async function getClassRooms(): Promise<void> {
-      const data = await getClassesService(center?._id as string)
+      const data = await getClassesService({
+        centerId: center?._id as string,
+        schoolYearId: currentSchoolYear?._id as string
+      })
       setClassRooms(data)
     }
 
     getClassRooms()
-  }, [])
+  }, [center, currentSchoolYear])
 
   const onSubmit = async (data: FormData): Promise<void> => {
     console.log('Submitting data: ', data)

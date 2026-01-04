@@ -20,15 +20,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   // Persistência do usuário no local storage
   useEffect(() => {
-    function loadStorageData(): void {
-      const storagedUser = getFromStorage('user')
+    function loadStoredData(): void {
+      const storedUser = getFromStorage('user')
 
-      if (storagedUser) {
-        setUser(storagedUser as IAuth)
+      if (storedUser) {
+        setUser(storedUser as IAuth)
       }
       setLoading(false)
     }
-    loadStorageData()
+    loadStoredData()
   }, [])
 
   // Função para login
@@ -36,8 +36,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     try {
       const response = await loginService({ password, username })
       if (response) {
-        setUser(response.data)
-        saveToStorage('user', response.data)
+        setUser({
+          username: response.data.username,
+          _id: response.data._id,
+          role: response.data.role
+        } as IAuth)
+
+        saveToStorage('user', {
+          username: response.data.username,
+          _id: response.data._id,
+          role: response.data.role
+        })
 
         return response.data
       }

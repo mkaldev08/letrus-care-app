@@ -1,4 +1,5 @@
 import { useCenter } from '@renderer/contexts/center-context'
+import { useSchoolYear } from '@renderer/contexts/school-year-context'
 import { getDashboardDataService } from '@renderer/services/dashboard-service'
 import React from 'react'
 import { createContext, useContext, useState, useEffect } from 'react'
@@ -39,12 +40,19 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const { center } = useCenter()
+  const { fetchCurrentSchoolYear, setSelectedSchoolYear, currentSchoolYear } = useSchoolYear()
   async function fetchDashboardData(): Promise<void> {
     try {
       setIsLoading(true)
       setError(null)
 
-      const data = await getDashboardDataService(center?._id as string)
+      const current = await fetchCurrentSchoolYear(center?._id as string)
+      setSelectedSchoolYear(current)
+
+      const data = await getDashboardDataService(
+        center?._id as string,
+        currentSchoolYear?._id as string
+      )
 
       setTotalActiveClassRoom(data.totalActiveClassRoom)
       setTotalActiveStudent(data.totalActiveStudent)

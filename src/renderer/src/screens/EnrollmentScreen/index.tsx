@@ -105,7 +105,6 @@ export const EnrollmentScreen: React.FC = () => {
     setEnrollments(data.enrollments)
     setTotalPages(data.totalEnrollments)
   }
-
   const fetchSearchedEnrollments = async (query: string): Promise<void> => {
     if (!query) {
       fetchEnrollments(currentPage)
@@ -122,12 +121,14 @@ export const EnrollmentScreen: React.FC = () => {
 
   useEffect(() => {
     if (center?._id as string) fetchEnrollments(currentPage)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [center?._id, currentPage, isModalOpen])
 
   type selectedEnrollmentType = {
     enrollment: IEnrollmentForShow
     receipt: IEnrollmentReceipt
   }
+
   const [selectedEnrollment, setSelectedEnrollment] = useState<selectedEnrollmentType | null>(null)
   const [isLoadingPDF, setIsLoadingPDF] = useState<boolean>(false)
 
@@ -175,11 +176,11 @@ export const EnrollmentScreen: React.FC = () => {
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
 
-  /*   function handleCreateEnrollmentFlow(): void {
+  function handleCreateEnrollmentFlow(): void {
     Swal.fire({
       title: 'Define o Tipo de Inscrição',
       showCancelButton: true,
-      confirmButtonText: 'Reconfirmação',
+      confirmButtonText: 'Re-confirmação',
       cancelButtonText: 'Novo Aluno',
       allowEscapeKey: false,
       allowOutsideClick: false,
@@ -191,7 +192,7 @@ export const EnrollmentScreen: React.FC = () => {
         ? await navigate('/enrollment/confirmation')
         : await navigate('/enrollment/new')
     })
-  } */
+  }
 
   function handleStudentDetails(id: string): void {
     navigate(`/student/${id}/show`, { state: { enrollmentId: id } })
@@ -218,7 +219,7 @@ export const EnrollmentScreen: React.FC = () => {
             <h2 className="text-3xl text-zinc-400">Inscrições</h2>
 
             <button
-              onClick={async () => await navigate('/enrollment/new')}
+              onClick={handleCreateEnrollmentFlow}
               className="bg-orange-700 text-white px-4 py-2 rounded hover:brightness-110 transition-all mt-4 self-end"
             >
               Inscrever Aluno
@@ -265,7 +266,7 @@ export const EnrollmentScreen: React.FC = () => {
                       Status
                     </th>
                     <th className="bg-orange-800 text-white p-2 md:border md:border-zinc-700 text-center block md:table-cell">
-                      Acções
+                      Ações
                     </th>
                   </tr>
                 </thead>

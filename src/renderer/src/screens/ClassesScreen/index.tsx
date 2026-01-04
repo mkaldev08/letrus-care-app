@@ -12,9 +12,11 @@ import { useCenter } from '@renderer/contexts/center-context'
 import { Plus } from 'lucide-react'
 import { Modal } from '@renderer/components/Modal'
 import { FormCreateClass } from './ClassroomCarousel/FormCreateClass'
+import { useSchoolYear } from '@renderer/contexts/school-year-context'
 
 export const ClassesScreen: React.FC = () => {
   const { center } = useCenter()
+  const { fetchCurrentSchoolYear, setSelectedSchoolYear, currentSchoolYear } = useSchoolYear()
   const [classes, setClasses] = useState<IResponseClass[] | null>([])
 
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -24,12 +26,19 @@ export const ClassesScreen: React.FC = () => {
   }
 
   async function getClass(): Promise<void> {
-    const tempClasses = await getClassesService(center?._id as string)
+    const current = await fetchCurrentSchoolYear(center?._id as string)
+    setSelectedSchoolYear(current)
+
+    const tempClasses = await getClassesService({
+      centerId: center?._id as string,
+      schoolYearId: currentSchoolYear?._id as string
+    })
+
     setClasses(tempClasses)
   }
   useEffect(() => {
     getClass()
-  }, [center?._id])
+  }, [center, currentSchoolYear])
 
   const handleModalClose = async (): Promise<void> => {
     await getClass()

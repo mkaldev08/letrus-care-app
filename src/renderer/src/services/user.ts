@@ -1,5 +1,5 @@
 import { AxiosResponse } from 'axios'
-import apiMananger from './api'
+import apiManager from './api'
 
 export interface IAuth {
   _id?: string
@@ -12,7 +12,7 @@ export interface IAuth {
 export const signupService = async (data: IAuth): Promise<number> => {
   const { username, password, role, phoneNumber } = data
   try {
-    const { status } = await apiMananger.post('/users/new', {
+    const { status } = await apiManager.post('/users/new', {
       username,
       password,
       phoneNumber,
@@ -27,7 +27,7 @@ export const signupService = async (data: IAuth): Promise<number> => {
 
 export const loginService = async ({ username, password }: IAuth): Promise<AxiosResponse> => {
   try {
-    const response = await apiMananger.post('/users/login', {
+    const response = await apiManager.post('/users/login', {
       username,
       password
     })
@@ -41,7 +41,7 @@ export const loginService = async ({ username, password }: IAuth): Promise<Axios
 
 export const logoutService = async (): Promise<void> => {
   try {
-    await apiMananger.post('/users/logout')
+    await apiManager.post('/users/logout')
   } catch (error) {
     console.log(error)
   }
@@ -49,7 +49,7 @@ export const logoutService = async (): Promise<void> => {
 
 export const findUserService = async (username: string): Promise<string> => {
   try {
-    const { data } = await apiMananger.get(`/users/find/${username}`)
+    const { data } = await apiManager.get(`/users/find/${username}`)
     localStorage.setItem('reqUserId', data.user._id)
     return data.user._id
   } catch (error) {
@@ -60,7 +60,7 @@ export const findUserService = async (username: string): Promise<string> => {
 
 export const verifyOTPService = async (reqOTP: string, userId: string): Promise<number> => {
   try {
-    const { status } = await apiMananger.post(`/users/verify/${userId}`, reqOTP)
+    const { status } = await apiManager.post(`/users/verify/${userId}`, reqOTP)
     return status
   } catch (error) {
     console.log(error)

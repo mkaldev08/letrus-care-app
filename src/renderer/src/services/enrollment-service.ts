@@ -1,4 +1,4 @@
-import apiMananger from './api'
+import apiManager from './api'
 import { IStudent } from './student'
 import { IAuth } from './user'
 import { ClassToShow } from './class-service'
@@ -95,7 +95,7 @@ export const createEnrollment = async (data: IEnrollmentForApply): Promise<IEnro
 
   try {
     // Cria o estudante
-    const { data: studentData } = await apiMananger.post('/students/new', {
+    const { data: studentData } = await apiManager.post('/students/new', {
       name,
       birthDate,
       gender,
@@ -109,7 +109,7 @@ export const createEnrollment = async (data: IEnrollmentForApply): Promise<IEnro
     })
 
     // Usa o ID do estudante recém-criado para criar a inscrição
-    const { data } = await apiMananger.post('/enrollments/new', {
+    const { data } = await apiManager.post('/enrollments/new', {
       classId,
       centerId,
       studentId: studentData?._id,
@@ -127,7 +127,7 @@ export const createEnrollment = async (data: IEnrollmentForApply): Promise<IEnro
 //export const confirmationEnrollment = async(studentId, data)
 export const getEnrollmentsService = async (centerId: string, page: number): Promise<IResponse> => {
   try {
-    const { data } = await apiMananger.get(`/enrollments/all/${centerId}?page=${page}`)
+    const { data } = await apiManager.get(`/enrollments/all/${centerId}?page=${page}`)
     return data
   } catch (error) {
     console.log('Erro ao buscar inscrições: ', error)
@@ -139,7 +139,7 @@ export const getOneEnrollmentService = async (
   enrollmentId: string
 ): Promise<{ enrollment: IEnrollmentForShow; receipt: IEnrollmentReceipt }> => {
   try {
-    const { data } = await apiMananger.get(`/enrollments/${enrollmentId}`)
+    const { data } = await apiManager.get(`/enrollments/${enrollmentId}`)
     return data
   } catch (error) {
     console.log('Erro ao buscar inscrição: ', error)
@@ -151,7 +151,7 @@ export const getEnrollmentByStudentService = async (
   studentId: string
 ): Promise<IEnrollmentForShow> => {
   try {
-    const { data } = await apiMananger.get(`/enrollments/student/${studentId}`)
+    const { data } = await apiManager.get(`/enrollments/student/${studentId}`)
     return data
   } catch (error) {
     console.log('Erro ao buscar inscrição com estudante: ', error)
@@ -168,7 +168,7 @@ export const getStudentsForClassService = async (
   info: infoReq
 ): Promise<IEnrollmentForShow[]> => {
   try {
-    const { data } = await apiMananger.get(
+    const { data } = await apiManager.get(
       `/enrollments/add-class/${centerId}?courseId=${info.courseId}&grade=${info.grade}`
     )
     return data
@@ -197,7 +197,7 @@ export const editEnrollment = async (
       father,
       mother
     } = data
-    await apiMananger.put(`/students/edit/${studentId}`, {
+    await apiManager.put(`/students/edit/${studentId}`, {
       name: { fullName, surname },
       birthDate,
       gender,
@@ -206,7 +206,7 @@ export const editEnrollment = async (
       email,
       parents: { father, mother }
     })
-    await apiMananger.put(`/enrollments/edit/${enrollmentId}`, {
+    await apiManager.put(`/enrollments/edit/${enrollmentId}`, {
       courseId,
       grade
     })
@@ -218,7 +218,7 @@ export const editEnrollment = async (
 
 export const changeStatusService = async (id: string, status: string): Promise<void> => {
   try {
-    await apiMananger.patch(`/enrollments/status/${id}`, { status })
+    await apiManager.patch(`/enrollments/status/${id}`, { status })
   } catch (error) {
     console.log('Erro ao alterar estado da inscrição: ', error)
     throw error
@@ -230,7 +230,7 @@ export const searchEnrollmentsService = async (
   query: string
 ): Promise<IResponse> => {
   try {
-    const { data } = await apiMananger.get(`/enrollments/search/${centerId}?query=${query}`)
+    const { data } = await apiManager.get(`/enrollments/search/${centerId}?query=${query}`)
 
     return data
   } catch (error) {
