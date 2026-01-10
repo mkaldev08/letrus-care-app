@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import { Footer } from '@renderer/components/Footer'
 import { StudentSidebar } from '@renderer/components/StudentSidebar'
 import { Header } from '@renderer/components/Header'
@@ -23,52 +23,70 @@ export const StudentPayments: React.FC = () => {
 
   const { enrollmentId } = useParams<string>()
 
-  async function getSchoolYears(): Promise<void> {
+  // Memoiza getSchoolYears para evitar recriação
+  const getSchoolYears = useCallback(async (): Promise<void> => {
     try {
       await fetchAllSchoolYears(center?._id as string)
     } catch (error) {
       console.log(error)
     }
-  }
+  }, [center?._id, fetchAllSchoolYears])
 
-  async function fetchFinancialPlan(
-    centerId: string,
-    enrollmentId: string,
-    queryConfig: { status: string; schoolYear: string }
-  ): Promise<void> {
-    try {
-      const [financialPlansPaid, financialPlansDue] = await Promise.all([
-        getFinancialPlanForStudentService(centerId, enrollmentId, {
-          status: 'paid',
-          schoolYear: queryConfig.schoolYear
-        }),
-        getFinancialPlanForStudentService(centerId, enrollmentId, {
-          status: 'all', // informe qualquer estado que não seja 'paid'
-          schoolYear: queryConfig.schoolYear
-        })
-      ])
+  // Memoiza fetchFinancialPlan para evitar recriação
+  const fetchFinancialPlan = useCallback(
+    async (
+      centerId: string,
+      enrollmentId: string,
+      queryConfig: { status: string; schoolYear: string }
+    ): Promise<void> => {
+      try {
+        const [financialPlansPaid, financialPlansDue] = await Promise.all([
+          getFinancialPlanForStudentService(centerId, enrollmentId, {
+            status: 'paid',
+            schoolYear: queryConfig.schoolYear
+          }),
+          getFinancialPlanForStudentService(centerId, enrollmentId, {
+            status: 'all', // informe qualquer estado que não seja 'paid'
+            schoolYear: queryConfig.schoolYear
+          })
+        ])
 
-      setFinancialPlansPaid(financialPlansPaid)
-      setFinancialPlansDue(financialPlansDue)
-    } catch (error) {
-      console.log(error)
-    }
-  }
+        setFinancialPlansPaid(financialPlansPaid)
+        setFinancialPlansDue(financialPlansDue)
+      } catch (error) {
+        console.log(error)
+      }
+    },
+    []
+  )
 
+  // Busca anos letivos apenas uma vez ao montar
   useEffect(() => {
     getSchoolYears()
-  }, [center, schoolYears])
+  }, [getSchoolYears])
 
+  // Inicializa selectedYear com o ano atual quando schoolYears carrega
   useEffect(() => {
-    const schoolYear = schoolYears.find((year) => year.isCurrent)
-    if (center?._id && enrollmentId && schoolYear?._id) {
+    if (schoolYears.length > 0 && !selectedYear) {
+      const currentYear = schoolYears.find((year) => year.isCurrent)
+      const yearId = currentYear?._id || schoolYears[0]?._id
+      if (yearId) {
+        setSelectedYear(yearId)
+      }
+    }
+  }, [schoolYears, selectedYear])
+
+  // Busca planos financeiros quando muda enrollmentId, selectedYear ou center
+  useEffect(() => {
+    if (center?._id && enrollmentId && selectedYear) {
       fetchFinancialPlan(center._id, enrollmentId, {
         status: 'paid',
-        schoolYear: schoolYear._id
+        schoolYear: selectedYear
       })
     }
-  }, [center, enrollmentId, schoolYears])
+  }, [center?._id, enrollmentId, selectedYear, fetchFinancialPlan])
 
+  //FIXME: ajustar os useEffect para evitar chamadas desnecessárias e infinitas
   return (
     <div className="flex flex-col h-screen">
       <Header isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
