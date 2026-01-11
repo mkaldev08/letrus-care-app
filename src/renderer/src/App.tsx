@@ -5,18 +5,22 @@ import { LoaderComponent } from './components/Loader'
 import { Routes } from './Routes'
 import { SchoolYearProvider } from './contexts/school-year-context'
 
-export const App: React.FC = () => {
+const AppContent: React.FC = () => {
   const { loading } = useAuth()
 
   if (loading) {
     return <LoaderComponent />
   }
 
+  return <Routes />
+}
+
+export const App: React.FC = () => {
   return (
     <AuthProvider>
       <CenterProvider>
         <SchoolYearProvider>
-          <Routes />
+          <AppContent />
         </SchoolYearProvider>
       </CenterProvider>
     </AuthProvider>

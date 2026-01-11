@@ -26,11 +26,11 @@ export const StudentPayments: React.FC = () => {
   // Memoiza getSchoolYears para evitar recriação
   const getSchoolYears = useCallback(async (): Promise<void> => {
     try {
-      await fetchAllSchoolYears(center?._id as string)
+      await fetchAllSchoolYears(String(center?._id))
     } catch (error) {
       console.log(error)
     }
-  }, [center?._id, fetchAllSchoolYears])
+  }, [center])
 
   // Memoiza fetchFinancialPlan para evitar recriação
   const fetchFinancialPlan = useCallback(
@@ -57,13 +57,13 @@ export const StudentPayments: React.FC = () => {
         console.log(error)
       }
     },
-    []
+    [center?._id, enrollmentId, selectedYear]
   )
 
   // Busca anos letivos apenas uma vez ao montar
   useEffect(() => {
     getSchoolYears()
-  }, [getSchoolYears])
+  }, [center?._id])
 
   // Inicializa selectedYear com o ano atual quando schoolYears carrega
   useEffect(() => {
@@ -74,17 +74,17 @@ export const StudentPayments: React.FC = () => {
         setSelectedYear(yearId)
       }
     }
-  }, [schoolYears, selectedYear])
+  }, [selectedYear])
 
   // Busca planos financeiros quando muda enrollmentId, selectedYear ou center
   useEffect(() => {
     if (center?._id && enrollmentId && selectedYear) {
-      fetchFinancialPlan(center._id, enrollmentId, {
+      fetchFinancialPlan(String(center?._id), enrollmentId, {
         status: 'paid',
         schoolYear: selectedYear
       })
     }
-  }, [center?._id, enrollmentId, selectedYear, fetchFinancialPlan])
+  }, [center?._id, enrollmentId, selectedYear])
 
   //FIXME: ajustar os useEffect para evitar chamadas desnecessárias e infinitas
   return (
