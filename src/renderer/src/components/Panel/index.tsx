@@ -327,6 +327,19 @@ export const Panel: React.FC = () => {
               className="flex-1 w-full h-12 p-3  bg-zinc-950 rounded-md  border focus:border-0  border-gray-700 outline-none text-gray-100 text-base font-normal placeholder:text-zinc-500"
             />
           </div>
+          {/* TODO: colocar resumo financeiro de tudo que sera pago
+           <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-4">
+              <label htmlFor="enrollmentFee">Taxa de Inscrição (Kz)</label>
+              <input
+                id="enrollmentFee"
+                type="number"
+                disabled
+                defaultValue={0}
+                className="w-full h-12 p-3  bg-zinc-950 rounded-md  border focus:border-0  border-gray-700 outline-none text-gray-100 text-base font-normal placeholder:text-zinc-500"
+              />
+            </div>
+          </div> */}
           <input type="hidden" value={user?._id} {...register('userId')} />
           <input type="hidden" value={center?._id} {...register('centerId')} />
         </div>

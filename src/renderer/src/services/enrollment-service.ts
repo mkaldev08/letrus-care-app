@@ -52,6 +52,12 @@ export interface IEnrollmentForShow {
   centerId: string
   userId: IAuth
   hasScholarShip?: boolean
+  tuitionFeeId: {
+    fee: number
+    feeFine: number
+    enrollmentFee: number
+    confirmationEnrollmentFee: number
+  }
 }
 
 export interface IEnrollment {
@@ -255,10 +261,26 @@ export const searchEnrollmentsService = async (
 ): Promise<IResponse> => {
   try {
     const { data } = await apiManager.get(`/enrollments/search/${centerId}?query=${query}`)
-
     return data
   } catch (error) {
     console.log('Erro ao pesquisar inscricoes: ', error)
+    throw error
+  }
+}
+export type getStudentEnrollmentContextResponse = {
+  type: string
+  label: string
+  amount: number
+}
+export const getStudentEnrollmentContext = async (
+  currentEnrollmentId: string
+): Promise<getStudentEnrollmentContextResponse> => {
+  try {
+    const { data } = await apiManager.get(`/enrollments/${currentEnrollmentId}/financial-context`)
+
+    return data
+  } catch (error) {
+    console.log('Erro ao buscar estado do aluno: ', error)
     throw error
   }
 }

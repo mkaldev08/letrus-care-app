@@ -5,7 +5,11 @@ import { getFromStorage } from '../../utils/storage'
 import { ICenter } from '@renderer/services/center-service'
 import { formatDateWithTimeNoWeekDay, formateCurrency } from '@renderer/utils/format'
 import { createFormalName } from '@renderer/utils'
-import { IEnrollmentForShow, IEnrollmentReceipt } from '@renderer/services/enrollment-service'
+import {
+  getStudentEnrollmentContextResponse,
+  IEnrollmentForShow,
+  IEnrollmentReceipt
+} from '@renderer/services/enrollment-service'
 import { TableEnrollmentDetails } from '../components/TableEnrollmentDetails'
 
 interface EnrollmentPDFProps {
@@ -15,12 +19,14 @@ interface EnrollmentPDFProps {
   }
   center: ICenter
   schoolYear: string
+  financialStatusData: getStudentEnrollmentContextResponse
 }
 
 export const EnrollmentPDF: React.FC<EnrollmentPDFProps> = ({
   selectedEnrollment,
   center,
-  schoolYear
+  schoolYear,
+  financialStatusData
 }) => {
   const [imageFromDB, setImageFromDB] = useState('')
 
@@ -121,7 +127,7 @@ export const EnrollmentPDF: React.FC<EnrollmentPDFProps> = ({
               </Text>
               <Text style={styles.lineSpace}>
                 <Text style={styles.label}>Total Pago: </Text>{' '}
-                {formateCurrency(selectedEnrollment.enrollment.classId?.course?.enrollmentFee)}
+                {formateCurrency(financialStatusData.amount)}
               </Text>
             </View>
           </View>
@@ -134,8 +140,8 @@ export const EnrollmentPDF: React.FC<EnrollmentPDFProps> = ({
               {
                 year: schoolYear,
                 service: 'Emolumento',
-                description: 'Taxa de Inscrição',
-                amount: selectedEnrollment.enrollment.classId?.course?.enrollmentFee as number,
+                description: financialStatusData.label,
+                amount: financialStatusData.amount,
                 status: 'Pago'
               }
             ]}
@@ -174,6 +180,7 @@ export const EnrollmentPDF: React.FC<EnrollmentPDFProps> = ({
           render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`}
           fixed
         />
+
         <View style={styles.sheetWrapper}>
           <View style={styles.header}>
             <Image
@@ -243,7 +250,7 @@ export const EnrollmentPDF: React.FC<EnrollmentPDFProps> = ({
                 </Text>
                 <Text style={styles.lineSpace}>
                   <Text style={styles.label}>Total Pago: </Text>{' '}
-                  {formateCurrency(selectedEnrollment.enrollment.classId?.course?.enrollmentFee)}
+                  {formateCurrency(financialStatusData.amount)}
                 </Text>
               </View>
             </View>
@@ -256,8 +263,8 @@ export const EnrollmentPDF: React.FC<EnrollmentPDFProps> = ({
                 {
                   year: schoolYear,
                   service: 'Emolumento',
-                  description: 'Taxa de Inscrição',
-                  amount: selectedEnrollment.enrollment.classId?.course?.enrollmentFee as number,
+                  description: financialStatusData.label,
+                  amount: financialStatusData.amount,
                   status: 'Pago'
                 }
               ]}

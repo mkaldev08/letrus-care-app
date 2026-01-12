@@ -72,11 +72,12 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
     const loadEnrollment = async (): Promise<void> => {
       if (!enrollmentDataFromForm) {
         const data = await getEnrollmentByStudentService(String(resultsInForm._id))
+        console.log('data from Req', data)
         setEnrollment(data)
         setValue('enrollmentId', String(data._id))
         return
       }
-
+      console.log('enrollmentDataFromForm: ', enrollmentDataFromForm)
       setEnrollment(enrollmentDataFromForm)
       setValue('enrollmentId', String(enrollmentDataFromForm._id))
     }
@@ -104,6 +105,8 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
     if (!enrollment?._id || !targetSchoolYear) return
 
     const loadPlans = async (): Promise<void> => {
+      //FIXME: muda o enrollment a cada vez que muda o ano de referencia (ver como fazer isso de forma mais eficiente)
+
       const plans = await getFinancialPlanForStudentService(
         String(center?._id),
         String(enrollment?._id),
@@ -124,10 +127,12 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
       (p) => p.month === paymentMonth && p.schoolYear === targetSchoolYear
     )
 
-    if (!plan) return { amount: 0, lateFee: 0 }
+    if (!plan) {
+      return { amount: 0, lateFee: 0 }
+    }
 
-    const fee = Number(enrollment.classId.course.fee) || 0
-    const fine = Number(enrollment.classId.course.feeFine) || 0
+    const fee = Number(enrollment.tuitionFeeId?.fee) || 0
+    const fine = Number(enrollment.tuitionFeeId?.feeFine) || 0
 
     const due = new Date(plan.dueDate)
     due.setHours(23, 59, 59, 999)
@@ -146,6 +151,7 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
     setValue('amount', amount)
     setValue('centerId', center?._id as string)
     setValue('userId', user?._id as string)
+
     setIsLoading(false)
   }, [lateFee, amount, center?._id, user?._id, setValue])
 
@@ -202,29 +208,66 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
       <form className="flex flex-col gap-4 flex-1" onSubmit={handleSubmit(onSubmit)}>
         {/* Informações do Aluno */}
         <h3 className="text-xl text-zinc-100 space-y-2">Dados do Estudante</h3>
-        <div className="flex flex-col gap-2">
-          <label className="text-zinc-300" htmlFor="fullName">
-            Nome Completo
-          </label>
-          <input
-            id="fullName"
-            placeholder="Nome Completo do Aluno"
-            type="text"
-            value={resultsInForm?.name?.fullName}
-            className="w-full h-12 p-3 bg-zinc-950 rounded-md border-gray-700 text-gray-100"
-            disabled
-          />
-          <label className="text-zinc-300" htmlFor="studentCode">
-            Código do Aluno
-          </label>
-          <input
-            id="studentCode"
-            placeholder="Código do Aluno"
-            type="text"
-            value={resultsInForm?.studentCode}
-            className="w-full h-12 p-3 bg-zinc-950 rounded-md border-gray-700 text-gray-100"
-            disabled
-          />
+        <label className="text-zinc-300" htmlFor="fullName">
+          Nome Completo
+        </label>
+        <input
+          id="fullName"
+          placeholder="Nome Completo do Aluno"
+          type="text"
+          value={resultsInForm?.name?.fullName}
+          className="w-full h-12 p-3 bg-zinc-950 rounded-md border-gray-700 text-gray-100"
+          disabled
+        />
+        <div className="grid grid-cols-2 gap-4">
+          <div className="flex flex-col gap-2">
+            <label className="text-zinc-300" htmlFor="studentCode">
+              Código do Aluno
+            </label>
+            <input
+              id="studentCode"
+              placeholder="Código do Aluno"
+              type="text"
+              value={resultsInForm?.studentCode}
+              className="w-full h-12 p-3 bg-zinc-950 rounded-md border-gray-700 text-gray-100"
+              disabled
+            />
+            <label className="text-zinc-300" htmlFor="class">
+              Turma
+            </label>
+            <input
+              id="class"
+              placeholder="Turma"
+              type="text"
+              value={enrollment?.classId?.className || ''}
+              className="w-full h-12 p-3 bg-zinc-950 rounded-md border-gray-700 text-gray-100"
+              disabled
+            />
+          </div>
+          <div className="flex flex-col gap-2">
+            <label className="text-zinc-300" htmlFor="grade">
+              Classe
+            </label>
+            <input
+              id="grade"
+              placeholder="Classe"
+              type="text"
+              value={enrollment?.classId?.grade?.grade || ''}
+              className="w-full h-12 p-3 bg-zinc-950 rounded-md border-gray-700 text-gray-100"
+              disabled
+            />
+            <label className="text-zinc-300" htmlFor="course">
+              Curso
+            </label>
+            <input
+              id="course"
+              placeholder="Curso"
+              type="text"
+              value={enrollment?.classId?.course?.name || ''}
+              className="w-full h-12 p-3 bg-zinc-950 rounded-md border-gray-700 text-gray-100"
+              disabled
+            />
+          </div>
         </div>
         <h3 className="text-xl text-zinc-100 space-y-2">Detalhes do Pagamento</h3>
         <div className="flex flex-col gap-2">
@@ -270,7 +313,7 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
           {/* Valor a Pagar */}
           <label className="text-zinc-300">Propina</label>
           <input
-            value={formateCurrency(enrollment?.classId?.course?.fee)}
+            value={formateCurrency(enrollment?.tuitionFeeId.fee)}
             disabled
             className="w-full h-12 p-3 bg-zinc-950 rounded-md border-gray-700 text-gray-100"
             placeholder="Exemplo: 150.00"
