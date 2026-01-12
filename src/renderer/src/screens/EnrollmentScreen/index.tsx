@@ -6,6 +6,7 @@ import {
   changeStatusService,
   getEnrollmentsService,
   getOneEnrollmentService,
+  getStudentEnrollmentContext,
   IEnrollmentForShow,
   IEnrollmentReceipt,
   searchEnrollmentsService
@@ -142,12 +143,16 @@ export const EnrollmentScreen: React.FC = () => {
       const generatePDF = async (): Promise<void> => {
         setIsLoadingPDF(true)
         const year = await getCurrentSchoolYearService(center?._id as string)
+        const financialStatusData = await getStudentEnrollmentContext(
+          String(selectedEnrollment.enrollment._id)
+        )
 
         const blob = await pdf(
           <EnrollmentPDF
             selectedEnrollment={selectedEnrollment}
             center={center as ICenter}
             schoolYear={year.description}
+            financialStatusData={financialStatusData}
           />
         ).toBlob()
         const url = URL.createObjectURL(blob)

@@ -9,6 +9,7 @@ export interface ICourse {
   fee: number
   feeFine: number
   enrollmentFee?: number
+  confirmationEnrollmentFee?: number
   centerId: string
   status?: 'active' | 'inactive' | string
   courseType?: 'on_home' | 'on_center' | string
@@ -22,6 +23,7 @@ export interface ICourseOnEdit {
   fee: number
   feeFine: number
   enrollmentFee?: number
+  confirmationEnrollmentFee?: number
   courseType?: 'on_home' | 'on_center' | string
 }
 
@@ -37,8 +39,8 @@ export async function createCourse(data: ICourse): Promise<void> {
 export const getOneCourseService = async (courseId: string): Promise<ICourse> => {
   try {
     const { data } = await apiManager.get(`/courses/${courseId}`)
-    const typeData: ICourse = data
-    return typeData
+
+    return data
   } catch (error) {
     console.log('Erro ao buscar curso: ', error)
     throw error
@@ -52,8 +54,7 @@ type IResponse = {
 export async function getCoursesService(centerId: string, page: number): Promise<IResponse> {
   try {
     const { data } = await apiManager.get(`/courses/all/paginated/${centerId}?page=${page}`)
-    const typeData: IResponse = data
-    return typeData
+    return data
   } catch (error) {
     console.log('Erro ao buscar cursos', error)
     throw error
@@ -63,8 +64,7 @@ export async function getCoursesService(centerId: string, page: number): Promise
 export async function getCoursesAll(centerId: string): Promise<ICourse[]> {
   try {
     const { data } = await apiManager.get(`/courses/all/${centerId}`)
-    const typeData: ICourse[] = data
-    return typeData
+    return data
   } catch (error) {
     console.log('Erro ao buscar cursos', error)
     throw error

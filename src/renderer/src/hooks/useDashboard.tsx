@@ -4,7 +4,7 @@ import { getDashboardDataService } from '@renderer/services/dashboard-service'
 import React from 'react'
 import { createContext, useContext, useState, useEffect } from 'react'
 
-type StudentGrowth = { month: string; students: number }[]
+type enrollmentGrowth = { month: string; students: number }[]
 type PaymentGrowthTopFive = { month: string; totalAmount: number }[]
 
 export interface DashboardContextData {
@@ -16,7 +16,7 @@ export interface DashboardContextData {
   totalDailyPayment: number
   totalActiveTeachers: number
   totalDailyAbsent: number
-  studentGrowth: StudentGrowth
+  enrollmentGrowth: enrollmentGrowth
   paymentGrowthTopFive: PaymentGrowthTopFive
   isLoading: boolean
   error: string | null
@@ -25,7 +25,7 @@ export interface DashboardContextData {
 export const DashBoardContext = createContext<DashboardContextData>({} as DashboardContextData)
 
 export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [studentGrowth, setStudentGrowth] = useState<StudentGrowth>([])
+  const [enrollmentGrowth, setEnrollmentGrowth] = useState<enrollmentGrowth>([])
   const [paymentGrowthTopFive, setPaymentGrowthTopFive] = useState<PaymentGrowthTopFive>([])
 
   const [totalActiveClassRoom, setTotalActiveClassRoom] = useState(0)
@@ -40,7 +40,7 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const { center } = useCenter()
-  const { fetchCurrentSchoolYear, setSelectedSchoolYear, currentSchoolYear } = useSchoolYear()
+  const { fetchCurrentSchoolYear, setSelectedSchoolYear } = useSchoolYear()
   async function fetchDashboardData(): Promise<void> {
     try {
       setIsLoading(true)
@@ -49,10 +49,7 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       const current = await fetchCurrentSchoolYear(center?._id as string)
       setSelectedSchoolYear(current)
 
-      const data = await getDashboardDataService(
-        center?._id as string,
-        currentSchoolYear?._id as string
-      )
+      const data = await getDashboardDataService(center?._id as string, current?._id as string)
 
       setTotalActiveClassRoom(data.totalActiveClassRoom)
       setTotalActiveStudent(data.totalActiveStudent)
@@ -62,7 +59,7 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       setTotalDailyPayment(data.totalDailyPayment)
       setTotalActiveTeachers(data.totalActiveTeachers)
       setTotalDailyAbsent(data.totalDailyAbsent)
-      setStudentGrowth(data.studentGrowth)
+      setEnrollmentGrowth(data.enrollmentGrowth)
       setPaymentGrowthTopFive(data.paymentGrowthTopFive)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro desconhecido')
@@ -73,7 +70,7 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   useEffect(() => {
     fetchDashboardData()
-  }, [])
+  }, [center?._id])
 
   return (
     <DashBoardContext.Provider
@@ -86,7 +83,7 @@ export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         totalDailyPayment,
         totalActiveTeachers,
         totalDailyAbsent,
-        studentGrowth,
+        enrollmentGrowth,
         paymentGrowthTopFive,
         isLoading,
         error

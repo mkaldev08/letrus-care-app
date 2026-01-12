@@ -52,6 +52,12 @@ export interface IEnrollmentForShow {
   centerId: string
   userId: IAuth
   hasScholarShip?: boolean
+  tuitionFeeId: {
+    fee: number
+    feeFine: number
+    enrollmentFee: number
+    confirmationEnrollmentFee: number
+  }
 }
 
 export interface IEnrollment {
@@ -124,7 +130,31 @@ export const createEnrollment = async (data: IEnrollmentForApply): Promise<IEnro
   }
 }
 
-//export const confirmationEnrollment = async(studentId, data)
+type confirmationData = {
+  classId: string
+  centerId: string
+  userId: string
+  hasScholarShip?: boolean
+}
+export const confirmationEnrollment = async (
+  studentId: string,
+  data: confirmationData
+): Promise<IEnrollmentForShow> => {
+  try {
+    const response = await apiManager.post('/enrollments/new', {
+      classId: data.classId,
+      centerId: data.centerId,
+      studentId,
+      userId: data.userId,
+      hasScholarShip: data.hasScholarShip
+    })
+
+    return response.data.enrollment
+  } catch (error) {
+    console.log('Erro ao confirmar inscrição:', error)
+    throw error
+  }
+}
 export const getEnrollmentsService = async (centerId: string, page: number): Promise<IResponse> => {
   try {
     const { data } = await apiManager.get(`/enrollments/all/${centerId}?page=${page}`)
@@ -231,10 +261,26 @@ export const searchEnrollmentsService = async (
 ): Promise<IResponse> => {
   try {
     const { data } = await apiManager.get(`/enrollments/search/${centerId}?query=${query}`)
-
     return data
   } catch (error) {
     console.log('Erro ao pesquisar inscricoes: ', error)
+    throw error
+  }
+}
+export type getStudentEnrollmentContextResponse = {
+  type: string
+  label: string
+  amount: number
+}
+export const getStudentEnrollmentContext = async (
+  currentEnrollmentId: string
+): Promise<getStudentEnrollmentContextResponse> => {
+  try {
+    const { data } = await apiManager.get(`/enrollments/${currentEnrollmentId}/financial-context`)
+
+    return data
+  } catch (error) {
+    console.log('Erro ao buscar estado do aluno: ', error)
     throw error
   }
 }

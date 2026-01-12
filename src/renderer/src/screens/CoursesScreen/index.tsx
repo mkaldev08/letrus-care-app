@@ -63,7 +63,7 @@ export const CoursesScreen: React.FC = () => {
   const handleDelete = async (id: string): Promise<void> => {
     Swal.fire({
       title: 'Tens a certeza?',
-      text: 'Esta acção não pode ser revertida!',
+      text: 'Esta ação não pode ser revertida!',
       icon: 'warning',
       showCancelButton: true,
       confirmButtonText: 'Sim, apagar!',
@@ -80,13 +80,16 @@ export const CoursesScreen: React.FC = () => {
   }
   const schema = yup
     .object({
-      name: yup.string().required('Preecha o nome do curso'),
-      description: yup.string().required('Explique um pouco sobre o curso'),
+      name: yup.string().required('Preencha o nome do curso'),
+      description: yup.string().required('Preencha a descrição do curso'),
       startDate: yup.date().required(),
       endDate: yup.date().required(),
-      fee: yup.number().required('Preecha a propina'),
-      feeFine: yup.number().required('Preecha a multa'),
+      fee: yup.number().required('Preencha a propina'),
+      feeFine: yup.number().required('Preencha a multa'),
       enrollmentFee: yup.number(),
+      confirmationEnrollmentFee: yup
+        .number()
+        .required('Preencha a taxa de confirmação de inscrição'),
       centerId: yup.string().required(),
       status: yup.string().oneOf(['active', 'inactive']),
       courseType: yup.string().oneOf(['on_home', 'on_center'])
@@ -158,7 +161,7 @@ export const CoursesScreen: React.FC = () => {
         />
         <span className="text-red-500">{errors.description?.message}</span>
         <label className="text-gray-200" htmlFor="startDate">
-          Data de Ínicio
+          Data de Início
         </label>
         <input
           {...register('startDate')}
@@ -195,19 +198,35 @@ export const CoursesScreen: React.FC = () => {
             />
           </div>
         </div>
-
-        <label className="text-gray-200" htmlFor="fee">
-          Multa por atraso (Kz)
-        </label>
-        <input
-          {...register('feeFine')}
-          placeholder="Multa"
-          id="feeFine"
-          type="number"
-          min={0}
-          className="w-full h-12 p-3 bg-zinc-950 rounded-md focus:border-0  border-gray-700 outline-none text-gray-100 text-base font-normal placeholder:text-gray-400 transition-colors"
-        />
-        <span className="text-red-500">{errors.feeFine?.message}</span>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="flex flex-col gap-2">
+            <label className="text-gray-200" htmlFor="confirmationEnrollmentFee">
+              Taxa de Confirmação de Inscrição (Kz)
+            </label>
+            <input
+              {...register('confirmationEnrollmentFee')}
+              placeholder="Taxa de Confirmação de Inscrição"
+              id="confirmationEnrollmentFee"
+              type="number"
+              min={0}
+              className="w-full h-12 p-3 bg-zinc-950 rounded-md focus:border-0  border-gray-700 outline-none text-gray-100 text-base font-normal placeholder:text-gray-400 transition-colors"
+            />
+          </div>
+          <div className="flex flex-col gap-2">
+            <label className="text-gray-200" htmlFor="feeFine">
+              Multa por atraso (Kz)
+            </label>
+            <input
+              {...register('feeFine')}
+              placeholder="Multa"
+              id="feeFine"
+              type="number"
+              min={0}
+              className="w-full h-12 p-3 bg-zinc-950 rounded-md focus:border-0  border-gray-700 outline-none text-gray-100 text-base font-normal placeholder:text-gray-400 transition-colors"
+            />
+            <span className="text-red-500">{errors.feeFine?.message}</span>
+          </div>
+        </div>
         <label className="text-gray-200" htmlFor="endDate">
           Data de Término
         </label>
@@ -308,7 +327,7 @@ export const CoursesScreen: React.FC = () => {
                         Modalidade
                       </th>
                       <th className="bg-orange-800 text-white p-2 md:border md:border-zinc-700 text-center block md:table-cell">
-                        Data de Ínicio
+                        Data de Início
                       </th>
                       <th className="bg-orange-800 text-white p-2 md:border md:border-zinc-700 text-center block md:table-cell">
                         Data de Termino
@@ -317,13 +336,19 @@ export const CoursesScreen: React.FC = () => {
                         Propina (Kz)
                       </th>
                       <th className="bg-orange-800 text-white p-2 md:border md:border-zinc-700 text-center block md:table-cell">
+                        Taxa de Inscrição (Kz)
+                      </th>
+                      <th className="bg-orange-800 text-white p-2 md:border md:border-zinc-700 text-center block md:table-cell">
                         Multa (Kz)
                       </th>
                       <th className="bg-orange-800 text-white p-2 md:border md:border-zinc-700 text-center block md:table-cell">
-                        Status
+                        Taxa de Confirmação de Inscrição (Kz)
                       </th>
                       <th className="bg-orange-800 text-white p-2 md:border md:border-zinc-700 text-center block md:table-cell">
-                        Acções
+                        Estado
+                      </th>
+                      <th className="bg-orange-800 text-white p-2 md:border md:border-zinc-700 text-center block md:table-cell">
+                        Ações
                       </th>
                     </tr>
                   </thead>
@@ -351,7 +376,13 @@ export const CoursesScreen: React.FC = () => {
                             {formateCurrency(row?.fee)}
                           </td>
                           <td className="p-2 md:border md:border-zinc-700 text-right block md:table-cell">
+                            {formateCurrency(row?.enrollmentFee)}
+                          </td>
+                          <td className="p-2 md:border md:border-zinc-700 text-right block md:table-cell">
                             {formateCurrency(row?.feeFine)}
+                          </td>
+                          <td className="p-2 md:border md:border-zinc-700 text-right block md:table-cell">
+                            {formateCurrency(row?.confirmationEnrollmentFee)}
                           </td>
                           <td className="p-2 md:border md:border-zinc-700 text-center block md:table-cell">
                             {row?.status === 'active'
