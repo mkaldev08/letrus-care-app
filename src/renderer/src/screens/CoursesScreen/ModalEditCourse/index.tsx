@@ -7,13 +7,14 @@ import withReactContent from 'sweetalert2-react-content'
 import * as yup from 'yup'
 const schema = yup
   .object({
-    name: yup.string().required('Preecha o nome do curso'),
-    description: yup.string().required('Explique um pouco sobre o curso'),
+    name: yup.string().required('Preencha o nome do curso'),
+    description: yup.string().required('Preencha a descrição do curso'),
     startDate: yup.date().required(),
     endDate: yup.date().required(),
-    fee: yup.number().required('Preecha a propina'),
-    feeFine: yup.number().required('Preecha a multa'),
+    fee: yup.number().required('Preencha a propina'),
+    feeFine: yup.number().required('Preencha a multa'),
     enrollmentFee: yup.number(),
+    confirmationEnrollmentFee: yup.number().required('Preencha a taxa de confirmação de inscrição'),
     courseType: yup.string().oneOf(['on_home', 'on_center'])
   })
   .required()
@@ -92,7 +93,7 @@ export const ModalEditCourse: React.FC<ModalEditCourseProps> = ({
       />
       <span className="text-red-500">{errors.description?.message}</span>
       <label className="text-gray-200" htmlFor="startDate">
-        Data de Ínicio
+        Data de Início
       </label>
       <input
         {...register('startDate')}
@@ -135,46 +136,37 @@ export const ModalEditCourse: React.FC<ModalEditCourseProps> = ({
         </div>
       </div>
       <span className="text-red-500">{errors.fee?.message}</span>
-      <label className="text-gray-200" htmlFor="fee">
-        Multa por atraso (Kz)
-      </label>
-      <input
-        {...register('feeFine')}
-        defaultValue={courseInfo?.feeFine}
-        placeholder="Multa"
-        id="feeFine"
-        type="number"
-        min={0}
-        className="w-full h-12 p-3 bg-zinc-950 rounded-md focus:border-0  border-gray-700 outline-none text-gray-100 text-base font-normal placeholder:text-gray-400 transition-colors"
-      />
+      <div className="grid grid-cols-2 gap-4">
+        <div className="flex flex-col gap-2">
+          <label className="text-gray-200" htmlFor="confirmationEnrollmentFee">
+            Taxa de Confirmação de Inscrição (Kz)
+          </label>
+          <input
+            {...register('confirmationEnrollmentFee')}
+            defaultValue={courseInfo?.confirmationEnrollmentFee}
+            placeholder="Taxa de Confirmação de Inscrição"
+            id="confirmationEnrollmentFee"
+            type="number"
+            min={0}
+            className="w-full h-12 p-3 bg-zinc-950 rounded-md focus:border-0  border-gray-700 outline-none text-gray-100 text-base font-normal placeholder:text-gray-400 transition-colors"
+          />
+        </div>
+        <div className="flex flex-col gap-2">
+          <label className="text-gray-200" htmlFor="feeFine">
+            Multa por atraso (Kz)
+          </label>
+          <input
+            {...register('feeFine')}
+            defaultValue={courseInfo?.feeFine}
+            placeholder="Multa"
+            id="feeFine"
+            type="number"
+            min={0}
+            className="w-full h-12 p-3 bg-zinc-950 rounded-md focus:border-0  border-gray-700 outline-none text-gray-100 text-base font-normal placeholder:text-gray-400 transition-colors"
+          />
+        </div>
+      </div>
       <span className="text-red-500">{errors.feeFine?.message}</span>
-      <label className="text-gray-200" htmlFor="endDate">
-        Data de Término
-      </label>
-      <input
-        {...register('endDate')}
-        id="endDate"
-        type="date"
-        defaultValue={
-          courseInfo?.endDate ? new Date(courseInfo?.endDate).toISOString().split('T')[0] : ''
-        }
-        required
-        className="w-full h-12 p-3 bg-zinc-950 rounded-md focus:border-0  border-gray-700 outline-none text-gray-100 text-base font-normal placeholder:text-gray-400 transition-colors"
-      />
-      <label className="text-gray-200" htmlFor="courseType">
-        Modalidade do Curso
-      </label>
-      <select
-        {...register('courseType')}
-        id="courseType"
-        required
-        className="w-full h-12 p-3 bg-zinc-950 rounded-md focus:border-0  border-gray-700 outline-none text-gray-100 text-base font-normal placeholder:text-gray-400 transition-colors"
-        defaultValue={courseInfo?.courseType}
-      >
-        <option value="on_center">Centro</option>
-
-        <option value="on_home">Domiciliar</option>
-      </select>
 
       <button
         type="submit"

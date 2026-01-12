@@ -41,7 +41,7 @@ export const HomeScreen: React.FC = () => {
     totalDailyPayment,
     totalActiveTeachers,
     totalDailyAbsent,
-    studentGrowth,
+    enrollmentGrowth,
     paymentGrowthTopFive,
     isLoading,
     error
@@ -123,15 +123,15 @@ export const HomeScreen: React.FC = () => {
               {!isLoading && !error ? (
                 <>
                   <article className="w-1/2 bg-zinc-800 p-4 rounded-lg shadow-md">
-                    <h2 className="text-lg font-semibold mb-4">Crescimento de Alunos</h2>
+                    <h2 className="text-lg font-semibold mb-4">Crescimento de Inscrições</h2>
                     <ResponsiveContainer width="100%" height={350}>
                       <LineChart
-                        data={studentGrowth}
+                        data={enrollmentGrowth}
                         margin={{ top: 5, right: 20, bottom: 5, left: 0 }}
                       >
                         <CartesianGrid strokeDasharray="3 3" style={{ stroke: '#b3b3b35c' }} />
                         <XAxis dataKey="month" style={{ color: '#fff' }} />
-                        <YAxis dataKey="students" allowDecimals={false} />
+                        <YAxis dataKey="enrollments" allowDecimals={false} />
                         <Tooltip
                           contentStyle={{
                             backgroundColor: '#121314',
@@ -139,7 +139,12 @@ export const HomeScreen: React.FC = () => {
                             color: '#fff'
                           }}
                         />
-                        <Line type="monotone" dataKey="students" stroke="#c2410c" strokeWidth={2} />
+                        <Line
+                          type="monotone"
+                          dataKey="enrollments"
+                          stroke="#c2410c"
+                          strokeWidth={2}
+                        />
                       </LineChart>
                     </ResponsiveContainer>
                   </article>

@@ -124,7 +124,31 @@ export const createEnrollment = async (data: IEnrollmentForApply): Promise<IEnro
   }
 }
 
-//export const confirmationEnrollment = async(studentId, data)
+type confirmationData = {
+  classId: string
+  centerId: string
+  userId: string
+  hasScholarShip?: boolean
+}
+export const confirmationEnrollment = async (
+  studentId: string,
+  data: confirmationData
+): Promise<IEnrollmentForShow> => {
+  try {
+    const response = await apiManager.post('/enrollments/new', {
+      classId: data.classId,
+      centerId: data.centerId,
+      studentId,
+      userId: data.userId,
+      hasScholarShip: data.hasScholarShip
+    })
+
+    return response.data.enrollment
+  } catch (error) {
+    console.log('Erro ao confirmar inscrição:', error)
+    throw error
+  }
+}
 export const getEnrollmentsService = async (centerId: string, page: number): Promise<IResponse> => {
   try {
     const { data } = await apiManager.get(`/enrollments/all/${centerId}?page=${page}`)

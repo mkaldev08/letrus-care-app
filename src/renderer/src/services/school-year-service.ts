@@ -25,8 +25,7 @@ type IResponse = {
 export async function getSchoolYearsService(page: number, centerId: string): Promise<IResponse> {
   try {
     const { data } = await apiManager.get(`school-year/all/${centerId}?page=${page}`)
-    const typeData: IResponse = data
-    return typeData
+    return data
   } catch (error) {
     console.log('Erro ao buscar...')
     throw error
