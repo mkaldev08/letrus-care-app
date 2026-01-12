@@ -74,7 +74,7 @@ export const StudentPayments: React.FC = () => {
         setSelectedYear(yearId)
       }
     }
-  }, [selectedYear])
+  }, [])
 
   // Busca planos financeiros quando muda enrollmentId, selectedYear ou center
   useEffect(() => {
