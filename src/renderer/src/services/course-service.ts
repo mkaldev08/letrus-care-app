@@ -22,8 +22,8 @@ export interface ICourseOnEdit {
   endDate: Date
   fee: number
   feeFine: number
-  enrollmentFee?: number
-  confirmationEnrollmentFee?: number
+  enrollmentFee: number
+  confirmationEnrollmentFee: number
   courseType?: 'on_home' | 'on_center' | string
 }
 

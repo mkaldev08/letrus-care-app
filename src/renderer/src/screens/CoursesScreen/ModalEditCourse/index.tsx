@@ -13,7 +13,7 @@ const schema = yup
     endDate: yup.date().required(),
     fee: yup.number().required('Preencha a propina'),
     feeFine: yup.number().required('Preencha a multa'),
-    enrollmentFee: yup.number(),
+    enrollmentFee: yup.number().required(),
     confirmationEnrollmentFee: yup.number().required('Preencha a taxa de confirmação de inscrição'),
     courseType: yup.string().oneOf(['on_home', 'on_center'])
   })
@@ -100,6 +100,19 @@ export const ModalEditCourse: React.FC<ModalEditCourseProps> = ({
         id="startDate"
         defaultValue={
           courseInfo?.startDate ? new Date(courseInfo?.startDate).toISOString().split('T')[0] : ''
+        }
+        type="date"
+        required
+        className="w-full h-12 p-3 bg-zinc-950 rounded-md focus:border-0  border-gray-700 outline-none text-gray-100 text-base font-normal placeholder:text-gray-400 transition-colors"
+      />
+      <label className="text-gray-200" htmlFor="endDate">
+        Data de Início
+      </label>
+      <input
+        {...register('endDate')}
+        id="endDate"
+        defaultValue={
+          courseInfo?.endDate ? new Date(courseInfo?.endDate).toISOString().split('T')[0] : ''
         }
         type="date"
         required
