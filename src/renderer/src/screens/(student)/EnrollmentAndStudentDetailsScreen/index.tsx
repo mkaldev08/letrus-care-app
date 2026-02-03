@@ -1,27 +1,18 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { Footer } from '@renderer/components/Footer'
 import { StudentSidebar } from '@renderer/components/StudentSidebar'
 import { Header } from '@renderer/components/Header'
 import { useParams } from 'react-router'
 import { Edit, FileDown, Printer } from 'lucide-react' // ícones
-import { getOneEnrollmentService, IEnrollmentForShow } from '@renderer/services/enrollment-service'
 import { formatDate } from '@renderer/utils/format'
+import { ContentLoader } from '@renderer/components/ContentLoader'
+import { useEnrollmentQuery } from '@renderer/hooks/queries/useEnrollmentQueries'
 
 export const EnrollmentAndStudentDetailsScreen: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
-  const [enrollment, setEnrollment] = useState<IEnrollmentForShow>()
   const { enrollmentId } = useParams<string>()
-
-  const fetchEnrollment = async (): Promise<void> => {
-    const data = await getOneEnrollmentService(String(enrollmentId))
-    setEnrollment(data.enrollment)
-  }
-
-  useEffect(() => {
-    if (enrollmentId) {
-      fetchEnrollment()
-    }
-  }, [enrollmentId])
+  const { data, isLoading } = useEnrollmentQuery(enrollmentId || '')
+  const enrollment = data?.enrollment
 
   const handleEdit = (): void => {
     console.log('Editar aluno')
@@ -33,6 +24,10 @@ export const EnrollmentAndStudentDetailsScreen: React.FC = () => {
 
   const handlePrint = (): void => {
     window.print()
+  }
+
+  if (isLoading) {
+    return <ContentLoader />
   }
 
   if (!enrollment) {
@@ -97,7 +92,7 @@ export const EnrollmentAndStudentDetailsScreen: React.FC = () => {
                     {formatDate(enrollment.studentId.birthDate)}
                   </p>
                   <p>
-                    <span className="font-semibold">Gênero:</span> {enrollment.studentId.gender}
+                    <span className="font-semibold">Género:</span> {enrollment.studentId.gender}
                   </p>
                   <p>
                     <span className="font-semibold">Código:</span>{' '}

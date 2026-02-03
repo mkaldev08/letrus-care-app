@@ -10,24 +10,30 @@ import {
 // Query Keys
 export const financialPlanKeys = {
   all: ['financialPlans'] as const,
-  list: (centerId: string, enrollmentId: string, schoolYearId: string) =>
-    [...financialPlanKeys.all, 'list', centerId, enrollmentId, schoolYearId] as const
+  list: (centerId: string, enrollmentId: string, schoolYearId: string, status: string) =>
+    [...financialPlanKeys.all, 'list', centerId, enrollmentId, schoolYearId, status] as const
 }
 
 // Queries
 export const useFinancialPlansQuery = (
   centerId?: string,
   enrollmentId?: string,
-  schoolYearId?: string
+  schoolYearId?: string,
+  status: string = 'all'
 ): UseQueryResult<IFinancialPlanToShow[], Error> => {
   return useQuery({
-    queryKey: financialPlanKeys.list(centerId ?? '', enrollmentId ?? '', schoolYearId ?? ''),
+    queryKey: financialPlanKeys.list(
+      centerId ?? '',
+      enrollmentId ?? '',
+      schoolYearId ?? '',
+      status
+    ),
     queryFn: async () => {
       if (!centerId || !enrollmentId || !schoolYearId) {
         throw new Error('Center ID, Enrollment ID, and School Year ID required')
       }
       return getFinancialPlanForStudentService(centerId, enrollmentId, {
-        status: 'all',
+        status,
         schoolYear: schoolYearId
       })
     },
