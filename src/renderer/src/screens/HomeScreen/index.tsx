@@ -100,27 +100,40 @@ export const HomeScreen: React.FC = () => {
           <div className="flex-1 overflow-auto p-4">
             <h2 className="text-3xl text-zinc-400 mb-4">Dashboard</h2>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-              {!isLoading && error && <p className="text-red-500">{error}</p>}
-              {!isLoading && !error ? (
+              {isLoading && (
+                <div className="col-span-4 flex items-center justify-center p-8">
+                  <TailSpin color="#c2410c" ariaLabel="loading-dashboard" />
+                </div>
+              )}
+
+              {error && (
+                <div className="col-span-4 p-4 text-center rounded bg-red-500/10 border border-red-500/20">
+                  <p className="text-red-500 font-medium">{error}</p>
+                </div>
+              )}
+
+              {!isLoading &&
+                !error &&
                 statisticData.map((item, index) => (
-                  <div
+                  <button
                     key={index}
-                    className="bg-zinc-800 p-4 rounded-lg shadow-md text-center hover:opacity-80 hover:cursor-pointer transition-all h-36 flex flex-col items-center justify-center"
+                    className="bg-zinc-800 p-4 rounded-lg shadow-md text-center hover:opacity-80 hover:bg-zinc-700 transition-all h-36 flex flex-col items-center justify-center w-full focus:outline-none focus:ring-2 focus:ring-orange-600"
                     onClick={() => handleNavigateByLabel(item.label)}
+                    aria-label={`Ver detalhes de ${item.label}: ${item.value}`}
                   >
                     <p className="text-zinc-400 text-xl">{item.label}</p>
                     <p className="text-2xl font-bold">{item.value}</p>
-                  </div>
-                ))
-              ) : (
-                <div className="flex flex-1 items-center justify-center">
-                  <TailSpin color="#c2410c" />
-                </div>
-              )}
+                  </button>
+                ))}
             </div>
             <div className="flex items-center justify-between gap-4">
-              {!isLoading && error && <p className="text-red-500">{error}</p>}
-              {!isLoading && !error ? (
+              {isLoading && (
+                <div className="w-full flex flex-1 items-center justify-center p-12">
+                  <TailSpin color="#c2410c" ariaLabel="loading-charts" />
+                </div>
+              )}
+
+              {!isLoading && !error && (
                 <>
                   <article className="w-1/2 bg-zinc-800 p-4 rounded-lg shadow-md">
                     <h2 className="text-lg font-semibold mb-4">Crescimento de Inscrições</h2>
@@ -167,10 +180,6 @@ export const HomeScreen: React.FC = () => {
                     </ResponsiveContainer>
                   </article>
                 </>
-              ) : (
-                <div className="flex flex-1 items-center justify-center">
-                  <TailSpin color="#c2410c" />
-                </div>
               )}
             </div>
           </div>

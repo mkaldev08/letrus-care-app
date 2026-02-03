@@ -24,7 +24,7 @@ export const ConfirmationEnrollmentScreen: React.FC = () => {
         <Sidebar isOpen={isSidebarOpen} />
         <div className="flex-1 overflow-auto p-4">
           <div className="w-11/12 mx-auto">
-            <h2 className="text-3xl text-zinc-500">Reconfirmar Inscrição</h2>
+            <h2 className="text-3xl text-zinc-500">Re-confirmar Inscrição</h2>
 
             {!selectedStudent && (
               <SearchStudent

@@ -1,48 +1,47 @@
-import React, { useEffect, useState } from 'react'
-
+import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
-import { createEnrollment } from '@renderer/services/enrollment-service'
 import Swal from 'sweetalert2'
 import { useCenter } from '@renderer/contexts/center-context'
-
 import { useAuth } from '@renderer/contexts/auth-context'
-import { getClassesService, IResponseClass } from '@renderer/services/class-service'
 import { useNavigate } from 'react-router'
 import { Rings } from 'react-loader-spinner'
 import { useSchoolYear } from '@renderer/contexts/school-year-context'
+
+import { useClassesQuery } from '@renderer/hooks/queries/useClassQueries'
+import { useCreateEnrollmentMutation } from '@renderer/hooks/queries/useEnrollmentQueries'
 
 export const studentSchema = yup
   .object({
     fullName: yup
       .string()
-      .required('Preecha o Nome Completo')
+      .required('Preencha o Nome Completo')
       .test('fullName', 'Insira um nome completo válido', (value) => {
         // Verifica se o valor contém pelo menos um espaço em branco
         return /\s/.test(value)
       })
       .trim(),
     surname: yup.string().trim(),
-    birthDate: yup.date().required('Preecha data de nascimento'),
+    birthDate: yup.date().required('Preencha data de nascimento'),
     gender: yup.string().oneOf(['masculino', 'feminino']).required('Seleciona um género'),
-    identityNumber: yup.string().required('Preecha o Número do BI'),
+    identityNumber: yup.string().required('Preencha o Número do BI'),
     father: yup
       .string()
-      .required('Preecha o nome do Pai')
+      .required('Preencha o nome do Pai')
       .test('father', 'Insira um nome completo válido', (value) => {
         // Verifica se o valor contém pelo menos um espaço em branco
         return /\s/.test(value)
       }),
     mother: yup
       .string()
-      .required('Preecha o nome do Mãe')
+      .required('Preencha o nome do Mãe')
       .test('mother', 'Insira um nome completo válido', (value) => {
         // Verifica se o valor contém pelo menos um espaço em branco
         return /\s/.test(value)
       }),
-    address: yup.string().required('Preecha o Endereço'),
-    phoneNumber: yup.string().required('Preecha o Telefone'),
+    address: yup.string().required('Preencha o Endereço'),
+    phoneNumber: yup.string().required('Preencha o Telefone'),
     email: yup.string().email('Email Inválido'),
     hasScholarShip: yup.boolean(),
     classId: yup.string().required('Seleciona um Turma disponível'),
@@ -68,19 +67,13 @@ export const Panel: React.FC = () => {
   const navigate = useNavigate()
   const { currentSchoolYear } = useSchoolYear()
 
-  const [classRooms, setClassRooms] = useState<IResponseClass[] | null>(null)
+  const {
+    data: classRooms,
+    isLoading: isLoadingClasses,
+    error: errorClasses
+  } = useClassesQuery(center?._id, currentSchoolYear?._id)
 
-  useEffect(() => {
-    async function getClassRooms(): Promise<void> {
-      const data = await getClassesService({
-        centerId: center?._id as string,
-        schoolYearId: currentSchoolYear?._id as string
-      })
-      setClassRooms(data)
-    }
-
-    getClassRooms()
-  }, [center, currentSchoolYear])
+  const createEnrollmentMutation = useCreateEnrollmentMutation()
 
   const onSubmit = async (data: FormData): Promise<void> => {
     try {
@@ -99,25 +92,38 @@ export const Panel: React.FC = () => {
         centerId,
         identityNumber
       } = data
-      const parents = { father, mother }
-      const name = { fullName, surname }
-      const enrollment = await createEnrollment({
-        parents,
+
+      // if (!data.doc_file || !data.image_file) {
+      //   throw new Error('Arquivos obrigatórios')
+      // }
+
+      const createdEnrollment = await createEnrollmentMutation.mutateAsync({
         address,
-        birthDate,
-        gender,
-        phoneNumber,
-        email,
-        name,
         centerId,
         classId,
+        name: {
+          fullName,
+          surname
+        },
+        parents: {
+          father,
+          mother
+        },
+        phoneNumber,
         userId,
+        birthDate: birthDate,
+        email,
+        gender,
+        doc_file: data.doc_file as File,
+        image_file: data.image_file as File,
+        hasScholarShip: data.hasScholarShip,
         identityNumber
       })
+
       Swal.fire({
         position: 'bottom-end',
         icon: 'success',
-        title: 'Inscrição Salva, baixe o comprovativo!!',
+        title: 'Inscrição Salva, baixe a ficha e pague a propina!!',
         showConfirmButton: false,
         timer: 2000,
         customClass: {
@@ -127,34 +133,45 @@ export const Panel: React.FC = () => {
         },
         timerProgressBar: true // Ativa a barra de progresso
       })
-      //Limpa o Form
-      // reset()
-      //Navega para a pagina de novo pagamento com o id da matricula
-      await navigate('/payments/new', { state: { enrollment } })
+
+      await navigate('/payments/new', { state: { enrollment: createdEnrollment } })
     } catch (error: unknown) {
       type errorTyped = {
         response?: { data?: { message?: string } }
         request?: { message?: string }
         message?: string
       }
-      const errorMessage =
-        (error as errorTyped)?.response?.data?.message ||
-        (error as errorTyped)?.request?.message ||
-        (error as errorTyped)?.message ||
-        'Erro inesperado'
-      Swal.fire({
-        position: 'bottom-end',
-        icon: 'error',
-        title: errorMessage,
-        showConfirmButton: false,
-        timer: 2000,
-        customClass: {
-          popup: 'h-44 p-2', // Define a largura e o padding do card
-          title: 'text-sm', // Tamanho do texto do título
-          icon: 'text-xs' // Reduz o tamanho do ícone
-        },
-        timerProgressBar: true // Ativa a barra de progresso
-      })
+      const err = error as errorTyped
+
+      if (err.response?.data?.message) {
+        Swal.fire({
+          position: 'bottom-end',
+          icon: 'error',
+          title: err.response.data.message,
+          showConfirmButton: false,
+          timer: 2000,
+          customClass: {
+            popup: 'h-44 p-2', // Define a largura e o padding do card
+            title: 'text-sm', // Tamanho do texto do título
+            icon: 'text-xs' // Reduz o tamanho do ícone
+          },
+          timerProgressBar: true // Ativa a barra de progresso
+        })
+      } else {
+        Swal.fire({
+          position: 'bottom-end',
+          icon: 'error',
+          title: 'Erro de conexão com o servidor',
+          showConfirmButton: false,
+          timer: 2000,
+          customClass: {
+            popup: 'h-44 p-2', // Define a largura e o padding do card
+            title: 'text-sm', // Tamanho do texto do título
+            icon: 'text-xs' // Reduz o tamanho do ícone
+          },
+          timerProgressBar: true // Ativa a barra de progresso
+        })
+      }
     }
   }
 
