@@ -4,6 +4,8 @@ import { CenterProvider } from './contexts/center-context'
 import { LoaderComponent } from './components/Loader'
 import { Routes } from './Routes'
 import { SchoolYearProvider } from './contexts/school-year-context'
+import { QueryClientProvider } from '@tanstack/react-query'
+import { queryClient } from './lib/react-query'
 
 const AppContent: React.FC = () => {
   const { loading } = useAuth()
@@ -17,12 +19,14 @@ const AppContent: React.FC = () => {
 
 export const App: React.FC = () => {
   return (
-    <AuthProvider>
-      <CenterProvider>
-        <SchoolYearProvider>
-          <AppContent />
-        </SchoolYearProvider>
-      </CenterProvider>
-    </AuthProvider>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <CenterProvider>
+          <SchoolYearProvider>
+            <AppContent />
+          </SchoolYearProvider>
+        </CenterProvider>
+      </AuthProvider>
+    </QueryClientProvider>
   )
 }

@@ -1,8 +1,8 @@
 import { useCenter } from '@renderer/contexts/center-context'
 import { useSchoolYear } from '@renderer/contexts/school-year-context'
-import { getDashboardDataService } from '@renderer/services/dashboard-service'
+import { useDashboardQueryHelper } from './queries/useDashboardQuery'
+import { useEffect } from 'react'
 import React from 'react'
-import { createContext, useContext, useState, useEffect } from 'react'
 
 type enrollmentGrowth = { month: string; students: number }[]
 type PaymentGrowthTopFive = { month: string; totalAmount: number }[]
@@ -22,78 +22,37 @@ export interface DashboardContextData {
   error: string | null
 }
 
-export const DashBoardContext = createContext<DashboardContextData>({} as DashboardContextData)
-
 export const DashboardProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [enrollmentGrowth, setEnrollmentGrowth] = useState<enrollmentGrowth>([])
-  const [paymentGrowthTopFive, setPaymentGrowthTopFive] = useState<PaymentGrowthTopFive>([])
-
-  const [totalActiveClassRoom, setTotalActiveClassRoom] = useState(0)
-  const [totalActiveStudent, setTotalActiveStudent] = useState(0)
-  const [totalDailyEnrollment, setTotalDailyEnrollment] = useState(0)
-  const [totalIncompleteEnrollment, setTotalIncompleteEnrollment] = useState(0)
-  const [totalOverdueFee, setTotalOverdueFee] = useState(0)
-  const [totalDailyPayment, setTotalDailyPayment] = useState(0)
-  const [totalActiveTeachers, setTotalActiveTeachers] = useState(0)
-  const [totalDailyAbsent, setTotalDailyAbsent] = useState(0)
-
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const { center } = useCenter()
-  const { fetchCurrentSchoolYear, setSelectedSchoolYear } = useSchoolYear()
-  async function fetchDashboardData(): Promise<void> {
-    try {
-      setIsLoading(true)
-      setError(null)
-
-      const current = await fetchCurrentSchoolYear(center?._id as string)
-      setSelectedSchoolYear(current)
-
-      const data = await getDashboardDataService(center?._id as string, current?._id as string)
-
-      setTotalActiveClassRoom(data.totalActiveClassRoom)
-      setTotalActiveStudent(data.totalActiveStudent)
-      setTotalDailyEnrollment(data.totalDailyEnrollment)
-      setTotalIncompleteEnrollment(data.totalIncompleteEnrollment)
-      setTotalOverdueFee(data.totalOverdueFee)
-      setTotalDailyPayment(data.totalDailyPayment)
-      setTotalActiveTeachers(data.totalActiveTeachers)
-      setTotalDailyAbsent(data.totalDailyAbsent)
-      setEnrollmentGrowth(data.enrollmentGrowth)
-      setPaymentGrowthTopFive(data.paymentGrowthTopFive)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro desconhecido')
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    fetchDashboardData()
-  }, [center?._id])
-
-  return (
-    <DashBoardContext.Provider
-      value={{
-        totalActiveClassRoom,
-        totalActiveStudent,
-        totalDailyEnrollment,
-        totalIncompleteEnrollment,
-        totalOverdueFee,
-        totalDailyPayment,
-        totalActiveTeachers,
-        totalDailyAbsent,
-        enrollmentGrowth,
-        paymentGrowthTopFive,
-        isLoading,
-        error
-      }}
-    >
-      {children}
-    </DashBoardContext.Provider>
-  )
+  return <>{children}</>
 }
 
 export function useDashboard(): DashboardContextData {
-  return useContext(DashBoardContext)
+  const { center } = useCenter()
+  const { setSelectedSchoolYear } = useSchoolYear()
+
+  const { data, isLoading, error } = useDashboardQueryHelper(String(center?._id))
+
+  // Sync the school year globally if fetched
+  useEffect(() => {
+    if (data?.currentYear) {
+      setSelectedSchoolYear(data.currentYear)
+    }
+  }, [data?.currentYear, setSelectedSchoolYear])
+
+  const dashboardData = data?.dashboardData
+
+  return {
+    totalActiveClassRoom: dashboardData?.totalActiveClassRoom ?? 0,
+    totalActiveStudent: dashboardData?.totalActiveStudent ?? 0,
+    totalDailyEnrollment: dashboardData?.totalDailyEnrollment ?? 0,
+    totalIncompleteEnrollment: dashboardData?.totalIncompleteEnrollment ?? 0,
+    totalOverdueFee: dashboardData?.totalOverdueFee ?? 0,
+    totalDailyPayment: dashboardData?.totalDailyPayment ?? 0,
+    totalActiveTeachers: dashboardData?.totalActiveTeachers ?? 0,
+    totalDailyAbsent: dashboardData?.totalDailyAbsent ?? 0,
+    enrollmentGrowth: dashboardData?.enrollmentGrowth ?? [],
+    paymentGrowthTopFive: dashboardData?.paymentGrowthTopFive ?? [],
+    isLoading,
+    error: error ? (error as Error).message : null
+  }
 }

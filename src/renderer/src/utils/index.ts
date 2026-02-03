@@ -1,26 +1,19 @@
 export function createFormalName(name: string): string {
-  const normalizedName = name.trim().split(' ')
+  // Split the name into parts, removing extra spaces
+  const parts = name.trim().split(/\s+/).filter(Boolean)
 
-  if (normalizedName.length < 3) return name
-  let newName = ''
-  newName = normalizedName[0]
-  for (let i = 1; i < normalizedName.length - 1; i++) {
-    newName += ' ' + normalizedName[i][0] + '. '
-  }
-  newName += normalizedName[normalizedName.length - 1]
-  return newName
+  if (parts.length < 3) return name
+
+  // Keep first and last names, abbreviate middle names
+  const initials = parts.slice(1, -1).map((part) => part[0].toUpperCase() + '.')
+  return [parts[0], ...initials, parts[parts.length - 1]].join(' ')
 }
+// Abbreviate names longer than three parts
+export function abbreviateName(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean)
 
-export function abreaviateName(name: string): string {
-  const normalizedName = name.trim().split(' ')
-
-  let abrevName = ''
-
-  if (normalizedName.length < 4) return name
-  abrevName = normalizedName[0][0] + '. '
-  for (let i = 1; i < normalizedName.length - 1; i++) {
-    abrevName += normalizedName[i][0] + '. '
-  }
-  abrevName += normalizedName[normalizedName.length - 1][0]
-  return abrevName
+  if (parts.length < 4) return name
+  // Keep initials for all but the last name
+  const initials = parts.slice(0, -1).map((part) => part[0].toUpperCase() + '.')
+  return [...initials, parts[parts.length - 1]].join(' ')
 }

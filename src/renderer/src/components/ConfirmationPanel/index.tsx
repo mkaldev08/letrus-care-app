@@ -1,20 +1,17 @@
-import React, { useEffect, useState } from 'react'
-
+import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
-import { confirmationEnrollment } from '@renderer/services/enrollment-service'
 import Swal from 'sweetalert2'
 import { useCenter } from '@renderer/contexts/center-context'
-
 import { useAuth } from '@renderer/contexts/auth-context'
-
 import { useNavigate } from 'react-router'
 import { Rings } from 'react-loader-spinner'
-
 import { type IStudent } from '@renderer/services/student'
-import { getClassesService, IResponseClass } from '@renderer/services/class-service'
 import { useSchoolYear } from '@renderer/contexts/school-year-context'
+
+import { useClassesQuery } from '@renderer/hooks/queries/useClassQueries'
+import { useConfirmEnrollmentMutation } from '@renderer/hooks/queries/useEnrollmentQueries'
 
 export const confirmationSchema = yup
   .object({
@@ -54,31 +51,27 @@ export const ConfirmationPanel: React.FC<ConfirmationPanelProps> = ({ resultInFo
   const { user } = useAuth()
   const navigate = useNavigate()
 
-  const [classRooms, setClassRooms] = useState<IResponseClass[] | null>(null)
   const { currentSchoolYear } = useSchoolYear()
+  const {
+    data: classRooms,
+    isLoading: isLoadingClasses,
+    error: errorClasses
+  } = useClassesQuery(center?._id, currentSchoolYear?._id)
 
-  useEffect(() => {
-    async function getClassRooms(): Promise<void> {
-      const data = await getClassesService({
-        centerId: center?._id as string,
-        schoolYearId: currentSchoolYear?._id as string
-      })
-      setClassRooms(data)
-    }
-
-    getClassRooms()
-  }, [center, currentSchoolYear])
+  const confirmEnrollmentMutation = useConfirmEnrollmentMutation()
 
   const onSubmit = async (data: FormData): Promise<void> => {
     try {
       const { classId, userId, centerId } = data
-
-      // FIXME: adicionar rota de confirmação de matricula, sem criar novo estudante ou seja eliminar o pedido dos dados pessoais (conseguir alterar algumas coisas como contacto e endereço e aproveitar guardar o n do BI)
-      const confirmedEnrollment = await confirmationEnrollment(resultInForm._id as string, {
-        centerId,
-        classId,
-        userId
+      const confirmedEnrollment = await confirmEnrollmentMutation.mutateAsync({
+        enrollmentId: resultInForm._id as string,
+        data: {
+          centerId,
+          classId,
+          userId
+        }
       })
+
       Swal.fire({
         position: 'bottom-end',
         icon: 'success',
@@ -100,11 +93,10 @@ export const ConfirmationPanel: React.FC<ConfirmationPanelProps> = ({ resultInFo
         request?: { message?: string }
         message?: string
       }
+      const err = error as errorTyped
       const errorMessage =
-        (error as errorTyped)?.response?.data?.message ||
-        (error as errorTyped)?.request?.message ||
-        (error as errorTyped)?.message ||
-        'Erro inesperado'
+        err?.response?.data?.message || err?.request?.message || err?.message || 'Erro inesperado'
+
       Swal.fire({
         position: 'bottom-end',
         icon: 'error',
@@ -273,10 +265,17 @@ export const ConfirmationPanel: React.FC<ConfirmationPanelProps> = ({ resultInFo
             <label htmlFor="classId">
               Turma <span className="text-orange-700">*</span>
             </label>
+            {isLoadingClasses && <div className="text-sm text-zinc-400">Carregando turmas...</div>}
+            {errorClasses && (
+              <div className="text-sm text-red-500">
+                Erro ao carregar turmas: {errorClasses.message}
+              </div>
+            )}
             <select
               id="classId"
               {...register('classId')}
-              className="flex-1 w-full h-12 p-3  bg-zinc-950 rounded-md  focus:border-0  border-gray-700 outline-none text-gray-100 text-base font-normal placeholder:text-zinc-500"
+              disabled={isLoadingClasses || !!errorClasses}
+              className="flex-1 w-full h-12 p-3  bg-zinc-950 rounded-md  focus:border-0  border-gray-700 outline-none text-gray-100 text-base font-normal placeholder:text-zinc-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <option selected>Selecione uma turma</option>
               {classRooms?.map((room, index) => (
@@ -311,14 +310,16 @@ export const ConfirmationPanel: React.FC<ConfirmationPanelProps> = ({ resultInFo
         {isSubmitting ? (
           <button
             type="submit"
-            className="flex items-center justify-center bg-orange-700 w-1/6 h-12 p-3 mt-6 text-white shadow-shape rounded-md self-end hover:brightness-110"
+            disabled={true}
+            className="flex items-center justify-center bg-orange-700 w-1/6 h-12 p-3 mt-6 text-white shadow-shape rounded-md self-end hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:brightness-100"
           >
             <Rings height="32" width="32" color="#fff" ariaLabel="bars-loading" visible={true} />
           </button>
         ) : (
           <button
             type="submit"
-            className="flex items-center justify-center bg-orange-700 w-1/6 h-12 p-3 mt-6 text-white shadow-shape rounded-md self-end hover:brightness-110"
+            disabled={isLoadingClasses || !!errorClasses}
+            className="flex items-center justify-center bg-orange-700 w-1/6 h-12 p-3 mt-6 text-white shadow-shape rounded-md self-end hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:brightness-100"
           >
             Finalizar
           </button>
