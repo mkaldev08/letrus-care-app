@@ -76,7 +76,8 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
   const { data: financialPlans = [], isLoading: isFinancialPlansLoading } = useFinancialPlansQuery(
     center?._id,
     enrollment?._id,
-    targetSchoolYear
+    targetSchoolYear,
+    'all'
   )
 
   // Mutations
