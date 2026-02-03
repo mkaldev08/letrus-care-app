@@ -312,10 +312,17 @@ export const Panel: React.FC = () => {
             <label htmlFor="classId">
               Turma <span className="text-orange-700">*</span>
             </label>
+            {isLoadingClasses && <div className="text-sm text-zinc-400">Carregando turmas...</div>}
+            {errorClasses && (
+              <div className="text-sm text-red-500">
+                Erro ao carregar turmas: {errorClasses.message}
+              </div>
+            )}
             <select
               id="classId"
               {...register('classId')}
-              className="flex-1 w-full h-12 p-3  bg-zinc-950 rounded-md  focus:border-0  border-gray-700 outline-none text-gray-100 text-base font-normal placeholder:text-zinc-500"
+              disabled={isLoadingClasses || !!errorClasses}
+              className="flex-1 w-full h-12 p-3  bg-zinc-950 rounded-md  focus:border-0  border-gray-700 outline-none text-gray-100 text-base font-normal placeholder:text-zinc-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <option selected>Selecione uma turma</option>
               {classRooms?.map((room, index) => (
@@ -360,22 +367,18 @@ export const Panel: React.FC = () => {
           <input type="hidden" value={user?._id} {...register('userId')} />
           <input type="hidden" value={center?._id} {...register('centerId')} />
         </div>
-        {isSubmitting ? (
-          <button
-            type="submit"
-            className="flex items-center justify-center bg-orange-700 w-1/6 h-12 p-3 mt-6 text-white shadow-shape rounded-md self-end hover:brightness-110"
-            disabled={isSubmitting}
-          >
+        <button
+          type="submit"
+          disabled={isSubmitting || isLoadingClasses || !!errorClasses}
+          className="flex items-center justify-center bg-orange-700 w-1/6 h-12 p-3 mt-6 text-white shadow-shape rounded-md self-end hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:brightness-100"
+          aria-busy={isSubmitting}
+        >
+          {isSubmitting ? (
             <Rings height="32" width="32" color="#fff" ariaLabel="bars-loading" visible={true} />
-          </button>
-        ) : (
-          <button
-            type="submit"
-            className="flex items-center justify-center bg-orange-700 w-1/6 h-12 p-3 mt-6 text-white shadow-shape rounded-md self-end hover:brightness-110"
-          >
-            Finalizar
-          </button>
-        )}
+          ) : (
+            'Finalizar'
+          )}
+        </button>
       </>
     )
   }

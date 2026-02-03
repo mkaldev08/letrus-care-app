@@ -8,7 +8,6 @@ import {
   IEnrollmentReceipt
 } from '@renderer/services/enrollment-service'
 import { useCenter } from '@renderer/contexts/center-context'
-import { Filter, Search } from 'lucide-react'
 
 import { Modal } from '@renderer/components/Modal'
 import Swal from 'sweetalert2'
@@ -31,6 +30,8 @@ import {
 } from '@renderer/hooks/queries/useEnrollmentQueries'
 import { EnrollmentTable } from './components/EnrollmentTable'
 import { useDebounce } from 'use-debounce'
+import { SearchBar } from '@renderer/components/shared/SearchBar'
+import { PageHeader } from '@renderer/components/shared/PageHeader'
 
 const schemaStudentSearch = yup
   .object({
@@ -204,28 +205,18 @@ export const EnrollmentScreen: React.FC = () => {
 
         <div className="flex flex-col flex-1 pt-4 overflow-auto">
           <div className="flex flex-col flex-1 w-11/12 mx-auto">
-            <h2 className="text-3xl text-zinc-400">Inscrições</h2>
+            <PageHeader
+              title="Inscrições"
+              actionLabel="Inscrever Aluno"
+              onActionClick={handleCreateEnrollmentFlow}
+              showAction={true}
+            />
 
-            <button
-              onClick={handleCreateEnrollmentFlow}
-              className="bg-orange-700 text-white px-4 py-2 rounded hover:brightness-110 transition-all mt-4 self-end"
-            >
-              Inscrever Aluno
-            </button>
-
-            <div className="flex items-center gap-3 mt-6">
-              <Search className="text-zinc-500" />
-              <input
-                {...register('studentSearch')}
-                type="search"
-                placeholder="Buscar por aluno, BI ou código..."
-                className="flex-1 p-2 rounded-md border border-gray-400 bg-zinc-300 text-gray-700 placeholder:text-gray-700 outline-none focus:ring-2 focus:ring-orange-600 transition-all"
-              />
-              <Filter
-                className="text-zinc-500 cursor-pointer hover:opacity-90 transition-opacity"
-                xlinkTitle="filtrar por"
-              />
-            </div>
+            <SearchBar
+              register={register}
+              fieldName="studentSearch"
+              placeholder="Buscar por aluno, BI ou código..."
+            />
 
             <EnrollmentTable
               enrollments={data?.enrollments}

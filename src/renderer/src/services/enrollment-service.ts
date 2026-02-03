@@ -177,6 +177,12 @@ export const getOneEnrollmentService = async (
   }
 }
 
+/**
+ FIXME: melhorar a API para evitar essa gambiarra no status 409
+ status 409
+ message: "TuitionFee histórico não encontrado para este enrollment"
+ */
+
 export const getEnrollmentByStudentService = async (
   studentId: string
 ): Promise<IEnrollmentForShow> => {

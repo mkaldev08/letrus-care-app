@@ -11,6 +11,7 @@ import {
   createEnrollment,
   getEnrollmentsService,
   getOneEnrollmentService,
+  getEnrollmentByStudentService,
   searchEnrollmentsService,
   IEnrollmentForApply,
   IEnrollmentForShow,
@@ -104,5 +105,18 @@ export const useChangeEnrollmentStatusMutation = (): UseMutationResult<
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: enrollmentKeys.all })
     }
+  })
+}
+
+export const useEnrollmentByStudentQuery = (
+  studentId?: string
+): UseQueryResult<IEnrollmentForShow, Error> => {
+  return useQuery({
+    queryKey: enrollmentKeys.detail(studentId ?? ''),
+    queryFn: async () => {
+      if (!studentId) throw new Error('Student ID required')
+      return getEnrollmentByStudentService(studentId)
+    },
+    enabled: !!studentId
   })
 }

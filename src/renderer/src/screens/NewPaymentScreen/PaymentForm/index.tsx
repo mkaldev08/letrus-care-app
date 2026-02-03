@@ -1,25 +1,23 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useAuth } from '@renderer/contexts/auth-context'
 import { useCenter } from '@renderer/contexts/center-context'
-import {
-  changeStatusService,
-  getEnrollmentByStudentService,
-  IEnrollmentForShow
-} from '@renderer/services/enrollment-service'
-import { createPaymentService, getStudentPaymentsService } from '@renderer/services/payment-service'
+import { changeStatusService, IEnrollmentForShow } from '@renderer/services/enrollment-service'
+import { getStudentPaymentsService } from '@renderer/services/payment-service'
 import { formateCurrency } from '@renderer/utils/format'
 import { useForm } from 'react-hook-form'
 import * as yup from 'yup'
 import { useNavigate } from 'react-router'
 import { IStudent } from '@renderer/services/student'
 import { Rings } from 'react-loader-spinner'
-import {
-  getFinancialPlanForStudentService,
-  IFinancialPlanToShow
-} from '@renderer/services/financial-plan-services'
-import { getSchoolYearsServiceAll, ISchoolYear } from '@renderer/services/school-year-service'
 import Swal from 'sweetalert2'
+
+// React Query Hooks
+import { useEnrollmentByStudentQuery } from '@renderer/hooks/queries/useEnrollmentQueries'
+import { useSchoolYearsQuery } from '@renderer/hooks/queries/useSchoolYearQueries'
+import { useFinancialPlansQuery } from '@renderer/hooks/queries/useFinancialPlanQueries'
+import { useCreatePaymentMutation } from '@renderer/hooks/queries/usePaymentQueries'
+import { usePaymentCalculation } from '@renderer/hooks/usePaymentCalculation'
 
 const schemaPayment = yup.object({
   enrollmentId: yup.string().required(),
@@ -58,106 +56,74 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
     resolver: yupResolver(schemaPayment)
   })
 
-  const [enrollment, setEnrollment] = useState<IEnrollmentForShow | null>(null)
-  const [schoolYears, setSchoolYears] = useState<ISchoolYear[]>([])
-  const [financialPlans, setFinancialPlans] = useState<IFinancialPlanToShow[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-
+  // State
+  const [enrollment, setEnrollment] = useState<IEnrollmentForShow | null>(
+    enrollmentDataFromForm || null
+  )
+  const [selectedSchoolYear, setSelectedSchoolYear] = useState<string | null>(null)
   const targetSchoolYear = watch('targetSchoolYearReference')
   const paymentMonth = watch('paymentMonthReference')
 
-  useEffect(() => {
-    if (!resultsInForm?._id) return
+  // Queries
+  const { data: enrollmentData, isLoading: isEnrollmentLoading } = useEnrollmentByStudentQuery(
+    resultsInForm?._id
+  )
 
-    const loadEnrollment = async (): Promise<void> => {
-      if (!enrollmentDataFromForm) {
-        const data = await getEnrollmentByStudentService(String(resultsInForm._id))
-        console.log('data from Req', data)
-        setEnrollment(data)
-        setValue('enrollmentId', String(data._id))
-        return
-      }
-      console.log('enrollmentDataFromForm: ', enrollmentDataFromForm)
+  const { data: schoolYears = [], isLoading: isSchoolYearsLoading } = useSchoolYearsQuery(
+    center?._id
+  )
+
+  const { data: financialPlans = [], isLoading: isFinancialPlansLoading } = useFinancialPlansQuery(
+    center?._id,
+    enrollment?._id,
+    targetSchoolYear
+  )
+
+  // Mutations
+  const createPaymentMutation = useCreatePaymentMutation()
+
+  // Custom calculation hook
+  const { amount, lateFee, planNotFoundWarning } = usePaymentCalculation(
+    enrollment,
+    paymentMonth,
+    targetSchoolYear,
+    financialPlans
+  )
+
+  // Effect: Set enrollment from data or props
+  useEffect(() => {
+    if (enrollmentDataFromForm) {
       setEnrollment(enrollmentDataFromForm)
       setValue('enrollmentId', String(enrollmentDataFromForm._id))
+    } else if (enrollmentData) {
+      setEnrollment(enrollmentData)
+      setValue('enrollmentId', String(enrollmentData._id))
     }
+  }, [enrollmentData, enrollmentDataFromForm, setValue])
 
-    loadEnrollment()
-  }, [resultsInForm?._id, setValue, enrollmentDataFromForm])
-
+  // Effect: Set default school year to current one
   useEffect(() => {
-    if (!center?._id) return
-
-    const loadYears = async (): Promise<void> => {
-      const years = await getSchoolYearsServiceAll(String(center?._id))
-      setSchoolYears(years)
-
-      const current = years.find((y) => y.isCurrent) ?? years[0]
+    if (schoolYears.length > 0 && !selectedSchoolYear) {
+      const current = schoolYears.find((y) => y.isCurrent) ?? schoolYears[0]
       if (current) {
+        setSelectedSchoolYear(current._id || '')
         setValue('targetSchoolYearReference', String(current._id))
       }
     }
+  }, [schoolYears, selectedSchoolYear, setValue])
 
-    loadYears()
-  }, [center?._id, setValue])
-
-  useEffect(() => {
-    if (!enrollment?._id || !targetSchoolYear) return
-
-    const loadPlans = async (): Promise<void> => {
-      //FIXME: muda o enrollment a cada vez que muda o ano de referencia (ver como fazer isso de forma mais eficiente)
-
-      const plans = await getFinancialPlanForStudentService(
-        String(center?._id),
-        String(enrollment?._id),
-        { status: 'all', schoolYear: targetSchoolYear }
-      )
-      setFinancialPlans(plans)
-    }
-
-    loadPlans()
-  }, [enrollment?._id, targetSchoolYear, center?._id])
-
-  const { amount, lateFee } = useMemo(() => {
-    if (!enrollment || !paymentMonth || !targetSchoolYear) {
-      return { amount: 0, lateFee: 0 }
-    }
-
-    const plan = financialPlans.find(
-      (p) => p.month === paymentMonth && p.schoolYear === targetSchoolYear
-    )
-
-    if (!plan) {
-      return { amount: 0, lateFee: 0 }
-    }
-
-    const fee = Number(enrollment.tuitionFeeId?.fee) || 0
-    const fine = Number(enrollment.tuitionFeeId?.feeFine) || 0
-
-    const due = new Date(plan.dueDate)
-    due.setHours(23, 59, 59, 999)
-
-    const isLate = new Date() > due
-    const late = isLate ? fine : 0
-
-    return {
-      lateFee: late,
-      amount: fee + late
-    }
-  }, [enrollment, financialPlans, paymentMonth, targetSchoolYear])
-
+  // Effect: Update hidden form fields
   useEffect(() => {
     setValue('lateFee', lateFee)
     setValue('amount', amount)
     setValue('centerId', center?._id as string)
     setValue('userId', user?._id as string)
-
-    setIsLoading(false)
   }, [lateFee, amount, center?._id, user?._id, setValue])
 
+  // Handler: Submit payment
   const onSubmit = async (data: FormPaymentData): Promise<void> => {
     try {
-      await createPaymentService(data)
+      await createPaymentMutation.mutateAsync(data)
 
       const payments = await getStudentPaymentsService(String(enrollment?._id))
       if (payments.length === 1 || enrollment?.status === 'pending') {
@@ -195,7 +161,11 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
     }
   }
 
-  if (isLoading || !resultsInForm) {
+  // Loading state
+  const isLoading =
+    isEnrollmentLoading || isSchoolYearsLoading || isFinancialPlansLoading || !resultsInForm
+
+  if (isLoading) {
     return (
       <div className="flex justify-center items-center h-full">
         <Rings height="80" width="80" color="#f97316" visible />
@@ -305,10 +275,18 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
               ))
             ) : (
               <option value="" disabled>
-                {isLoading ? 'A carregar anos...' : 'Nenhum mês disponível'}
+                {isFinancialPlansLoading ? 'A carregar meses...' : 'Nenhum mês disponível'}
               </option>
             )}
           </select>
+
+          {/* Warning when plan not found */}
+          {planNotFoundWarning && (
+            <div className="p-3 bg-orange-600/20 border border-orange-600 rounded text-orange-400 text-sm">
+              ⚠ Nenhum plano financeiro encontrado para este mês/ano. Verifique os dados de
+              referência.
+            </div>
+          )}
 
           {/* Valor a Pagar */}
           <label className="text-zinc-300">Propina</label>
@@ -378,7 +356,7 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
             <button
               type="submit"
               className="bg-orange-600 text-white rounded-md py-2 mt-4 hover:bg-orange-700 transition-all p-2"
-              disabled={!resultsInForm || isSubmitting}
+              disabled={!resultsInForm || isSubmitting || planNotFoundWarning}
             >
               Confirmar Pagamento
             </button>
