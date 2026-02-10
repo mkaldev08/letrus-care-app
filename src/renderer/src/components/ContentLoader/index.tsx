@@ -10,7 +10,13 @@ export const ContentLoader: React.FC = () => {
         width="20"
         color="#c2410c"
         ariaLabel="three-circles-loading"
-        wrapperStyle={{}}
+        wrapperStyle={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: '9999',
+          backgroundColor: 'black'
+        }}
         wrapperClass=""
       />
     </div>

@@ -46,8 +46,9 @@ export const usePaymentCalculation = (
     const fine = Number(enrollment.tuitionFeeId?.feeFine) || 0
 
     // Check if payment is late based on due date and plan status
-    const due = new Date(plan.dueDate)
-    due.setHours(23, 59, 59, 999)
+
+    // const due = new Date(plan.dueDate)
+    // due.setHours(23, 59, 59, 999)
 
     // Plan status indicates if there's a fine (overdue means fine applies)
     const isLate = plan.status === 'overdue'
