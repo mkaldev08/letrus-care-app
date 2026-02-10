@@ -1,20 +1,22 @@
-import { DollarSign, FileDown } from 'lucide-react'
+import { FileDown } from 'lucide-react'
 import { Layout } from './layout'
 import React, { useEffect, useMemo, useState } from 'react'
 import { ContentLoader } from '@renderer/components/ContentLoader'
 import Pagination from '@renderer/components/Pagination'
 import { useCenter } from '@renderer/contexts/center-context'
 import { pdf } from '@react-pdf/renderer'
-import { OverDuePaymentsPDF } from '@renderer/reports/models/OverDuePaymentsPDF'
 import { Rings } from 'react-loader-spinner'
 import { useAuth } from '@renderer/contexts/auth-context'
 import { useSchoolYear } from '@renderer/contexts/school-year-context'
 import { useCurrentSchoolYearQuery } from '@renderer/hooks/queries/useSchoolYearQueries'
 import {
-  useOverduePaymentsExportQuery,
-  useOverduePaymentsQuery
-} from '@renderer/hooks/queries/useOverduePaymentsQueries'
-export const OverDuePayments: React.FC = () => {
+  useDailyEnrollmentsQuery,
+  useDailyEnrollmentsExportQuery
+} from '@renderer/hooks/queries/useDashboardStatistics'
+import { format } from 'date-fns'
+import { DailyEnrollmentsPDF } from '@renderer/reports/models/DailyEnrollmentsPDF'
+
+export const DailyEnrollments: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1)
   const [isLoadingPDF, setIsLoadingPDF] = useState(false)
 
@@ -26,21 +28,21 @@ export const OverDuePayments: React.FC = () => {
     center?._id
   )
 
-  const { data: overdueData, isLoading: isLoadingOverdue } = useOverduePaymentsQuery(
+  const { data: enrollmentsData, isLoading: isLoadingEnrollments } = useDailyEnrollmentsQuery(
     center?._id,
     currentSchoolYear?._id,
     currentPage
   )
 
-  const { refetch: refetchExport } = useOverduePaymentsExportQuery(
+  const { refetch: refetchExport } = useDailyEnrollmentsExportQuery(
     center?._id,
     currentSchoolYear?._id
   )
 
   const totalPages = useMemo(() => {
-    if (!overdueData?.total) return 1
-    return Math.ceil(overdueData.total)
-  }, [overdueData?.total])
+    if (!enrollmentsData?.total) return 1
+    return Math.ceil(enrollmentsData.total)
+  }, [enrollmentsData?.total])
 
   useEffect(() => {
     if (currentSchoolYear) {
@@ -52,38 +54,39 @@ export const OverDuePayments: React.FC = () => {
     setIsLoadingPDF(true)
     try {
       if (!center?._id || !currentSchoolYear?._id || !user) {
-        throw new Error('Dados obrigatorios em falta')
+        throw new Error('Dados obrigatórios em falta')
       }
 
       const { data: result } = await refetchExport()
       if (!result) {
-        throw new Error('Nenhum dado retornado para exportacao')
+        throw new Error('Nenhum dado retornado para exportação')
       }
+
       const blob = await pdf(
-        <OverDuePaymentsPDF data={result} center={center} user={user} />
+        <DailyEnrollmentsPDF data={result} center={center} user={user} />
       ).toBlob()
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
-      a.download = `propinas-em-atraso-alunos-${center.documentCode}-${new Date().toLocaleDateString()}.pdf`
+      a.download = `inscricoes-diarias-${center.documentCode}-${new Date().toLocaleDateString()}.pdf`
       document.body.appendChild(a)
       a.click()
       document.body.removeChild(a)
       URL.revokeObjectURL(url)
     } catch (error) {
       if (process.env.NODE_ENV === 'development') console.error('Erro ao gerar o PDF:', error)
-      throw error
+      throw new Error('Erro ao gerar o PDF')
     } finally {
       setIsLoadingPDF(false)
     }
   }
 
-  const overduePaymentsList = overdueData?.overduePayments ?? null
-  const isLoading = isLoadingSchoolYear || isLoadingOverdue
+  const enrollmentsList = enrollmentsData?.enrollments ?? null
+  const isLoading = isLoadingSchoolYear || isLoadingEnrollments
 
   return (
     <Layout>
-      <h2 className="text-3xl text-zinc-400 mb-4">Pagamento Atrasado</h2>
+      <h2 className="text-3xl text-zinc-400 mb-4">Inscrições Diárias</h2>
       <div className="flex justify-end gap-3">
         <button
           onClick={handleDownloadPDF}
@@ -103,7 +106,7 @@ export const OverDuePayments: React.FC = () => {
           <thead className="block md:table-header-group">
             <tr className="block border border-zinc-700 md:table-row absolute -top-full md:top-auto -left-full md:left-auto md:relative">
               <th className="bg-orange-800 text-white p-2 md:border md:border-zinc-700 text-center block md:table-cell">
-                Nº de Inscrição
+                Código do Aluno
               </th>
               <th className="bg-orange-800 text-white p-2 md:border md:border-zinc-700 text-center block md:table-cell">
                 Nome Completo
@@ -112,10 +115,10 @@ export const OverDuePayments: React.FC = () => {
                 Turma
               </th>
               <th className="bg-orange-800 text-white p-2 md:border md:border-zinc-700 text-center block md:table-cell">
-                Mês/Ano
+                Data Inscrição
               </th>
               <th className="bg-orange-800 text-white p-2 md:border md:border-zinc-700 text-center block md:table-cell">
-                Ações
+                Status
               </th>
             </tr>
           </thead>
@@ -123,31 +126,41 @@ export const OverDuePayments: React.FC = () => {
           <tbody className="block md:table-row-group">
             {isLoading ? (
               <tr>
-                <td rowSpan={5}>
+                <td colSpan={5}>
                   <ContentLoader />
                 </td>
               </tr>
-            ) : overduePaymentsList ? (
-              overduePaymentsList.map((row, index) => (
+            ) : enrollmentsList ? (
+              enrollmentsList.map((row, index) => (
                 <tr key={index} className="bg-zinc-800 border border-zinc-700 block md:table-row">
                   <td className="p-2 md:border md:border-zinc-700 text-left block md:table-cell">
-                    {row?.enrollmentId.studentId?.studentCode}
+                    {row?.studentId?.studentCode}
                   </td>
                   <td className="p-2 md:border md:border-zinc-700 text-left block md:table-cell">
-                    {row?.enrollmentId.studentId?.name.fullName}
+                    {row?.studentId?.name.fullName}
                   </td>
                   <td className="p-2 md:border md:border-zinc-700 text-center block md:table-cell">
-                    {row?.enrollmentId.classId?.className}
+                    {row?.classId?.className}
                   </td>
                   <td className="p-2 md:border md:border-zinc-700 text-center block md:table-cell">
-                    {row?.month}/{row?.year}
+                    {format(new Date(row?.enrollmentDate), 'dd/MM/yyyy')}
                   </td>
                   <td className="p-2 md:border md:border-zinc-700 text-center block md:table-cell">
-                    <div className="flex items-center justify-evenly gap-1">
-                      <button className="flex gap-2 bg-green-700 text-white px-2 py-1 rounded hover:brightness-125">
-                        <DollarSign />
-                      </button>
-                    </div>
+                    <span
+                      className={`px-2 py-1 rounded text-xs ${
+                        row?.status === 'completed'
+                          ? 'bg-green-700'
+                          : row?.status === 'enrolled'
+                            ? 'bg-yellow-700'
+                            : 'bg-red-700'
+                      }`}
+                    >
+                      {row?.status === 'completed'
+                        ? 'Completa'
+                        : row?.status === 'enrolled'
+                          ? 'Inscrito'
+                          : 'Inativo'}
+                    </span>
                   </td>
                 </tr>
               ))

@@ -1,71 +1,57 @@
-import { DollarSign, FileDown } from 'lucide-react'
+import { FileDown } from 'lucide-react'
 import { Layout } from './layout'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { ContentLoader } from '@renderer/components/ContentLoader'
 import Pagination from '@renderer/components/Pagination'
 import { useCenter } from '@renderer/contexts/center-context'
 import { pdf } from '@react-pdf/renderer'
-import { OverDuePaymentsPDF } from '@renderer/reports/models/OverDuePaymentsPDF'
 import { Rings } from 'react-loader-spinner'
 import { useAuth } from '@renderer/contexts/auth-context'
-import { useSchoolYear } from '@renderer/contexts/school-year-context'
-import { useCurrentSchoolYearQuery } from '@renderer/hooks/queries/useSchoolYearQueries'
 import {
-  useOverduePaymentsExportQuery,
-  useOverduePaymentsQuery
-} from '@renderer/hooks/queries/useOverduePaymentsQueries'
-export const OverDuePayments: React.FC = () => {
+  useActiveStudentsQuery,
+  useActiveStudentsExportQuery
+} from '@renderer/hooks/queries/useDashboardStatistics'
+import { format } from 'date-fns'
+import { ActiveStudentsPDF } from '@renderer/reports/models/ActiveStudentsPDF'
+
+export const ActiveStudents: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1)
   const [isLoadingPDF, setIsLoadingPDF] = useState(false)
 
   const { center } = useCenter()
   const { user } = useAuth()
-  const { setSelectedSchoolYear } = useSchoolYear()
 
-  const { data: currentSchoolYear, isLoading: isLoadingSchoolYear } = useCurrentSchoolYearQuery(
-    center?._id
-  )
-
-  const { data: overdueData, isLoading: isLoadingOverdue } = useOverduePaymentsQuery(
+  const { data: studentsData, isLoading: isLoadingStudents } = useActiveStudentsQuery(
     center?._id,
-    currentSchoolYear?._id,
     currentPage
   )
 
-  const { refetch: refetchExport } = useOverduePaymentsExportQuery(
-    center?._id,
-    currentSchoolYear?._id
-  )
+  const { refetch: refetchExport } = useActiveStudentsExportQuery(center?._id)
 
   const totalPages = useMemo(() => {
-    if (!overdueData?.total) return 1
-    return Math.ceil(overdueData.total)
-  }, [overdueData?.total])
-
-  useEffect(() => {
-    if (currentSchoolYear) {
-      setSelectedSchoolYear(currentSchoolYear)
-    }
-  }, [currentSchoolYear, setSelectedSchoolYear])
+    if (!studentsData?.total) return 1
+    return Math.ceil(studentsData.total)
+  }, [studentsData?.total])
 
   async function handleDownloadPDF(): Promise<void> {
     setIsLoadingPDF(true)
     try {
-      if (!center?._id || !currentSchoolYear?._id || !user) {
-        throw new Error('Dados obrigatorios em falta')
+      if (!center?._id || !user) {
+        throw new Error('Dados obrigatórios em falta')
       }
 
       const { data: result } = await refetchExport()
       if (!result) {
-        throw new Error('Nenhum dado retornado para exportacao')
+        throw new Error('Nenhum dado retornado para exportação')
       }
+
       const blob = await pdf(
-        <OverDuePaymentsPDF data={result} center={center} user={user} />
+        <ActiveStudentsPDF data={result} center={center} user={user} />
       ).toBlob()
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
-      a.download = `propinas-em-atraso-alunos-${center.documentCode}-${new Date().toLocaleDateString()}.pdf`
+      a.download = `alunos-ativos-${center.documentCode}-${new Date().toLocaleDateString()}.pdf`
       document.body.appendChild(a)
       a.click()
       document.body.removeChild(a)
@@ -78,12 +64,11 @@ export const OverDuePayments: React.FC = () => {
     }
   }
 
-  const overduePaymentsList = overdueData?.overduePayments ?? null
-  const isLoading = isLoadingSchoolYear || isLoadingOverdue
+  const studentsList = studentsData?.students ?? null
 
   return (
     <Layout>
-      <h2 className="text-3xl text-zinc-400 mb-4">Pagamento Atrasado</h2>
+      <h2 className="text-3xl text-zinc-400 mb-4">Alunos Ativos</h2>
       <div className="flex justify-end gap-3">
         <button
           onClick={handleDownloadPDF}
@@ -103,51 +88,57 @@ export const OverDuePayments: React.FC = () => {
           <thead className="block md:table-header-group">
             <tr className="block border border-zinc-700 md:table-row absolute -top-full md:top-auto -left-full md:left-auto md:relative">
               <th className="bg-orange-800 text-white p-2 md:border md:border-zinc-700 text-center block md:table-cell">
-                Nº de Inscrição
+                Código
               </th>
               <th className="bg-orange-800 text-white p-2 md:border md:border-zinc-700 text-center block md:table-cell">
                 Nome Completo
               </th>
               <th className="bg-orange-800 text-white p-2 md:border md:border-zinc-700 text-center block md:table-cell">
-                Turma
+                Data Nascimento
               </th>
               <th className="bg-orange-800 text-white p-2 md:border md:border-zinc-700 text-center block md:table-cell">
-                Mês/Ano
+                Gênero
               </th>
               <th className="bg-orange-800 text-white p-2 md:border md:border-zinc-700 text-center block md:table-cell">
-                Ações
+                Telefone
+              </th>
+              <th className="bg-orange-800 text-white p-2 md:border md:border-zinc-700 text-center block md:table-cell">
+                Status
               </th>
             </tr>
           </thead>
 
           <tbody className="block md:table-row-group">
-            {isLoading ? (
+            {isLoadingStudents ? (
               <tr>
-                <td rowSpan={5}>
+                <td colSpan={6}>
                   <ContentLoader />
                 </td>
               </tr>
-            ) : overduePaymentsList ? (
-              overduePaymentsList.map((row, index) => (
+            ) : studentsList ? (
+              studentsList.map((row, index) => (
                 <tr key={index} className="bg-zinc-800 border border-zinc-700 block md:table-row">
                   <td className="p-2 md:border md:border-zinc-700 text-left block md:table-cell">
-                    {row?.enrollmentId.studentId?.studentCode}
+                    {row?.studentCode}
                   </td>
                   <td className="p-2 md:border md:border-zinc-700 text-left block md:table-cell">
-                    {row?.enrollmentId.studentId?.name.fullName}
+                    {row?.name?.fullName} {row?.name?.surname}
                   </td>
                   <td className="p-2 md:border md:border-zinc-700 text-center block md:table-cell">
-                    {row?.enrollmentId.classId?.className}
+                    {format(new Date(row?.birthDate), 'dd/MM/yyyy')}
                   </td>
                   <td className="p-2 md:border md:border-zinc-700 text-center block md:table-cell">
-                    {row?.month}/{row?.year}
+                    {row?.gender}
                   </td>
                   <td className="p-2 md:border md:border-zinc-700 text-center block md:table-cell">
-                    <div className="flex items-center justify-evenly gap-1">
-                      <button className="flex gap-2 bg-green-700 text-white px-2 py-1 rounded hover:brightness-125">
-                        <DollarSign />
-                      </button>
-                    </div>
+                    {row?.phoneNumber}
+                  </td>
+                  <td className="p-2 md:border md:border-zinc-700 text-center block md:table-cell">
+                    <span
+                      className={`px-2 py-1 rounded text-xs ${row?.status === 'active' ? 'bg-green-700' : 'bg-red-700'}`}
+                    >
+                      {row?.status === 'active' ? 'Ativo' : 'Inativo'}
+                    </span>
                   </td>
                 </tr>
               ))

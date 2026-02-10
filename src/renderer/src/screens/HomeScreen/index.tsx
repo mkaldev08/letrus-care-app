@@ -66,25 +66,25 @@ export const HomeScreen: React.FC = () => {
         navigate('/home/overdue-payments')
         break
       case 'Pagamento Diário (kz)':
-        alert('Funcionalidade em desenvolvimento')
+        navigate('/home/daily-payments')
         break
       case 'Alunos':
-        alert('Funcionalidade em desenvolvimento')
+        navigate('/home/active-students')
         break
       case 'Faltas Diárias':
-        alert('Funcionalidade em desenvolvimento')
+        navigate('/home/daily-absences')
         break
       case 'Inscrições Diária':
-        alert('Funcionalidade em desenvolvimento')
+        navigate('/home/daily-enrollments')
         break
       case 'Inscrições não Concluidas':
-        alert('Funcionalidade em desenvolvimento')
+        navigate('/home/incomplete-enrollments')
         break
       case 'Professores':
-        alert('Funcionalidade em desenvolvimento')
+        navigate('/teachers')
         break
       case 'Turmas':
-        alert('Funcionalidade em desenvolvimento')
+        navigate('/classes')
         break
       default:
         break
