@@ -66,9 +66,6 @@ export const Panel: React.FC = () => {
   const { user } = useAuth()
   const navigate = useNavigate()
   const { currentSchoolYear } = useSchoolYear()
-
-  console.log('current school ', currentSchoolYear?._id)
-
   const {
     data: classRooms,
     isLoading: isLoadingClasses,

@@ -2,12 +2,7 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { Modal } from '@renderer/components/Modal'
 import { Sidebar } from '@renderer/components/Sidebar'
 import { useCenter } from '@renderer/contexts/center-context'
-import {
-  createTeacher,
-  getTeachersService,
-  ITeacherForShow,
-  updateTeacherStatusService
-} from '@renderer/services/teacher-service'
+import { ITeacherForShow } from '@renderer/services/teacher-service'
 import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import * as yup from 'yup'
@@ -23,6 +18,11 @@ import { Header } from '@renderer/components/Header'
 import Pagination from '@renderer/components/Pagination'
 import { ModalEditTeacher } from './ModalEditTeacher'
 import { Eye, PenBox, Trash } from 'lucide-react'
+import {
+  useCreateTeacherMutation,
+  useTeachersQuery,
+  useUpdateTeacherStatusMutation
+} from '@renderer/hooks/queries/useTeacherQueries'
 
 export const TeacherScreen: React.FC = () => {
   const { center } = useCenter()
@@ -36,9 +36,7 @@ export const TeacherScreen: React.FC = () => {
   const [isModalEditOpen, setIsModalEditOpen] = useState(false)
   const [selectTeacher, setSelectTeacher] = useState({} as ITeacherForShow)
 
-  const [teachers, setTeachers] = useState<ITeacherForShow[] | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
-  const [totalPages, setTotalPages] = useState(1)
 
   const openEditModal = (): void => setIsModalEditOpen(true)
   const closeEditModal = (): void => setIsModalEditOpen(false)
@@ -47,6 +45,9 @@ export const TeacherScreen: React.FC = () => {
     setSelectTeacher(teacher)
     openEditModal()
   }
+
+  const { data, isLoading } = useTeachersQuery(center?._id, currentPage)
+  const updateTeacherStatusMutation = useUpdateTeacherStatusMutation()
 
   const handleDelete = async (id: string): Promise<void> => {
     Swal.fire({
@@ -61,22 +62,10 @@ export const TeacherScreen: React.FC = () => {
       }
     }).then(async (result) => {
       if (result.isConfirmed) {
-        await updateTeacherStatusService(id, 'inactive')
-        await getTeachers(currentPage)
+        await updateTeacherStatusMutation.mutateAsync({ id, status: 'inactive' })
       }
     })
   }
-
-  async function getTeachers(page: number): Promise<void> {
-    const data = await getTeachersService(center?._id as string, page)
-    setTeachers(data?.teachers)
-    setTotalPages(data?.totalTeachers)
-    setIsLoaderTeacherList(false)
-  }
-
-  useEffect(() => {
-    getTeachers(currentPage)
-  }, [isModalEditOpen, isModalOpen, currentPage])
 
   const schema = yup
     .object({
@@ -96,6 +85,7 @@ export const TeacherScreen: React.FC = () => {
 
   const ModalCreateTeacher: React.FC = () => {
     const MySwal = withReactContent(Swal)
+    const createTeacherMutation = useCreateTeacherMutation()
     const {
       register,
       handleSubmit,
@@ -109,7 +99,7 @@ export const TeacherScreen: React.FC = () => {
         if (courses.length < 1) {
           throw new Error('Selecione pelo menos um curso')
         } else {
-          await createTeacher(data)
+          await createTeacherMutation.mutateAsync(data)
           closeModal()
           Swal.fire({
             position: 'bottom-end',
@@ -122,7 +112,7 @@ export const TeacherScreen: React.FC = () => {
               title: 'text-sm', // Tamanho do texto do título
               icon: 'text-xs' // Reduz o tamanho do ícone
             },
-            timerProgressBar: true // Ativa a barra de progresso
+            timerProgressBar: true
           })
         }
       } catch (error) {
@@ -144,7 +134,7 @@ export const TeacherScreen: React.FC = () => {
       }
 
       getCourses()
-    }, [])
+    }, [center?._id])
 
     return (
       <form onSubmit={handleSubmit(onSubmit)} className="flex gap-3 flex-col my-[5%]">
@@ -233,9 +223,10 @@ export const TeacherScreen: React.FC = () => {
         <input {...register('user')} type="hidden" value={user?._id} required />
         <button
           type="submit"
-          className="flex items-center justify-center bg-orange-700 w-full h-12 p-3 text-white shadow-shape rounded-md"
+          disabled={isSubmitting || createTeacherMutation.isPending}
+          className="flex items-center justify-center bg-orange-700 w-full h-12 p-3 text-white shadow-shape rounded-md disabled:opacity-50"
         >
-          {isSubmitting ? (
+          {isSubmitting || createTeacherMutation.isPending ? (
             <Rings
               height="32"
               width="32"
@@ -254,7 +245,6 @@ export const TeacherScreen: React.FC = () => {
   }
 
   const TEACHER_STATUS = ['activo', 'inactivo']
-  const [isLoaderTeacherList, setIsLoaderTeacherList] = useState<boolean>(true)
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
 
@@ -264,7 +254,7 @@ export const TeacherScreen: React.FC = () => {
       <Header isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
       <div className="flex flex-1 justify-center  pt-[62px] lg:pt-[70px] overflow-hidden">
         <Sidebar isOpen={isSidebarOpen} />
-        {isLoaderTeacherList ? (
+        {isLoading ? (
           <LoaderComponent />
         ) : (
           <div className="flex flex-col flex-1 overflow-auto pt-4">
@@ -308,8 +298,8 @@ export const TeacherScreen: React.FC = () => {
                   </thead>
 
                   <tbody className="block md:table-row-group">
-                    {teachers &&
-                      teachers.map((row, index) => (
+                    {data?.teachers &&
+                      data.teachers.map((row, index) => (
                         <tr
                           key={index}
                           className="bg-zinc-800 border border-zinc-700 block md:table-row"
@@ -363,7 +353,7 @@ export const TeacherScreen: React.FC = () => {
                 </table>
                 <Pagination
                   currentPage={currentPage}
-                  totalPages={totalPages}
+                  totalPages={data?.totalTeachers || 1}
                   onPageChange={setCurrentPage}
                 />
               </div>

@@ -5,6 +5,7 @@ import { Link, useNavigate } from 'react-router'
 import { useAuth } from '@renderer/contexts/auth-context'
 import { useCenter } from '@renderer/contexts/center-context'
 import Swal from 'sweetalert2'
+import { SessionTimer } from '../SessionTimer'
 
 const Dropdown: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false)
@@ -157,6 +158,10 @@ interface HeaderProps {
   setIsSidebarOpen: (isOpen: boolean) => void
 }
 export const Header: React.FC<HeaderProps> = ({ isSidebarOpen, setIsSidebarOpen }) => {
+  const { loginTimestamp } = useAuth()
+  // JWT token expires in 2 hours (as defined in backend)
+  const SESSION_DURATION_MS = 2 * 60 * 60 * 1000 // 2 hours in milliseconds
+
   return (
     <div className="flex items-center justify-between fixed top-0 left-0 right-0 h-[62px] lg:h-[70px] bg-gray-850 border border-transparent border-b-zinc-700 lg:pr-8 bg-gray-850 border-b z-50 px-4 bg-zinc-900">
       <section className="flex items-center justify-between gap-4">
@@ -165,6 +170,7 @@ export const Header: React.FC<HeaderProps> = ({ isSidebarOpen, setIsSidebarOpen 
         </button>
         <LogoLectrus sizeFont="text-xl" sizeImage={28} />
       </section>
+
       {location.pathname === '/home' && (
         <section className="flex items-center justify-center w-96 bg-zinc-950 px-2 rounded">
           <Search className="text-zinc-500" />
@@ -176,6 +182,9 @@ export const Header: React.FC<HeaderProps> = ({ isSidebarOpen, setIsSidebarOpen 
         </section>
       )}
       <section className="flex items-center justify-between gap-4">
+        {loginTimestamp && (
+          <SessionTimer loginTimestamp={loginTimestamp} sessionDurationMs={SESSION_DURATION_MS} />
+        )}
         <Dropdown />
         <DropdownUser />
       </section>

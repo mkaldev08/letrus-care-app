@@ -330,19 +330,19 @@ export const CoursesScreen: React.FC = () => {
                         Data de Início
                       </th>
                       <th className="bg-orange-800 text-white p-2 md:border md:border-zinc-700 text-center block md:table-cell">
-                        Data de Termino
+                        Data de Término
                       </th>
                       <th className="bg-orange-800 text-white p-2 md:border md:border-zinc-700 text-center block md:table-cell">
                         Propina (Kz)
                       </th>
                       <th className="bg-orange-800 text-white p-2 md:border md:border-zinc-700 text-center block md:table-cell">
-                        Taxa de Inscrição (Kz)
+                        Inscrição (Kz)
                       </th>
                       <th className="bg-orange-800 text-white p-2 md:border md:border-zinc-700 text-center block md:table-cell">
                         Multa (Kz)
                       </th>
                       <th className="bg-orange-800 text-white p-2 md:border md:border-zinc-700 text-center block md:table-cell">
-                        Taxa de Confirmação de Inscrição (Kz)
+                        Confirmação de Inscrição (Kz)
                       </th>
                       <th className="bg-orange-800 text-white p-2 md:border md:border-zinc-700 text-center block md:table-cell">
                         Estado

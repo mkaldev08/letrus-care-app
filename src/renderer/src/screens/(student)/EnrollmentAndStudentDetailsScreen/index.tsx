@@ -2,8 +2,8 @@ import React, { useState } from 'react'
 import { Footer } from '@renderer/components/Footer'
 import { StudentSidebar } from '@renderer/components/StudentSidebar'
 import { Header } from '@renderer/components/Header'
-import { useParams } from 'react-router'
-import { Edit, FileDown, Printer } from 'lucide-react' // ícones
+import { Link, useParams } from 'react-router'
+import { Edit, FileDown, Printer } from 'lucide-react'
 import { formatDate } from '@renderer/utils/format'
 import { ContentLoader } from '@renderer/components/ContentLoader'
 import { useEnrollmentQuery } from '@renderer/hooks/queries/useEnrollmentQueries'
@@ -27,13 +27,23 @@ export const EnrollmentAndStudentDetailsScreen: React.FC = () => {
   }
 
   if (isLoading) {
-    return <ContentLoader />
+    return (
+      <div className="flex items-center justify-center">
+        <ContentLoader />
+      </div>
+    )
   }
 
   if (!enrollment) {
     return (
       <div className="flex items-center justify-center h-screen">
         <p className="text-zinc-500">Carregando detalhes do aluno...</p>
+        <p>
+          Se estiver demorando, por favor, verifique sua conexão com a internet, ou
+          <Link to={'/'} className="bg-orange-500 px-2 py-1 rounded text-white ml-2">
+            clique aqui para voltar.
+          </Link>
+        </p>
       </div>
     )
   }

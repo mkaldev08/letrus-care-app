@@ -44,6 +44,7 @@ export const DuePaymentsTab: React.FC<DuePaymentsTabProps> = ({ data, isLoading 
             <th className="py-3 px-4">Data de Limite</th>
             <th className="py-3 px-4">Mensalidade (sem multa)</th>
             <th className="py-3 px-4">Estado</th>
+            {/** TODO: colocar um botao para ir pagar diretamente o referido mes*/}
           </tr>
         </thead>
         <tbody className="select-none">

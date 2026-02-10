@@ -1,7 +1,8 @@
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useCenter } from '@renderer/contexts/center-context'
 import { getCoursesAll, ICourse } from '@renderer/services/course-service'
-import { editTeacherService, ITeacher, ITeacherForShow } from '@renderer/services/teacher-service'
+import { ITeacher, ITeacherForShow } from '@renderer/services/teacher-service'
+import { useUpdateTeacherMutation } from '@renderer/hooks/queries/useTeacherQueries'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Rings } from 'react-loader-spinner'
@@ -35,6 +36,7 @@ export const ModalEditTeacher: React.FC<ModalEditTeacherProps> = ({
   const [selectedCourses, setSelectedCourses] = useState([] as string[])
 
   const MySwal = withReactContent(Swal)
+  const updateTeacherMutation = useUpdateTeacherMutation()
   const {
     register,
     handleSubmit,
@@ -68,8 +70,10 @@ export const ModalEditTeacher: React.FC<ModalEditTeacherProps> = ({
 
   const onSubmit = async (data: FormData): Promise<void> => {
     try {
-      await editTeacherService(teacher?._id as string, data as ITeacher)
-      onClose()
+      await updateTeacherMutation.mutateAsync({
+        id: teacher?._id as string,
+        data: data as ITeacher
+      })
       Swal.fire({
         position: 'bottom-end',
         icon: 'success',
@@ -81,8 +85,9 @@ export const ModalEditTeacher: React.FC<ModalEditTeacherProps> = ({
           title: 'text-sm', // Tamanho do texto do título
           icon: 'text-xs' // Reduz o tamanho do ícone
         },
-        timerProgressBar: true // Ativa a barra de progresso
+        timerProgressBar: true
       })
+      onClose()
     } catch (error) {
       MySwal.fire({
         title: 'Erro interno',
@@ -102,7 +107,7 @@ export const ModalEditTeacher: React.FC<ModalEditTeacherProps> = ({
     }
 
     getCourses()
-  }, [])
+  }, [center?._id])
 
   return (
     !!teacher && (
@@ -202,9 +207,10 @@ export const ModalEditTeacher: React.FC<ModalEditTeacherProps> = ({
         {errors.courses && <span className="text-red-500">{errors.courses?.message}</span>}
         <button
           type="submit"
-          className="flex items-center justify-center bg-orange-700 w-full h-12 p-3 text-white shadow-shape rounded-md"
+          disabled={isSubmitting || updateTeacherMutation.isPending}
+          className="flex items-center justify-center bg-orange-700 w-full h-12 p-3 text-white shadow-shape rounded-md disabled:opacity-50"
         >
-          {isSubmitting ? (
+          {isSubmitting || updateTeacherMutation.isPending ? (
             <Rings
               height="32"
               width="32"
