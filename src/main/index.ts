@@ -40,7 +40,7 @@ function createWindow(): void {
       `)
       mainWindow.destroy()
     } catch (error) {
-      console.log('Erro ao terminar o app e fazer logout no root electron: ', error)
+      console.error('Erro ao terminar o app e fazer logout no root electron: ', error)
     }
   })
 

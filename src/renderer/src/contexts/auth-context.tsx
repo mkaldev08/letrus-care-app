@@ -74,7 +74,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const status = await signupService(data)
       return status
     } catch (error) {
-      console.log('erro de cadastro no contexto ', error)
+      console.error('erro de cadastro no contexto ', error)
       throw error
     }
   }

@@ -7,6 +7,7 @@ const apiManager = axios.create({
 
 // Setup response interceptor to handle session expiration
 export const setupApiInterceptor = (onSessionExpired: () => void): void => {
+  console.log('Interceptor setup with onSessionExpired callback')
   apiManager.interceptors.response.use(
     (response) => response,
     (error) => {
