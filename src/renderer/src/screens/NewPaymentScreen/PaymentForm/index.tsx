@@ -25,7 +25,10 @@ const schemaPayment = yup.object({
   lateFee: yup.number().required(),
   paymentMonthReference: yup.string().required(),
   targetSchoolYearReference: yup.string().required(),
-  paymentMethod: yup.string().required(),
+  paymentMethod: yup
+    .string()
+    .required()
+    .oneOf(['Dinheiro', 'Multicaixa Express', 'Transferência Bancária (ATM)']),
   centerId: yup.string().required(),
   userId: yup.string().required(),
   notes: yup.string().nullable()

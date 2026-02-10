@@ -1,7 +1,4 @@
-import {
-  useQuery,
-  UseQueryResult
-} from '@tanstack/react-query'
+import { useQuery, UseQueryResult } from '@tanstack/react-query'
 import {
   getFinancialPlanForStudentService,
   IFinancialPlanToShow

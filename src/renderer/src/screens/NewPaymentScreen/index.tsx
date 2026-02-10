@@ -33,7 +33,7 @@ export const NewPaymentScreen: React.FC = () => {
   }, [])
 
   /**
-   * Caso venha de inscrição ou reconfirmação,
+   * Caso venha de inscrição ou re-confirmação,
    * carrega automaticamente o aluno associado à matrícula
    */
   useEffect(() => {

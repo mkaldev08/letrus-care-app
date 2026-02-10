@@ -1,11 +1,14 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { ArrowRight, BookUser, GraduationCap, ShieldCheck } from 'lucide-react'
+import { useDebounce } from 'use-debounce'
 
 import { useCenter } from '@renderer/contexts/center-context'
-import { IStudent, searchStudentService } from '@renderer/services/student'
+import { IStudent } from '@renderer/services/student'
+import { useSearchStudentsQuery } from '@renderer/hooks/queries/useStudentQueries'
+import { ContentLoader } from '@renderer/components/ContentLoader'
 
 export const schemaStudentSearch = yup
   .object({
@@ -31,7 +34,7 @@ export const SearchStudent: React.FC<SearchStudentProps> = ({
   initialStudent = null,
   resetSearchTrigger = false
 }) => {
-  const [resultList, setResultList] = useState<IStudent[] | null>(null)
+  const { center } = useCenter()
 
   const {
     register: registerSearch,
@@ -43,101 +46,39 @@ export const SearchStudent: React.FC<SearchStudentProps> = ({
   } = useForm<FormSearchData>({
     resolver: yupResolver(schemaStudentSearch),
     defaultValues: {
-      studentSearch: initialStudent ? initialStudent.name.fullName : ''
+      studentSearch: initialStudent?.name.fullName ?? ''
     }
   })
 
   const studentSearch = watchSearch('studentSearch')
-  const { center } = useCenter()
+  const [debouncedSearch] = useDebounce(studentSearch, 500)
 
-  const [hasSelectedInternally, setHasSelectedInternally] = useState(false)
+  // React Query for student search
+  const { data: resultList, isLoading } = useSearchStudentsQuery(center?._id, debouncedSearch)
 
-  const fetchResults = async (query: string): Promise<void> => {
-    if (query) {
-      try {
-        const response = await searchStudentService(center?._id as string, query)
-        setResultList(response)
-      } catch (error) {
-        console.error('Erro ao buscar dados:', error)
-        setResultList(null)
-      }
-    } else {
-      setResultList(null)
-    }
-  }
-
-  useEffect(() => {
-    if (!hasSelectedInternally && studentSearch.length > 2) {
-      // Só busca se não houver seleção interna e query tiver pelo menos 3 caracteres
-      const delayDebounceFn = setTimeout(() => {
-        fetchResults(studentSearch)
-      }, 500)
-
-      return (): void => clearTimeout(delayDebounceFn)
-    } else if (studentSearch.length <= 2) {
-      setResultList(null)
-    }
-
-    return
-  }, [studentSearch, hasSelectedInternally])
-
-  // Efeito para lidar com o initialStudent e resetSearchTrigger
+  // Handle initial student and reset trigger
   useEffect(() => {
     if (initialStudent) {
-      onStudentSelect(initialStudent)
-      setHasSelectedInternally(true)
       setValue('studentSearch', initialStudent.name.fullName)
-    } else {
-      if (resetSearchTrigger) {
-        setHasSelectedInternally(false)
-        setResultList(null)
-        reset({ studentSearch: '' })
-        onStudentSelect(null)
-      }
+      onStudentSelect(initialStudent)
+    } else if (resetSearchTrigger) {
+      reset({ studentSearch: '' })
+      onStudentSelect(null)
     }
   }, [initialStudent, resetSearchTrigger, onStudentSelect, setValue, reset])
 
-  const onSubmit = async (data: FormSearchData): Promise<void> => {
-    await fetchResults(data.studentSearch)
-  }
-
   const handleStudentSelection = (student: IStudent): void => {
-    onStudentSelect(student)
-    setHasSelectedInternally(true)
     setValue('studentSearch', student.name.fullName)
-    setResultList(null)
+    onStudentSelect(student)
   }
 
-  // if (hasSelectedInternally && initialStudent) {
-  //   // Se um aluno já está selecionado/inicial, pode exibir uma visualização.
-  //   return (
-  //     <div className="flex flex-col items-center max-w-3xl w-full px-6 text-center space-y-4">
-  //       <div className="bg-zinc-800 flex items-center justify-between gap-2 min-w-min h-12 rounded-md px-4 w-full">
-  //         <p className="flex items-center gap-1">
-  //           <GraduationCap /> Aluno Selecionado:{' '}
-  //           <span className="text-orange-600 font-bold">{initialStudent.name.fullName}</span>
-  //         </p>
-  //         <button
-  //           onClick={() => {
-  //             setHasSelectedInternally(false)
-  //             setResultList(null)
-  //             reset({ studentSearch: '' })
-  //             onStudentSelect(null)
-  //           }}
-  //           className="bg-red-600 text-white rounded-md px-3 py-1 hover:bg-red-700 transition-all"
-  //         >
-  //           Trocar
-  //         </button>
-  //       </div>
-  //     </div>
-  //   )
-  // }
+  const showResults = debouncedSearch.length >= 3 && !initialStudent
 
   return (
     <section className="flex items-center justify-center pt-10">
       <div className="flex flex-col items-center max-w-3xl w-full px-6 text-center space-y-4">
         <form
-          onSubmit={handleSubmitSearch(onSubmit)}
+          onSubmit={handleSubmitSearch(() => {})}
           className="h-16 bg-zinc-900 px-4 rounded-lg flex items-center justify-between shadow-shape gap-3 w-full"
         >
           <div className="flex items-center gap-2 flex-1">
@@ -146,13 +87,14 @@ export const SearchStudent: React.FC<SearchStudentProps> = ({
               type="text"
               {...registerSearch('studentSearch')}
               autoFocus={true}
-              placeholder="Nome ou código do Aluno"
+              placeholder="código ou Nome do Aluno (mínimo 3 caracteres)"
               className="bg-transparent text-lg placeholder-zinc-400 outline-none rounded-md shadow-shape flex-1"
             />
           </div>
           <button
-            type="submit"
-            className="bg-orange-600 text-orange-100 rounded-lg py-2 px-5 font-medium flex items-center gap-2 hover:bg-orange-700 transition-all"
+            disabled
+            type="button"
+            className="bg-orange-600 text-orange-100 rounded-lg py-2 px-5 font-medium flex items-center gap-2 opacity-50 cursor-not-allowed"
           >
             Pesquisar
             <ArrowRight className="size-5" />
@@ -163,15 +105,20 @@ export const SearchStudent: React.FC<SearchStudentProps> = ({
           <p className="text-red-400">{errorsSearch.studentSearch.message}</p>
         )}
 
+        {/* Loading State */}
+        {isLoading && showResults && (
+          <div className="w-full py-4">
+            <ContentLoader />
+          </div>
+        )}
+
         {/* Lista de resultados da busca */}
-        {resultList && resultList.length > 0 && !hasSelectedInternally ? (
+        {!isLoading && showResults && resultList && resultList.length > 0 ? (
           resultList.map((resultItem) => (
             <div
               key={resultItem._id}
               className="bg-zinc-800 flex items-center justify-between gap-2 hover:brightness-110 min-w-min h-12 rounded-md cursor-pointer px-4 transition-all w-full"
-              onClick={() => {
-                handleStudentSelection(resultItem)
-              }}
+              onClick={() => handleStudentSelection(resultItem)}
             >
               <p className="flex items-center gap-2 justify-center">
                 <GraduationCap />
@@ -182,8 +129,8 @@ export const SearchStudent: React.FC<SearchStudentProps> = ({
               </p>
             </div>
           ))
-        ) : resultList?.length === 0 && studentSearch && !hasSelectedInternally ? (
-          <div className="flex items-center gap-2">
+        ) : !isLoading && showResults && resultList?.length === 0 ? (
+          <div className="flex items-center gap-2 text-zinc-400">
             <p>Estudante não encontrado!</p>
           </div>
         ) : null}
