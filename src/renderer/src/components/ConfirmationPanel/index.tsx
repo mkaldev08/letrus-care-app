@@ -56,7 +56,7 @@ export const ConfirmationPanel: React.FC<ConfirmationPanelProps> = ({ resultInFo
     data: classRooms,
     isLoading: isLoadingClasses,
     error: errorClasses
-  } = useClassesQuery(center?._id, currentSchoolYear?._id)
+  } = useClassesQuery(String(center?._id), String(currentSchoolYear?._id))
 
   const confirmEnrollmentMutation = useConfirmEnrollmentMutation()
 
@@ -79,11 +79,11 @@ export const ConfirmationPanel: React.FC<ConfirmationPanelProps> = ({ resultInFo
         showConfirmButton: false,
         timer: 2000,
         customClass: {
-          popup: 'h-44 p-2', // Define a largura e o padding do card
-          title: 'text-sm', // Tamanho do texto do título
-          icon: 'text-xs' // Reduz o tamanho do ícone
+          popup: 'h-44 p-2',
+          title: 'text-sm',
+          icon: 'text-xs'
         },
-        timerProgressBar: true // Ativa a barra de progresso
+        timerProgressBar: true
       })
 
       await navigate('/payments/new', { state: { enrollment: confirmedEnrollment } })

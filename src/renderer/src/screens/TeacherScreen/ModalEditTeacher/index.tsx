@@ -10,11 +10,11 @@ import withReactContent from 'sweetalert2-react-content'
 import * as yup from 'yup'
 const schema = yup
   .object({
-    fullName: yup.string().required('Preecha este campo'),
-    birthDate: yup.date().required('Preecha este campo'),
-    address: yup.string().required('Preecha este campo'),
-    phoneNumber: yup.string().required('Preecha este campo'),
-    email: yup.string().required('Preecha este campo'),
+    fullName: yup.string().required('Preencha este campo'),
+    birthDate: yup.date().required('Preencha este campo'),
+    address: yup.string().required('Preencha este campo'),
+    phoneNumber: yup.string().required('Preencha este campo'),
+    email: yup.string().required('Preencha este campo'),
     hireDate: yup.date(),
     courses: yup.array().of(yup.string()).min(1),
     teacherCode: yup.string()
