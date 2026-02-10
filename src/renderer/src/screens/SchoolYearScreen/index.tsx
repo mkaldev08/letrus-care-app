@@ -1,53 +1,41 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 
 import { Sidebar } from '@renderer/components/Sidebar'
 import { Modal } from '@renderer/components/Modal'
 import { useCenter } from '@renderer/contexts/center-context'
 
-import {
-  editSchoolYearService,
-  getSchoolYearsService,
-  ISchoolYear
-} from '@renderer/services/school-year-service'
+import { ISchoolYear } from '@renderer/services/school-year-service'
 import { formatDate } from '@renderer/utils/format'
 
 import { Footer } from '@renderer/components/Footer'
 import { Header } from '@renderer/components/Header'
 import Pagination from '@renderer/components/Pagination'
-import { ContentLoader } from '@renderer/components/ContentLoader'
+import { LoaderComponent } from '@renderer/components/Loader'
 import { ModalCreateSchoolYear } from './ModalCreateSchoolYear'
 import { X, Check } from 'lucide-react'
 import Swal from 'sweetalert2'
+import {
+  useSchoolYearsPagedQuery,
+  useUpdateSchoolYearMutation
+} from '@renderer/hooks/queries/useSchoolYearQueries'
 
 export const SchoolYearScreen: React.FC = () => {
   const { center } = useCenter()
 
-  const [schoolYears, setSchoolYears] = useState<ISchoolYear[] | null>(null)
-
   const [currentPage, setCurrentPage] = useState(1)
-  const [totalPages, setTotalPages] = useState(1)
 
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   const openModal = (): void => setIsModalOpen(true)
   const closeModal = (): void => setIsModalOpen(false)
 
-  async function getSchoolYears(page: number): Promise<void> {
-    const data = await getSchoolYearsService(page, center?._id as string)
-    setSchoolYears(data?.schoolYears)
-    setTotalPages(data?.totalSchoolYear)
-    setIsLoaderSchoolYearList(false)
-  }
-
-  useEffect(() => {
-    getSchoolYears(currentPage)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isModalOpen, currentPage])
+  const { data, isLoading } = useSchoolYearsPagedQuery(center?._id, currentPage)
+  const updateSchoolYearMutation = useUpdateSchoolYearMutation()
 
   async function handleSelectSchoolYearState(newState: boolean, id: string): Promise<void> {
     if (id) {
       // Se está a tentar definir como atual, verificar se já existe um
-      if (newState && schoolYears?.some((year) => year.isCurrent)) {
+      if (newState && data?.schoolYears?.some((year) => year.isCurrent)) {
         const result = await Swal.fire({
           title: 'Já existe um ano letivo actual',
           text: 'Deseja substituir o ano letivo actual?',
@@ -59,14 +47,17 @@ export const SchoolYearScreen: React.FC = () => {
           cancelButtonText: 'Cancelar'
         })
         if (result.isConfirmed) {
-          const currentYear = schoolYears?.find((year) => year.isCurrent)
+          const currentYear = data?.schoolYears?.find((year) => year.isCurrent)
           if (currentYear) {
-            await editSchoolYearService(String(currentYear._id), {
-              isCurrent: false
-            } as ISchoolYear)
+            await updateSchoolYearMutation.mutateAsync({
+              id: String(currentYear._id),
+              data: { isCurrent: false } as ISchoolYear
+            })
           }
-          await editSchoolYearService(id, { isCurrent: newState } as ISchoolYear)
-          await getSchoolYears(currentPage)
+          await updateSchoolYearMutation.mutateAsync({
+            id,
+            data: { isCurrent: newState } as ISchoolYear
+          })
           Swal.fire('Substituído!', 'O ano letivo actual foi substituído.', 'success')
         }
       } else {
@@ -86,8 +77,6 @@ export const SchoolYearScreen: React.FC = () => {
     }
   }
 
-  const [isLoaderSchoolYearList, setIsLoaderSchoolYearList] = useState(true)
-
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
 
   return (
@@ -96,6 +85,9 @@ export const SchoolYearScreen: React.FC = () => {
       <Header isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
       <div className="flex flex-1 justify-center  pt-[62px] lg:pt-[70px] overflow-hidden">
         <Sidebar isOpen={isSidebarOpen} />
+        {isLoading ? (
+          <LoaderComponent />
+        ) : (
         <div className="flex flex-col flex-1 overflow-auto pt-4">
           <div className="flex flex-col flex-1 w-11/12 mx-auto">
             <h2 className="text-3xl text-zinc-400">Ano Lectivo</h2>
@@ -133,8 +125,8 @@ export const SchoolYearScreen: React.FC = () => {
                 </thead>
 
                 <tbody className="block md:table-row-group">
-                  {isLoaderSchoolYearList === false && schoolYears ? (
-                    schoolYears.map((row, index) => (
+                  {data?.schoolYears ? (
+                    data.schoolYears.map((row, index) => (
                       <tr
                         key={index}
                         className="bg-zinc-800 border border-zinc-700 block md:table-row"
@@ -180,8 +172,8 @@ export const SchoolYearScreen: React.FC = () => {
                     ))
                   ) : (
                     <tr>
-                      <td>
-                        <ContentLoader />
+                      <td colSpan={5} className="text-center p-4">
+                        Nenhum ano letivo encontrado
                       </td>
                     </tr>
                   )}
@@ -190,12 +182,13 @@ export const SchoolYearScreen: React.FC = () => {
               <Pagination
                 currentPage={currentPage}
                 onPageChange={setCurrentPage}
-                totalPages={totalPages}
+                totalPages={data?.totalSchoolYear || 1}
               />
             </div>
           </div>
           <Footer />
         </div>
+        )}
       </div>
 
       <Modal isOpen={isModalOpen} onClose={closeModal}>

@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 import { Rings } from 'react-loader-spinner'
-import { createSchoolYear } from '@renderer/services/school-year-service'
+import { useCreateSchoolYearMutation } from '@renderer/hooks/queries/useSchoolYearQueries'
 
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
@@ -22,6 +22,7 @@ type FormData = yup.InferType<typeof schema>
 export const ModalCreateSchoolYear: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const MySwal = withReactContent(Swal)
   const { center } = useCenter()
+  const createSchoolYearMutation = useCreateSchoolYearMutation()
 
   const {
     register,
@@ -32,7 +33,10 @@ export const ModalCreateSchoolYear: React.FC<{ onClose: () => void }> = ({ onClo
   })
   const onSubmit = async (data: FormData): Promise<void> => {
     try {
-      await createSchoolYear(data, center?._id as string)
+      await createSchoolYearMutation.mutateAsync({
+        data,
+        centerId: center?._id as string
+      })
       onClose()
       Swal.fire({
         position: 'bottom-end',
@@ -45,7 +49,7 @@ export const ModalCreateSchoolYear: React.FC<{ onClose: () => void }> = ({ onClo
           title: 'text-sm', // Tamanho do texto do título
           icon: 'text-xs' // Reduz o tamanho do ícone
         },
-        timerProgressBar: true // Ativa a barra de progresso
+        timerProgressBar: true
       })
     } catch (error) {
       MySwal.fire({
@@ -93,9 +97,10 @@ export const ModalCreateSchoolYear: React.FC<{ onClose: () => void }> = ({ onClo
       <span className="text-red-500">{errors.endDate?.message}</span>
       <button
         type="submit"
-        className="flex items-center justify-center bg-orange-700 w-full h-12 p-3 text-white shadow-shape rounded-md"
+        disabled={isSubmitting || createSchoolYearMutation.isPending}
+        className="flex items-center justify-center bg-orange-700 w-full h-12 p-3 text-white shadow-shape rounded-md disabled:opacity-50"
       >
-        {isSubmitting ? (
+        {isSubmitting || createSchoolYearMutation.isPending ? (
           <Rings height="32" width="32" color="#fff" ariaLabel="bars-loading" visible={true} />
         ) : (
           'Criar'
