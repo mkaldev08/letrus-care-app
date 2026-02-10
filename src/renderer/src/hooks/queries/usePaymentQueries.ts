@@ -1,18 +1,14 @@
-import {
-  useQuery,
-  useMutation,
-  useQueryClient,
-  UseQueryResult,
-  UseMutationResult
-} from '@tanstack/react-query'
+import { useQuery, useMutation, UseQueryResult, UseMutationResult } from '@tanstack/react-query'
 import {
   getAllPaymentsService,
   getPaymentService,
   searchPaymentsService,
   createPaymentService,
   IPaymentForShow,
-  IPaymentReceipt
+  IPaymentReceipt,
+  IPayment
 } from '@renderer/services/payment-service'
+import { queryClient } from '@renderer/lib/react-query'
 
 // Query Keys
 export const paymentKeys = {
@@ -56,10 +52,9 @@ export const usePaymentQuery = (
 }
 
 // Mutations
-export const useCreatePaymentMutation = (): UseMutationResult<void, unknown, any> => {
-  const queryClient = useQueryClient()
+export const useCreatePaymentMutation = (): UseMutationResult<void, unknown, IPayment> => {
   return useMutation({
-    mutationFn: (data: any) => createPaymentService(data),
+    mutationFn: (data: IPayment) => createPaymentService(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: paymentKeys.all })
     }

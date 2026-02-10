@@ -7,11 +7,9 @@ export interface IPayment {
   enrollmentId: string
   amount: number
   paymentDate?: Date
-  paymentMonthReference: string
-  paymentYearReference: number
   dueDate?: Date
   status?: 'paid' | 'pending' | 'overdue'
-  paymentMethod?: 'Dinheiro' | 'Multicaixa Express' | 'Transferência Bancária (ATM)'
+  paymentMethod?: 'Dinheiro' | 'Multicaixa Express' | 'Transferência Bancária (ATM)' | string
   centerId: string
   userId: string
   lateFee: number

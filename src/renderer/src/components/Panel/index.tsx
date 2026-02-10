@@ -35,7 +35,7 @@ export const studentSchema = yup
       }),
     mother: yup
       .string()
-      .required('Preencha o nome do Mãe')
+      .required('Preencha o nome da Mãe')
       .test('mother', 'Insira um nome completo válido', (value) => {
         // Verifica se o valor contém pelo menos um espaço em branco
         return /\s/.test(value)
@@ -44,7 +44,7 @@ export const studentSchema = yup
     phoneNumber: yup.string().required('Preencha o Telefone'),
     email: yup.string().email('Email Inválido'),
     hasScholarShip: yup.boolean(),
-    classId: yup.string().required('Seleciona um Turma disponível'),
+    classId: yup.string().required('Seleciona uma Turma disponível'),
     doc_file: yup.mixed().nullable(),
     image_file: yup.mixed().nullable(),
     userId: yup.string().required(),
@@ -67,11 +67,13 @@ export const Panel: React.FC = () => {
   const navigate = useNavigate()
   const { currentSchoolYear } = useSchoolYear()
 
+  console.log('current school ', currentSchoolYear?._id)
+
   const {
     data: classRooms,
     isLoading: isLoadingClasses,
     error: errorClasses
-  } = useClassesQuery(center?._id, currentSchoolYear?._id)
+  } = useClassesQuery(String(center?._id), String(currentSchoolYear?._id))
 
   const createEnrollmentMutation = useCreateEnrollmentMutation()
 

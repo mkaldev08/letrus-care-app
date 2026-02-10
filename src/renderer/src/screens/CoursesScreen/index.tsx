@@ -288,7 +288,7 @@ export const CoursesScreen: React.FC = () => {
     getCourses(currentPage)
   }, [isEditModalOpen, isModalOpen, currentPage])
 
-  const COURSE_STATUS = ['activo', 'inactivo']
+  const COURSE_STATUS = ['ativo', 'inativo']
   //Tela Principal
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
 

@@ -9,6 +9,7 @@ import {
   getSchoolYearsServiceAll
 } from '@renderer/services/school-year-service'
 import { getFromStorage, saveToStorage, removeFromStorage } from '@renderer/utils/storage'
+import { useCenter } from '@renderer/contexts/center-context'
 
 interface SchoolYearContextData {
   loading: boolean
@@ -28,6 +29,7 @@ interface SchoolYearContextData {
 export const SchoolYearContext = createContext<SchoolYearContextData>({} as SchoolYearContextData)
 
 export const SchoolYearProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const { center } = useCenter()
   const [loading, setLoading] = useState<boolean>(true)
   const [schoolYears, setSchoolYears] = useState<ISchoolYear[]>([])
   const [totalSchoolYear, setTotalSchoolYear] = useState<number>(0)
@@ -45,6 +47,11 @@ export const SchoolYearProvider: React.FC<{ children: ReactNode }> = ({ children
     }
     loadStoredData()
   }, [])
+
+  useEffect(() => {
+    if (!center?._id) return
+    void fetchCurrentSchoolYear(center._id)
+  }, [center?._id])
 
   const setSelectedSchoolYear = (schoolYear: ISchoolYear | null): void => {
     setSelectedSchoolYearState(schoolYear)
@@ -83,10 +90,13 @@ export const SchoolYearProvider: React.FC<{ children: ReactNode }> = ({ children
       const current = await getCurrentSchoolYearService(centerId)
 
       setCurrentSchoolYear(current)
+      setSelectedSchoolYearState(current)
       saveToStorage('schoolYear', current)
       return current
     } catch (error) {
-      console.log('Erro ao buscar ano letivo atual', error)
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Erro ao buscar ano letivo atual', error)
+      }
 
       return null
     } finally {
@@ -99,7 +109,9 @@ export const SchoolYearProvider: React.FC<{ children: ReactNode }> = ({ children
       const sy = await getSchoolYearService(schoolYearId)
       return sy
     } catch (error) {
-      console.log('Erro ao buscar ano letivo por ID', error)
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Erro ao buscar ano letivo por ID', error)
+      }
       return null
     }
   }

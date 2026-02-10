@@ -1,39 +1,42 @@
 import React from 'react'
-
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 import Swal from 'sweetalert2'
 import { useNavigate } from 'react-router'
-import { useCenter } from '@renderer/contexts/center-context'
+import { useAuth } from '@renderer/contexts/auth-context'
 import { Info } from 'lucide-react'
+import { useCreateCenterMutation } from '@renderer/hooks/queries/useCenterQueries'
 
 const schema = yup
   .object({
-    name: yup.string().required('Preecha o Nome do Centro'),
-    address: yup.string().required('Preecha o endereço do centro'),
-    phoneNumber: yup.string().required('Preecha o Telefone'),
+    name: yup.string().required('Preencha o Nome do Centro'),
+    address: yup.string().required('Preencha o endereço do centro'),
+    phoneNumber: yup.string().required('Preencha o Telefone'),
     email: yup.string().email('Email Inválido'),
     nif: yup.string().required('Número de contribuinte Obrigatório'),
-    documentCode: yup.string().required('Preecha o código do centro, será usado nos documentos')
+    documentCode: yup.string().required('Preencha o código do centro, será usado nos documentos')
   })
   .required()
-type FormData = yup.InferType<typeof schema>
+type CreateCenterFormData = yup.InferType<typeof schema>
 
 export const CreateCenterScreen: React.FC = () => {
   const navigate = useNavigate()
-  const { createCenter } = useCenter()
+  const { user } = useAuth()
+  const createCenterMutation = useCreateCenterMutation(user?._id ?? '')
+
   const {
     register,
     handleSubmit,
     formState: { errors }
-  } = useForm<FormData>({
+  } = useForm<CreateCenterFormData>({
     resolver: yupResolver(schema)
   })
-  const onSubmit = async (data: FormData): Promise<void> => {
+
+  const onSubmit = async (data: CreateCenterFormData): Promise<void> => {
     try {
       const { address, documentCode, email, name, nif, phoneNumber } = data
-      const { status } = await createCenter({
+      const response = await createCenterMutation.mutateAsync({
         address,
         documentCode,
         email,
@@ -42,19 +45,19 @@ export const CreateCenterScreen: React.FC = () => {
         phoneNumber
       })
 
-      if (status === 201) {
+      if (response.status === 201) {
         Swal.fire({
           position: 'bottom-end',
           icon: 'success',
-          title: 'Centro Cadastrado com Sucesso!',
+          title: 'Centro cadastrado com sucesso!',
           showConfirmButton: false,
           timer: 2000,
           customClass: {
-            popup: 'h-44 p-2', // Define a largura e o padding do card
-            title: 'text-sm', // Tamanho do texto do título
-            icon: 'text-xs' // Reduz o tamanho do ícone
+            popup: 'h-44 p-2',
+            title: 'text-sm',
+            icon: 'text-xs'
           },
-          timerProgressBar: true // Ativa a barra de progresso
+          timerProgressBar: true
         })
         navigate('/home')
       }
@@ -62,7 +65,7 @@ export const CreateCenterScreen: React.FC = () => {
       Swal.fire({
         position: 'bottom-end',
         icon: 'error',
-        title: 'Verifique os dados',
+        title: 'Erro ao criar centro',
         showConfirmButton: false,
         timer: 2000,
         customClass: {
@@ -96,7 +99,7 @@ export const CreateCenterScreen: React.FC = () => {
                   type="text"
                   className="w-full h-12 p-3 bg-zinc-950 rounded-md focus:border-0 border-gray-700 outline-none text-gray-100 text-base font-normal placeholder:text-zinc-500"
                 />
-                {/* {errors.name && <span className="text-red-500">{errors.name?.message}</span>} */}
+                {errors.name && <span className="text-red-500">{errors.name?.message}</span>}
               </article>
               <article className="flex flex-col flex-1 justify-center gap-3">
                 <label htmlFor="center-code">
@@ -112,7 +115,9 @@ export const CreateCenterScreen: React.FC = () => {
                   type="text"
                   className="w-full h-12 p-3 bg-zinc-950 rounded-md focus:border-0 border-gray-700 outline-none text-gray-100 text-base font-normal placeholder:text-zinc-500"
                 />
-                {/* {errors.code && <span className="text-red-500">{errors.code?.message}</span>} */}
+                {errors.documentCode && (
+                  <span className="text-red-500">{errors.documentCode?.message}</span>
+                )}
               </article>
             </div>
             <label htmlFor="center-address">
@@ -165,16 +170,17 @@ export const CreateCenterScreen: React.FC = () => {
               id="center-email"
               {...register('email')}
               placeholder="E-mail"
-              autoComplete="tel"
-              type="tel"
-              className="w-full h-12 p-3  bg-zinc-950 rounded-md  focus:border-0  border-gray-700 outline-none text-gray-100 text-base font-normal placeholder:text-zinc-500"
+              autoComplete="email"
+              type="email"
+              className="w-full h-12 p-3 bg-zinc-950 rounded-md focus:border-0 border-gray-700 outline-none text-gray-100 text-base font-normal placeholder:text-zinc-500"
             />
             {errors.email && <span className="text-red-500">{errors.email?.message}</span>}
             <button
               type="submit"
-              className="bg-orange-700 w-1/6 h-12 p-3 mt-6 text-white shadow-shape rounded-md self-end hover:brightness-110"
+              disabled={createCenterMutation.isPending}
+              className="bg-orange-700 w-1/6 h-12 p-3 mt-6 text-white shadow-shape rounded-md self-end hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Criar
+              {createCenterMutation.isPending ? 'Criando...' : 'Criar'}
             </button>
           </form>
         </div>

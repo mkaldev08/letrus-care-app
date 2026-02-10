@@ -1,10 +1,4 @@
-import {
-  useQuery,
-  useMutation,
-  useQueryClient,
-  UseQueryResult,
-  UseMutationResult
-} from '@tanstack/react-query'
+import { useQuery, useMutation, UseQueryResult, UseMutationResult } from '@tanstack/react-query'
 import {
   changeStatusService,
   confirmationEnrollment,
@@ -17,6 +11,7 @@ import {
   IEnrollmentForShow,
   IEnrollmentReceipt
 } from '@renderer/services/enrollment-service'
+import { queryClient } from '@renderer/lib/react-query'
 
 // Query Keys
 export const enrollmentKeys = {
@@ -62,7 +57,6 @@ export const useCreateEnrollmentMutation = (): UseMutationResult<
   unknown,
   IEnrollmentForApply
 > => {
-  const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (data: IEnrollmentForApply) => createEnrollment(data),
     onSuccess: () => {
@@ -79,7 +73,6 @@ export const useConfirmEnrollmentMutation = (): UseMutationResult<
     data: { centerId: string; classId: string; userId: string }
   }
 > => {
-  const queryClient = useQueryClient()
   return useMutation({
     mutationFn: ({
       enrollmentId,
@@ -99,7 +92,6 @@ export const useChangeEnrollmentStatusMutation = (): UseMutationResult<
   unknown,
   { id: string; status: string }
 > => {
-  const queryClient = useQueryClient()
   return useMutation({
     mutationFn: ({ id, status }: { id: string; status: string }) => changeStatusService(id, status),
     onSuccess: () => {
