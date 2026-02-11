@@ -115,6 +115,13 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
     }
   }, [schoolYears, selectedSchoolYear, setValue])
 
+  // Effect: Set default payment month from available plans
+  useEffect(() => {
+    if (!paymentMonth && financialPlans.length > 0) {
+      setValue('paymentMonthReference', String(financialPlans[0].month))
+    }
+  }, [financialPlans, paymentMonth, setValue])
+
   // Effect: Update hidden form fields
   useEffect(() => {
     setValue('lateFee', lateFee)
