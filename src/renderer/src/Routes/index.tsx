@@ -32,6 +32,11 @@ import { StudentPayments } from '@renderer/screens/(student)/StudentPayments'
 import { EnrollmentAndStudentDetailsScreen } from '@renderer/screens/(student)/EnrollmentAndStudentDetailsScreen'
 import { DailyPayment } from '@renderer/screens/summary-dashboard/daily-payment'
 import { OverDuePayments } from '@renderer/screens/summary-dashboard/overdue-payments-students'
+import { DailyPayments } from '@renderer/screens/summary-dashboard/daily-payments'
+import { ActiveStudents } from '@renderer/screens/summary-dashboard/active-students'
+import { DailyAbsences } from '@renderer/screens/summary-dashboard/daily-absences'
+import { DailyEnrollments } from '@renderer/screens/summary-dashboard/daily-enrollments'
+import { IncompleteEnrollments } from '@renderer/screens/summary-dashboard/incomplete-enrollments'
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { signed } = useAuth()
@@ -92,6 +97,56 @@ const router = createBrowserRouter([
           <ProtectedRoute>
             <DashboardProvider>
               <OverDuePayments />
+            </DashboardProvider>
+          </ProtectedRoute>
+        )
+      },
+      {
+        path: 'daily-payments',
+        element: (
+          <ProtectedRoute>
+            <DashboardProvider>
+              <DailyPayments />
+            </DashboardProvider>
+          </ProtectedRoute>
+        )
+      },
+      {
+        path: 'active-students',
+        element: (
+          <ProtectedRoute>
+            <DashboardProvider>
+              <ActiveStudents />
+            </DashboardProvider>
+          </ProtectedRoute>
+        )
+      },
+      {
+        path: 'daily-absences',
+        element: (
+          <ProtectedRoute>
+            <DashboardProvider>
+              <DailyAbsences />
+            </DashboardProvider>
+          </ProtectedRoute>
+        )
+      },
+      {
+        path: 'daily-enrollments',
+        element: (
+          <ProtectedRoute>
+            <DashboardProvider>
+              <DailyEnrollments />
+            </DashboardProvider>
+          </ProtectedRoute>
+        )
+      },
+      {
+        path: 'incomplete-enrollments',
+        element: (
+          <ProtectedRoute>
+            <DashboardProvider>
+              <IncompleteEnrollments />
             </DashboardProvider>
           </ProtectedRoute>
         )
