@@ -160,7 +160,7 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({ isSidebarOpen, setIsSidebarOpen }) => {
   const { loginTimestamp } = useAuth()
   // JWT token expires in 30 minutes (as defined in backend)
-  const SESSION_DURATION_MS = 0.5 * 30 * 60 * 1000 // 30 minutes in milliseconds
+  const SESSION_DURATION_MS = 30 * 60 * 1000 // 30 minutes in milliseconds
 
   return (
     <div className="flex items-center justify-between fixed top-0 left-0 right-0 h-[62px] lg:h-[70px] bg-gray-850 border border-transparent border-b-zinc-700 lg:pr-8 bg-gray-850 border-b z-50 px-4 bg-zinc-900">
