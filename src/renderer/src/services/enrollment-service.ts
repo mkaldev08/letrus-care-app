@@ -188,6 +188,7 @@ export const getEnrollmentByStudentService = async (
 ): Promise<IEnrollmentForShow> => {
   try {
     const { data } = await apiManager.get(`/enrollments/student/${studentId}`)
+
     return data
   } catch (error) {
     console.log('Erro ao buscar inscrição com estudante: ', error)

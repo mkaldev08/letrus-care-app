@@ -60,14 +60,11 @@ export const getDailyPaymentsService = async (
   page: number
 ): Promise<{ dailyPayments: DailyPaymentResponse; total: number }> => {
   try {
-    const { data } = await apiManager.get(
-      `/dashboard/daily-payments/${centerId}/${schoolYearId}`,
-      {
-        params: {
-          page
-        }
+    const { data } = await apiManager.get(`/dashboard/daily-payments/${centerId}/${schoolYearId}`, {
+      params: {
+        page
       }
-    )
+    })
     return data
   } catch (err) {
     console.log(err)
@@ -112,6 +109,7 @@ export const getActiveStudentsWithoutLimitService = async (
 ): Promise<StudentResponse> => {
   try {
     const { data } = await apiManager.get(`/dashboard/active-students-without-limit/${centerId}`)
+    console.log('students ', data)
     return data
   } catch (err) {
     console.log(err)
@@ -223,4 +221,3 @@ export const getIncompleteEnrollmentsWithoutLimitService = async (
     throw err
   }
 }
-

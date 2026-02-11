@@ -97,7 +97,6 @@ export const PaymentForm: React.FC<PaymentFormProps> = ({
   // Effect: Set enrollment from data or props
   useEffect(() => {
     if (enrollmentDataFromForm) {
-      setEnrollment(enrollmentDataFromForm)
       setValue('enrollmentId', String(enrollmentDataFromForm._id))
     } else if (enrollmentData) {
       setEnrollment(enrollmentData)
