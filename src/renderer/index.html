@@ -2,17 +2,57 @@
 <html lang="pt-PT">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Letrus Care by @mkaldev</title>
 
+    <!-- SEO Básico -->
+    <title>Letrus Care | Gestão de Centro de Alfabetização</title>
+    <meta
+      name="description"
+      content="Letrus Care é uma plataforma de gestão para centros de alfabetização. Controle de alunos, turmas, pagamentos, frequência e relatórios em um único sistema."
+    />
+    <meta
+      name="keywords"
+      content="gestão escolar, centro de alfabetização, sistema escolar, controle de alunos, gestão de pagamentos, frequência escolar, software educacional"
+    />
+    <meta name="author" content="Manuel Kalueka" />
+    <meta name="robots" content="index, follow" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Canonical -->
+    <link rel="canonical" href="https://letruscare.app/" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/favicon.ico" />
+    <meta name="theme-color" content="#09090b" />
+
+    <!-- Open Graph (Facebook / LinkedIn) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Letrus Care | Gestão de Centro de Alfabetização" />
+    <meta
+      property="og:description"
+      content="Sistema completo para gestão de centros de alfabetização: alunos, turmas, pagamentos, frequência e relatórios."
+    />
+    <meta property="og:url" content="https://letruscare.app/" />
+    <meta property="og:site_name" content="Letrus Care" />
+    <meta property="og:locale" content="pt_PT" />
+    <meta property="og:image" content="https://letruscare.app/preview.png" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Letrus Care | Gestão Escolar Inteligente" />
+    <meta
+      name="twitter:description"
+      content="Plataforma para gestão eficiente de centros de alfabetização."
+    />
+    <meta name="twitter:image" content="https://letruscare.app/preview.png" />
+
+    <!-- Segurança -->
     <meta
       http-equiv="Content-Security-Policy"
       content="
         default-src 'self';
         script-src 'self' 'unsafe-eval' https://scripts.simpleanalyticscdn.com;
         style-src 'self' 'unsafe-inline';
-        img-src 'self' data: blob: https://queue.simpleanalyticscdn.com;
+        img-src 'self' data: blob: https://queue.simpleanalyticscdn.com https://letruscare.app;
         font-src 'self' data:;
         connect-src 'self' data: blob: http://localhost:* https://letruscare.up.railway.app https://letruscare-api.onrender.com https://queue.simpleanalyticscdn.com;
         frame-src blob:
@@ -24,16 +64,18 @@
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
 
+    <!-- Analytics -->
     <script
       data-collect-dnt="true"
       async
       src="https://scripts.simpleanalyticscdn.com/latest.js"
     ></script>
-    <noscript
-      ><img
+    <noscript>
+      <img
         src="https://queue.simpleanalyticscdn.com/noscript.gif?collect-dnt=true"
-        alt=""
+        alt="analytics"
         referrerpolicy="no-referrer-when-downgrade"
-    /></noscript>
+      />
+    </noscript>
   </body>
 </html>
