@@ -17,6 +17,7 @@ export const DailyPaymentsPDF: React.FC<DailyPaymentsPDFProps> = ({ center, data
   const currentDate = new Date()
   const storedCenter = getFromStorage('center') as ICenter | null
   const imageFromDB = storedCenter?.fileData ?? ''
+  const dynamicFineFee = data.find((payment) => (payment.lateFee || 0) > 0)?.lateFee ?? 1000
 
   const getMonthName = (date: Date): string => {
     try {
@@ -80,6 +81,10 @@ export const DailyPaymentsPDF: React.FC<DailyPaymentsPDFProps> = ({ center, data
             <Text style={styles.totalValue}>{totalAmount.toLocaleString('pt')} kz</Text>
           </View>
           <View style={styles.footerArea}>
+            <Text style={styles.noticeText}>
+              O pagamento é pré-pago e é feito de 01 a 10. De 11 em diante adiciona uma multa de{' '}
+              {dynamicFineFee.toLocaleString('pt')} kz.
+            </Text>
             <Text style={{ alignSelf: 'center', marginTop: 10 }}>
               {center.name} - {center.documentCode} aos {currentDate.getDate()} de{' '}
               {getMonthName(currentDate)} de {currentDate.getFullYear()}
@@ -180,6 +185,10 @@ const styles = StyleSheet.create({
     gap: 12,
     fontSize: 10,
     lineHeight: 1.5
+  },
+  noticeText: {
+    fontSize: 9,
+    textAlign: 'center'
   },
   signView: {
     marginTop: 40,

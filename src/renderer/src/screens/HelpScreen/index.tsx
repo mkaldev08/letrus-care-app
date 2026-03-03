@@ -91,13 +91,13 @@ export const HelpScreen: React.FC = () => {
                     Indicadores do centro e análise de desempenho
                   </li>
                   <li className="rounded-lg border border-zinc-700 bg-zinc-900/60 px-3 py-2">
-                    Matrículas, turmas e acompanhamento acadêmico
+                    Matrículas, turmas e acompanhamento académico
                   </li>
                   <li className="rounded-lg border border-zinc-700 bg-zinc-900/60 px-3 py-2">
                     Pagamentos, recibos e planos financeiros
                   </li>
                   <li className="rounded-lg border border-zinc-700 bg-zinc-900/60 px-3 py-2">
-                    Frequência e registros de presença
+                    Frequência e registos de presença
                   </li>
                   <li className="rounded-lg border border-zinc-700 bg-zinc-900/60 px-3 py-2">
                     Relatórios para apoio à tomada de decisões

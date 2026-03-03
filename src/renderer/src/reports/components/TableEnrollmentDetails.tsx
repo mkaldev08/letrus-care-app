@@ -117,13 +117,13 @@ const styles = StyleSheet.create({
   },
   tableCellHeaderStyle: {
     textAlign: 'center',
-    margin: 4,
-    fontSize: 10,
+    margin: 3,
+    fontSize: 9,
     fontWeight: 'bold'
   },
   tableCellStyle: {
     textAlign: 'center',
-    margin: 5,
-    fontSize: 8
+    margin: 4,
+    fontSize: 7
   }
 })
