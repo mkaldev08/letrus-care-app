@@ -29,6 +29,10 @@ export const EnrollmentPDF: React.FC<EnrollmentPDFProps> = ({
   financialStatusData
 }) => {
   const [imageFromDB, setImageFromDB] = useState('')
+  const fineFee =
+    selectedEnrollment?.enrollment?.classId?.course?.feeFine ??
+    selectedEnrollment?.enrollment?.tuitionFeeId?.feeFine ??
+    0
 
   useEffect(() => {
     const loadData = async (): Promise<void> => {
@@ -164,6 +168,10 @@ export const EnrollmentPDF: React.FC<EnrollmentPDFProps> = ({
           </View>
         </View>
         <View style={styles.footer} fixed>
+          <Text style={styles.footerNotice}>
+            O pagamento é pré-pago e é feito de 01 a 10. De 11 em diante adiciona uma multa de{' '}
+            {formateCurrency(fineFee)}.
+          </Text>
           <View style={styles.footerContent}>
             <Text style={styles.footerText}>
               Este recibo é válido como comprovativo de matrícula
@@ -201,14 +209,14 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     backgroundColor: '#fff',
     color: '#000',
-    fontSize: 11,
-    paddingVertical: 5,
+    fontSize: 10,
+    paddingVertical: 4,
     paddingHorizontal: 10,
     flex: 1
   },
   sheetWrapper: {
-    marginTop: 20,
-    paddingTop: 15,
+    marginTop: 14,
+    paddingTop: 12,
     borderTopWidth: 1,
     borderTopStyle: 'dashed'
   },
@@ -217,7 +225,7 @@ const styles = StyleSheet.create({
     gap: 3
   },
   textMin: {
-    fontSize: 10,
+    fontSize: 9,
     fontWeight: 900
   },
   titleCenter: {
@@ -225,13 +233,13 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase'
   },
   titleDocument: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: 900,
-    marginVertical: 8
+    marginVertical: 6
   },
   section: {
-    margin: 8,
-    padding: 8,
+    margin: 6,
+    padding: 6,
     gap: 2
   },
   horiSection: {
@@ -245,18 +253,18 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     justifyContent: 'space-between',
     flexDirection: 'row',
-    fontSize: 10
+    fontSize: 9
   },
   label: {
     fontWeight: 'bold'
   },
   lineSpace: {
-    lineHeight: 1.15
+    lineHeight: 1.1
   },
   signBar: {
     width: '100%',
     borderWidth: 1,
-    marginTop: 8
+    marginTop: 6
   },
   signView: {
     flexDirection: 'column',
@@ -265,13 +273,18 @@ const styles = StyleSheet.create({
     textTransform: 'capitalize'
   },
   footer: {
-    marginTop: 12,
-    paddingTop: 8,
+    marginTop: 8,
+    paddingTop: 6,
     borderTopWidth: 0.5,
     borderTopColor: '#e0e0e0',
     flexDirection: 'column',
     gap: 3,
     alignItems: 'center'
+  },
+  footerNotice: {
+    fontSize: 8,
+    textAlign: 'center',
+    marginBottom: 2
   },
   footerContent: {
     flexDirection: 'row',

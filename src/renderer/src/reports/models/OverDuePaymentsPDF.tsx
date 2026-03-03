@@ -16,6 +16,7 @@ const OverDuePaymentsPDF: React.FC<OverDuePaymentsPDFProps> = ({ center, data, u
   const currentDate = new Date()
   const storedCenter = getFromStorage('center') as ICenter | null
   const imageFromDB = storedCenter?.fileData ?? ''
+  const dynamicFineFee = 1000
 
   const getMonthName = (date: Date): string => {
     try {
@@ -70,6 +71,10 @@ const OverDuePaymentsPDF: React.FC<OverDuePaymentsPDFProps> = ({ center, data, u
             ))}
           </>
           <View style={styles.footerArea}>
+            <Text style={styles.noticeText}>
+              O pagamento é pré-pago e é feito de 01 a 10. De 11 em diante adiciona uma multa de{' '}
+              {dynamicFineFee.toLocaleString('pt')} kz.
+            </Text>
             <Text
               style={{
                 alignSelf: 'center',
@@ -173,6 +178,10 @@ const styles = StyleSheet.create({
     fontSize: 10,
     marginTop: 30,
     lineHeight: 1.5
+  },
+  noticeText: {
+    fontSize: 9,
+    textAlign: 'center'
   },
 
   // Tabela
